@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    color: #f8f9fa;
+    background: #343a40;
+    box-sizing: border-box;
+    background-size: cover;
+    z-index: -1;
+}
+
+.gallary {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the gallery items */
+}
+
+.gallary .gallary-item {
+    padding: 0;
+    border: 1px solid #343a40;
+    flex: 0 0 12.5%; /* 8 items per row, each item at 12.5% width */
+    max-width: 12.5%; /* Ensure items don't exceed 12.5% width */
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid #495057;
+    position: relative; /* Necessary for overlay positioning */
+    overflow: hidden; /* Ensure no overflow beyond borders */
+}
+
+img {
+height: 400px;
+}
+
+.gallary .gallary-item .gallary-img {
+    width: 30%;
+    height: auto;
+
+}
+
+.gallary .gallary-item .gallary-overlay {
+    background: rgba(52, 58, 64, 0.7);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%; /* Cover the entire item */
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s linear 0s;
+}
+
+.gallary .gallary-item .gallary-overlay .gallary-icon {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.gallary .gallary-item:hover .gallary-overlay {
+    visibility: visible;
+    opacity: 1;
+}
+
+.carousel-item.active,
+.carousel-item-next,
+.carousel-item-prev {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap; /* Ensure items stay in a single row */
+}
+
+@media (max-width: 992px) {
+    .gallary .gallary-item {
+        flex: 0 0 25%; /* 4 items per row for tablets */
+        max-width: 25%;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallary .gallary-item {
+        flex: 0 0 33.33%; /* 3 items per row for mobile */
+        max-width: 33.33%;
+    }
+}
+
+@media (max-width: 576px) {
+    .gallary .gallary-item {
+        flex: 0 0 50%; /* 2 items per row for small mobile screens */
+        max-width: 50%;
+    }
+}
