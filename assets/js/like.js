@@ -60,3 +60,15 @@ function initMap() {
     map: map
   });
 }
+
+var lastHeight = 0;
+
+function resizeIframe(height) {
+    var iframe = document.getElementById('i_servicios');
+    iframe.style.height = height + 'px';
+}
+window.addEventListener('message', function(event) {
+    if (event.data && event.data.height && !event.origin.includes('timify')) {
+          resizeIframe(event.data.height);
+    }
+}, false);

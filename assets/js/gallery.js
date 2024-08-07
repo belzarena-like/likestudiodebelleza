@@ -30,9 +30,13 @@ function drawGalery(images, type) {
     const indicators = carouselContainer.querySelector('.carousel-indicators');
     const inner = carouselContainer.querySelector('.carousel-inner');
     let carouselItem, indicator;
-
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    if (isMobile) {
+        display = 1
+    } else
+        display = 4;
     images.forEach((src, index) => {
-        if (index % 4 === 0) { // 4 items per carousel-item
+        if (index % display  === 0) { // 4 items per carousel-item
             // Create a new carousel item
             carouselItem = document.createElement('div');
             carouselItem.classList.add('carousel-item');

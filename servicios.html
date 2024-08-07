@@ -188,7 +188,7 @@
             "category": "Masajes",
             "description": "Admit\u00e1moslo. Todos los d\u00edas nuestros pies viven un no parar: caminar apresuradamente al trabajo, salir de fiesta por la noche con taconazos, las visitas diarias (o semanales) al gym\u2026 \u00a1Es normal que necesiten un respiro!\n\nPero oye, \u00a1nada que un buen masaje de pies no pueda solucionar! Y es que adem\u00e1s, en nuestros pies se encuentran todas las conexiones nerviosas del cuerpo. Lo que significa que con un masaje, no solo liberar\u00e1s toda la tensi\u00f3n acumulada al final de tus piernas, sino que tambi\u00e9n te ayudar\u00e1 a relajar tu cuerpo por completo para salir como nuevo. Con todas estas ventajas, \u00bfqui\u00e9n no querr\u00eda hacerse uno?"
         },
-        "image": "assets/imgs/servicios/masagedepies.webp",
+        "image": "assets/imgs/servicios/masajedepies.webp",
         "duration": "30 min",
         "price": 0
     },
@@ -215,10 +215,10 @@
     {
         "info": {
             "name": "Masaje Adelgazante",
-            "category": "Tratamientos Corporales",
+            "category": "Masajes",
             "description": "El masaje adelgazante, masaje para adelgazar o masaje reductor, es un tipo de masaje que se aplica en las zonas del cuerpo con mayor cantidad de grasa acumulada, con el objetivo de favorecer o acelerar el proceso de reducir el peso y el volumen. Los masajes reductores s\u00f3lo surten el efecto deseado si se acompa\u00f1an con una dieta saludable o la pr\u00e1ctica de actividad f\u00edsica.\n\nEl masaje reductor es aplicado en las \u00e1reas con mayores acumulaciones de adiposidad, en las que se provoca calor por medio de movimientos especiales que disuelven el tejido adiposo.\n\nDurante el masaje adelgazante se estimula la circulaci\u00f3n activando el metabolismo local. Esto contribuye a un incremento del consumo de calor\u00edas que ayuda a la eliminaci\u00f3n del exceso de grasa.\n\nLas zonas donde regularmente se aplica el masaje reductor son abdomen, cintura, caderas, espalda y papada.\n\nEs importante aclarar que el masaje adelgazante o reductor contribuye a reducir medidas pero no a bajar de peso"
         },
-        "image": "assets/imgs/servicios/masageadelgazante.webp",
+        "image": "assets/imgs/servicios/masajeadelgazante.webp",
         "duration": "1 h",
         "price": 0
     },
@@ -377,10 +377,23 @@ tabsContainer.addEventListener('click', (event) => {
 
         event.target.classList.add('active');
         document.getElementById(`content-${event.target.dataset.category}`).classList.add('show', 'active');
+    sendHeight();
     }
 });
+ var lastHeight = 0;
+
+ function sendHeight() {
+        var height =  document.getElementById('tabContents').clientHeight + document.getElementById('tabsContainer').clientHeight + 60;
+
+    if (lastHeight != height) {
+        window.parent.postMessage({ height: height }, '*'); // Use '*' for all origins or specify a specific origin
+    }
+}
+
+sendHeight();
 
 
 </script>
+
 </body>
 </html>
