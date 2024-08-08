@@ -1,4 +1,4 @@
-function drawGalery(images, type) {
+function drawGalery(images, type, gallery_title) {
     // Create carousel HTML structure
      $('.carousel').carousel({
             interval: false
@@ -11,7 +11,7 @@ function drawGalery(images, type) {
     const carouselContainer = document.createElement('div');
     carouselContainer.innerHTML = `
         <div class="text-center bg-dark text-light has-height-md middle-items wow fadeIn">
-            <h2 class="section-title">${type.replace('Micro', 'Micro ')}</h2>
+            <h2 class="section-title">${gallery_title}</h2>
         </div>
         <div id="galleryCarousel${type}" class="carousel slide" data-ride="carousel">
             <ol class="carousel-indicators"></ol>
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function() {
          'assets/imgs/microCapilar/micro_capilar (8).jpeg'
           ];
 
-    drawGalery(imagesCejasFemininas, 'MicroFeminina');
-    drawGalery(imagesMicroCapilar, 'MicroCapilar');
-    drawGalery(imagesCejasMasculinas, 'MicroMasculina');
+    drawGalery(imagesCejasFemininas, 'MicroFemenina', "Microblading");
+    drawGalery(imagesMicroCapilar, 'MicroCapilar', "Micro Capilar");
+    drawGalery(imagesCejasMasculinas, 'MicroMasculina', "Micropigmentacion Masculina");
 });
