@@ -13,6 +13,12 @@
             --accent: #ff5477;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: transparent;
@@ -47,9 +53,9 @@
 
         .tab.active {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--dark);
+            color: white;
             font-weight: 600;
-            box-shadow: 0 5px 20px rgba(212, 163, 115, 0.4);
+            box-shadow: 0 5px 20px rgba(255, 33, 79, 0.4);
         }
 
         .tab-pane {
@@ -62,37 +68,42 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
+            padding: 0.5rem;
         }
 
         .card-flip {
             perspective: 1000px;
-            min-height: 420px;
+            height: 420px;
+            position: relative;
         }
+
         .card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            min-height: 420px;
             transition: transform 0.8s;
             transform-style: preserve-3d;
         }
+
         .card-flip:hover .card-inner {
             transform: rotateY(180deg);
         }
-        .card-front, .card-back {
+
+        .card-front,
+        .card-back {
             position: absolute;
             width: 100%;
             height: 100%;
-            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
             display: flex;
             flex-direction: column;
             background: rgba(30, 30, 30, 0.7);
@@ -101,10 +112,15 @@
             border-radius: 20px;
             overflow: hidden;
         }
+
+        .card-front {
+            transform: rotateY(0deg);
+        }
+
         .card-back {
             transform: rotateY(180deg);
             padding: 1.5rem;
-            justify-content: center;
+            justify-content: flex-start;
             overflow-y: auto;
         }
 
@@ -112,6 +128,7 @@
             width: 100%;
             height: 180px;
             object-fit: cover;
+            flex-shrink: 0;
         }
 
         .card-body {
@@ -129,27 +146,130 @@
             margin-bottom: 0.5rem;
         }
 
+        .card-body p {
+            color: #c4c4c4;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
         .card-body .badge {
-             background: linear-gradient(135deg, var(--primary), var(--secondary));
-             color: var(--dark);
-             font-size: 1rem;
-             font-weight: 600;
-             padding: 0.5rem 1rem;
-             border-radius: 10px;
-             display: inline-block;
-             margin-bottom: 1rem;
-             border: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            border: none;
         }
 
         .card-back h4 {
             color: var(--primary);
             margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
 
         .card-back p {
             font-size: 0.85rem;
             line-height: 1.6;
             color: #c4c4c4;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .tabs-container {
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0.25rem;
+            }
+
+            .card-flip {
+                height: 380px;
+            }
+
+            .card-img-top {
+                height: 160px;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .card-body h4 {
+                font-size: 1.1rem;
+            }
+
+            .card-back {
+                padding: 1rem;
+            }
+
+            .card-back h4 {
+                font-size: 1.1rem;
+            }
+
+            .card-back p {
+                font-size: 0.8rem;
+                line-height: 1.5;
+            }
+
+            /* Enable tap to flip on mobile */
+            .card-flip.flipped .card-inner {
+                transform: rotateY(180deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-flip {
+                height: 360px;
+            }
+
+            .card-img-top {
+                height: 140px;
+            }
+
+            .card-body h4,
+            .card-back h4 {
+                font-size: 1rem;
+            }
+
+            .tab {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Smooth scrollbar for card back */
+        .card-back::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .card-back::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .card-back::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .card-back::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
         }
     </style>
 </head>
@@ -163,7 +283,7 @@
         "info": {
                 "name": "Micropigmentación de Cejas",
                 "category": "Micropigmentación",
-                "description": "Trazos hiperrealistas con diseño y proporción áurea para un efecto increíblemente natural!</br>BOLD BROWS es una técnica en maquillaje semipermanente que revoluciona el Microblading a nivel mundial. El patrón de cejas es diferente al estilo clásico, con pelos inferiores dibujados con movimientos suaves y curvos en S, llenos de pelos pequeños para un mejor efecto de volumen y una apariencia más natural desde cualquier ángulo.</br>¿Cuándo usar este procedimiento?</br>Para un aspecto voluminizador y más eficaz (extremo audaz).</br>Para un look más natural (suave negrita).</br>Ventajas de las cejas audaces:</br>Cejas con aspecto en forma de volumen.</br>Diferentes trazos de los clásicos."
+                "description": "Trazos hiperrealistas con diseño y proporción áurea para un efecto increíblemente natural!<br><br>BOLD BROWS es una técnica en maquillaje semipermanente que revoluciona el Microblading a nivel mundial. El patrón de cejas es diferente al estilo clásico, con pelos inferiores dibujados con movimientos suaves y curvos en S, llenos de pelos pequeños para un mejor efecto de volumen y una apariencia más natural desde cualquier ángulo.<br><br>¿Cuándo usar este procedimiento?<br>Para un aspecto voluminizador y más eficaz (extremo audaz).<br>Para un look más natural (suave negrita).<br><br>Ventajas de las cejas audaces:<br>Cejas con aspecto en forma de volumen.<br>Diferentes trazos de los clásicos."
             },
             "image": "assets/imgs/servicios/microfemenina.jpeg",
             "duration": "2 h",
@@ -173,7 +293,7 @@
         "info": {
                 "name": "Micropigmentación Capilar",
                 "category": "Micropigmentación",
-                "description": "La micropigmentación capilar es una técnica no quirúrgica y no invasiva que crea la apariencia de mayor densidad capilar, camufla cicatrices o logra un efecto de cabello rapado muy realista. Es popular entre hombres y mujeres que buscan disimular la alopecia o mejorar la densidad del cabello tras un trasplante.</br>¿Cómo se realiza?</br>Evaluación inicial: Un profesional evalúa tus necesidades y diseña un plan personalizado.</br>Preparación: Se limpia y desinfecta el cuero cabelludo.</br>Aplicación: Con una máquina rotativa y agujas finas, se aplican pigmentos en la capa superior de la piel para imitar los folículos pilosos.</br>Sesiones: Generalmente se requieren de 3 a 4 sesiones.</br>Beneficios</br>Resultados inmediatos: Desde la primera sesión se pueden observar cambios.</br>Apariencia natural: Imitación precisa de los folículos pilosos.</br>Durabilidad: Los resultados pueden durar varios años antes de necesitar retoques."
+                "description": "La micropigmentación capilar es una técnica no quirúrgica y no invasiva que crea la apariencia de mayor densidad capilar, camufla cicatrices o logra un efecto de cabello rapado muy realista. Es popular entre hombres y mujeres que buscan disimular la alopecia o mejorar la densidad del cabello tras un trasplante.<br><br>¿Cómo se realiza?<br>Evaluación inicial: Un profesional evalúa tus necesidades y diseña un plan personalizado.<br>Preparación: Se limpia y desinfecta el cuero cabelludo.<br>Aplicación: Con una máquina rotativa y agujas finas, se aplican pigmentos en la capa superior de la piel para imitar los folículos pilosos.<br>Sesiones: Generalmente se requieren de 3 a 4 sesiones.<br><br>Beneficios<br>Resultados inmediatos: Desde la primera sesión se pueden observar cambios.<br>Apariencia natural: Imitación precisa de los folículos pilosos.<br>Durabilidad: Los resultados pueden durar varios años antes de necesitar retoques."
             },
             "image": "assets/imgs/servicios/micro_capilar.jpeg",
             "duration": "2 h",
@@ -183,17 +303,15 @@
             "info": {
                 "name": "Eliminación de tatuajes",
                 "category": "Micropigmentación",
-                "description": "NanoRemoval es una técnica superficial que causa menos daño en la piel, menos irritación y resultados más rápidos, con curación rápida y sin riesgo de cicatrices.</br>La técnica comienza a funcionar casi inmediatamente después de esbozar el área de un viejo tatuaje o PMU. Forma una pequeña costra sobre el área tratada que se desprende naturalmente, extrayendo la tinta del tatuaje no deseado o Microblading.</br>NanoRemoval elimina viejos Microbladings y tatuajes suavemente en la piel con una máquina de maquillaje permanente y PhiRemoval, una solución líquida. Una ligera costra del pigmento se desprende en pocos días retirando el tatuaje.</br>¿Cuándo usar este procedimiento?</br>Para eliminar o encubrir viejos tatuajes/microblading.</br>Ventajas:</br>Curación rápida.</br>Muy suave para la piel.</br>Sin sangrado durante y después del tratamiento."
+                "description": "NanoRemoval es una técnica superficial que causa menos daño en la piel, menos irritación y resultados más rápidos, con curación rápida y sin riesgo de cicatrices.<br><br>La técnica comienza a funcionar casi inmediatamente después de esbozar el área de un viejo tatuaje o PMU. Forma una pequeña costra sobre el área tratada que se desprende naturalmente, extrayendo la tinta del tatuaje no deseado o Microblading.<br><br>NanoRemoval elimina viejos Microbladings y tatuajes suavemente en la piel con una máquina de maquillaje permanente y PhiRemoval, una solución líquida.<br><br>Ventajas:<br>• Curación rápida<br>• Muy suave para la piel<br>• Sin sangrado durante y después del tratamiento"
             },
             "image": "assets/imgs/servicios/nano.webp",
             "duration": "1 h",
             "price": 60
         },
-
-
         {
             "info": {
-                "name": "Micropigmentación de Labios ",
+                "name": "Micropigmentación de Labios",
                 "category": "Micropigmentación",
                 "description": "Es una nueva técnica de maquillaje semipermanente que busca prescindir de los lápices a través de la definición y coloreado de los labios con un color de aspecto natural. El resultado son unos labios rellenos, perfectos y como recién pintados de manera semipermanente."
             },
@@ -213,7 +331,7 @@
         },
         {
             "info": {
-                "name": "Micropigmentación de Areolas ",
+                "name": "Micropigmentación de Areolas",
                 "category": "Micropigmentación",
                 "description": "Este procedimiento ayuda a mejorar la apariencia y la autoestima de las mujeres y hombres que se han sometido a una cirugía de mama. La Micropigmentación de Areolas puede crear una areola después de la reconstrucción de mama, minimizar la apariencia de cicatrices o restaurar una areola o pezón para dar un color más natural y forma."
             },
@@ -233,26 +351,6 @@
         },
         {
             "info": {
-                "name": "Manicura (Esmaltado Permanente)",
-                "category": "Manicura/Pedicura",
-                "description": ""
-            },
-            "image": "assets/imgs/servicios/manicura.webp",
-            "duration": "1 h",
-            "price": 0
-        },
-        {
-            "info": {
-                "name": "Pedicura",
-                "category": "Manicura/Pedicura",
-                "description": ""
-            },
-            "image": "assets/imgs/servicios/pedicura.webp",
-            "duration": "1 h",
-            "price": 0
-        },
-        {
-            "info": {
                 "name": "Diseño y depilación de Cejas",
                 "category": "Depilación",
                 "description": "Básicamente un diseño de cejas profesional implica que la depilación de tus cejas se haga a conciencia y profesionalidad para sacarle el máximo partido a tus cejas y potencias su expresividad. O sea que es lo contrario a lo que haces en casa."
@@ -265,7 +363,7 @@
             "info": {
                 "name": "Laminado de Cejas",
                 "category": "Depilación",
-                "description": "La laminación de cejas o laminado de cejas es básicamente una permanente para tus cejas, ya que les da una forma fija y uniforme durante un período prolongado de tiempo.\n\nSolo que, en lugar de rizos, una loción de fijación ayuda a que el cabello de la ceja permanezca cepillado y levantado hacia arriba durante aproximadamente seis semanas."
+                "description": "La laminación de cejas o laminado de cejas es básicamente una permanente para tus cejas, ya que les da una forma fija y uniforme durante un período prolongado de tiempo.<br><br>Solo que, en lugar de rizos, una loción de fijación ayuda a que el cabello de la ceja permanezca cepillado y levantado hacia arriba durante aproximadamente seis semanas."
             },
             "image": "assets/imgs/servicios/laminado.webp",
             "duration": "1 h",
@@ -275,7 +373,7 @@
             "info": {
                 "name": "Depilación De Labios",
                 "category": "Depilación",
-                "description": ""
+                "description": "Depilación profesional del vello facial en la zona del labio superior. Tratamiento rápido y efectivo para mantener una piel suave y sin vello no deseado."
             },
             "image": "assets/imgs/servicios/depilacionlabios.webp",
             "duration": "30 min",
@@ -285,7 +383,7 @@
             "info": {
                 "name": "Depilación Masculina",
                 "category": "Depilación",
-                "description": "Depilación masculina es todavía para muchos hombres un tema tabú. Porque más allá de cuando les toca afeitarse la barba, la mayoría no se para a pensar detenidamente en sus hábitos de depilación. Sin embargo, ésta no es siempre la norma y hay ciertos hombres a los que les gusta depilarse del pecho para abajo. Dependiendo de la zona del cuerpo que quieran arreglar existen diferentes métodos de depilación que aquí repasamos:\n\nDepilación del pelo del pecho\n\nEl pecho ha sido considerado un símbolo de masculinidad desde tiempos inmemoriales, lo que explica que todavía hoy (aunque cada vez menos) muchos hombres presuman de tener pelos en esta parte del cuerpo. Eso sí, si no quieres verte con pelo debes conocer las distintas opciones para eliminarlo con el menor dolor posible. Si nunca te has depilado el pecho puede ser doloroso, pero en estos casos siempre puedes animarte a usar una crema depilatoria.\n\nNo hay duda de que ésta es una buena opción si lo que quieres es evitar el olor de la cera y lograr unos resultados de hasta cuatro días. Las cremas depilatorias, que disuelven el pelo desde la superficie de la piel, hacen efecto en tan solo cuatro minutos.\n\nDepilación de las axilas\n\nPor otra parte, son muchos los hombres que le dan importancia a sus axilas bien por razones estéticas o para minimizar la suciedad o el olor potencial. Las tijeras y las cuchillas son dos opciones, pero es incómodo usarlas para las axilas y en ocasiones provocan arañazos y rasguños. Al igual que para la depilación del pecho, en este caso las cremas depilatorias pueden ayudarte a lograr resultados de manera rápida y fácil dejando tus axilas libres de pelo y sin riesgo de corte en la piel.\n\nDepilación de la espalda\n\nConforme vamos teniendo más edad, el pelo en la espalda y en los hombros se convierte en un problema mayor. Utilizar las pinzas para los hombros es una solución fácil, sin embargo hay otras zonas más difíciles de alcanzar. Aunque muchos hombres quizás prefieran acudir a un salón de belleza para recurrir a un tratamiento de electrólisis, lo cierto es que el alto coste de este método hace que otros lo acaben rechazando. Pero no te preocupes, porque afortunadamente las cremas depilatorias son también adecuadas para tu espalda."
+                "description": "Servicios de depilación masculina profesional para diferentes zonas del cuerpo incluyendo pecho, espalda, axilas y otras áreas. Utilizamos técnicas adaptadas específicamente para la piel masculina garantizando resultados efectivos y duraderos."
             },
             "image": "assets/imgs/servicios/depilacionmasculina.webp",
             "duration": "45 min",
@@ -295,7 +393,7 @@
             "info": {
                 "name": "Masaje Californiano",
                 "category": "Masajes",
-                "description": "El masaje californiano es un masaje de relajación. Sus movimientos ayudan a la sensibilidad del cuerpo. Este masaje consiste, esencialmente, en el aprendizaje del arte del tacto para proporcionar bienestar y relajación al cuerpo.\n\nTras una buena sesión será posible:\n\nDesechar un buen nivel de toxinas del organismo.\nReducir el estrés que se acumula en el día a día.\nFacilitar la movilidad de los músculos, incluso después de haber padecido alguna lesión.\nMejorar las condiciones anímicas y emocionales que se ven afectadas por problemas como la depresión.\nLlenar al cuerpo de buenas energías que fomenten la alegría y el bienestar.\nTrabajar el sistema circulatorio, permitiendo que la sangre corra con mayor facilidad y cada zona reciba el oxígeno necesario.\nOptimizar la respiración.\nDisminuir las molestias físicas que se producen en el embarazo y en el postparto."
+                "description": "El masaje californiano es un masaje de relajación. Sus movimientos ayudan a la sensibilidad del cuerpo.<br><br>Beneficios:<br>• Elimina toxinas del organismo<br>• Reduce el estrés<br>• Facilita la movilidad muscular<br>• Mejora las condiciones anímicas y emocionales<br>• Trabaja el sistema circulatorio<br>• Optimiza la respiración<br>• Disminuye molestias del embarazo y postparto"
             },
             "image": "assets/imgs/servicios/masagecaliforniano.webp",
             "duration": "1 h",
@@ -305,7 +403,7 @@
             "info": {
                 "name": "Masaje Circulatorio",
                 "category": "Masajes",
-                "description": "Es un masaje que se realiza en el sentido del riego sanguíneo para aumentar la oxigenación y evitar la insuficiencia sanguínea que provocan obstrucción en las venas y arterias causando varices, pesadez de piernas o brazos, agotamiento y dolores.\nAl realizar un masaje circulatorio también se movilizan los líquidos corporales, de forma que se actúa directamente sobre los vasos sanguíneos y linfáticos e indirectamente sobre las terminaciones neuromotoras.\n\nIndicado para para todo tipo de personas, este masaje es especialmente beneficioso si se sufre un trastorno circulatorio o se padece de retención de líquidos, si se tiene celulitis, dolores de cabeza, insomnio, obesidad o a menudo hay que enfrentarse a situaciones de estrés\n\n\nEso sí, la forma de proceder en cada uno de los diferentes sistemas circulatorios será distinta según se trate del sistema venoso, arterial o linfático, haciendo que el método a realizar cambie."
+                "description": "Masaje realizado en el sentido del riego sanguíneo para aumentar la oxigenación y evitar la insuficiencia sanguínea. Especialmente beneficioso para trastornos circulatorios, retención de líquidos, celulitis, dolores de cabeza, insomnio y situaciones de estrés."
             },
             "image": "assets/imgs/servicios/masagecirculatorio.webp",
             "duration": "1 h",
@@ -315,7 +413,7 @@
             "info": {
                 "name": "Masaje Deportivo",
                 "category": "Masajes",
-                "description": "Masaje Deportivo es un tipo de masaje que prepara los tejidos para el esfuerzo deportivo y prevención y recuperación de lesiones tanto en entrenamiento como en competición. Por este motivo, el masaje es tal vez, dentro de las técnicas fisioterapéuticas, la más apreciada por el deportista.\n\nLos objetivos generales serán:\n\nPreparar los tejidos para el esfuerzo deportivo, manteniéndolos en un estado óptimo.\nPrevención de lesiones tanto en entrenamiento como en competición.\nRecuperación de las lesiones que se presenten y de la forma física del deportista."
+                "description": "Masaje especializado que prepara los tejidos para el esfuerzo deportivo. Ideal para prevención y recuperación de lesiones tanto en entrenamiento como en competición. Mantiene los tejidos en estado óptimo y ayuda en la recuperación de la forma física del deportista."
             },
             "image": "assets/imgs/servicios/masagedeportivo.webp",
             "duration": "1 h",
@@ -325,7 +423,7 @@
             "info": {
                 "name": "Masaje Relajante",
                 "category": "Masajes",
-                "description": "El objetivo principal del Masaje Relajante es aliviar la tensión y conseguir un estado mental de relajación, priorizando las manipulaciones y los pases suaves por encima de los movimientos bruscos y fuertes, más reservados para el masaje terapéutico o el descontracturante."
+                "description": "El objetivo principal del Masaje Relajante es aliviar la tensión y conseguir un estado mental de relajación, priorizando las manipulaciones y los pases suaves por encima de los movimientos bruscos y fuertes."
             },
             "image": "assets/imgs/servicios/masagerelajante.webp",
             "duration": "30 min",
@@ -333,9 +431,9 @@
         },
         {
             "info": {
-                "name": "Drenaje Linfática",
+                "name": "Drenaje Linfático",
                 "category": "Masajes",
-                "description": "Es un tipo de masaje suave que se aplica sobre el sistema circulatorio linfático con el objetivo de favorecer el movimiento de la linfa:\n\nAyuda a que este líquido circule correctamente dentro de los vasos linfáticos en casos en los que estos vasos están dañados o tienen una deficiencia de circulación por diversos motivos, como podría ocurrir tras cualquier tipo de cirugía mayor ya que la gran cantidad de sustancias de desecho que se genera en el proceso inflamatorio provoca que, aun teniendo un sistema linfático sin daños, este se vea desbordado al recibir el exceso de linfa.\nEn el caso de edemas, fomenta que la linfa que se encuentra estancada entre las células de la zona hinchada, vuelva a entrar en los vasos linfáticos y pueda ser eliminada.\nEl hecho de que se acumulen líquidos en los tejidos puede deberse a varias causas, y en gran parte de las afecciones que provocan retención de líquidos no solo se queda estancada la linfa, sino que se suele acompañar de sangre venosa.\nEvidentemente, este tipo de masoterapia actúa sobre el sistema circulatorio sanguíneo también, por lo que se recomienda en hematomas y coloración excesiva provocados por insuficiencia venosa o insuficiencia flebolinfostática.\n\nEntre los beneficios del drenaje linfático destacan:\n\nIncentivar la circulación linfática y ayudar a eliminar el exceso de líquidos y sustancias de desecho del organismo.\nReducir la inflamación derivada de la retención de líquidos.\nContribuir a mejorar las defensas del organismo al favorecer la función de los ganglios linfáticos.\nMejorar la circulación sanguínea, y ayuda a eliminar problemas derivados de una mala circulación.\nEstimular la función renal.\nMejorar el aspecto de la piel y afecciones como la celulitis o el acné.\nEl efecto analgésico frente al dolor.\nEl efecto relajante en el sistema nervioso, aliviando situaciones de estrés y ansiedad."
+                "description": "Masaje suave sobre el sistema circulatorio linfático. Beneficios: incentiva la circulación linfática, reduce inflamación, mejora las defensas, estimula la función renal, mejora el aspecto de la piel, efecto analgésico y relajante del sistema nervioso."
             },
             "image": "assets/imgs/servicios/drenajelinfatica.webp",
             "duration": "1 h",
@@ -345,7 +443,7 @@
             "info": {
                 "name": "Masaje de Pies",
                 "category": "Masajes",
-                "description": "Admitámoslo. Todos los días nuestros pies viven un no parar: caminar apresuradamente al trabajo, salir de fiesta por la noche con taconazos, las visitas diarias (o semanales) al gym… ¡Es normal que necesiten un respiro!\n\nPero oye, ¡nada que un buen masaje de pies no pueda solucionar! Y es que además, en nuestros pies se encuentran todas las conexiones nerviosas del cuerpo. Lo que significa que con un masaje, no solo liberarás toda la tensión acumulada al final de tus piernas, sino que también te ayudará a relajar tu cuerpo por completo para salir como nuevo. Con todas estas ventajas, ¿quién no querría hacerse uno?"
+                "description": "Masaje especializado para pies cansados. En nuestros pies se encuentran todas las conexiones nerviosas del cuerpo, por lo que este masaje no solo libera la tensión de los pies sino que también ayuda a relajar el cuerpo por completo."
             },
             "image": "assets/imgs/servicios/masajedepies.webp",
             "duration": "30 min",
@@ -355,7 +453,7 @@
             "info": {
                 "name": "Lipocavitación",
                 "category": "Tratamientos Corporales",
-                "description": "La lipocavitación es un procedimiento estético, cuyos resultados pueden notarse progresivamente, lo que sirve para eliminar la grasa localizada en el abdomen, muslos, flancos y espalda, utilizando un dispositivo de ultrasonido que ayuda a destruir la grasa acumulada.\n\nEste procedimiento, también conocido como lipo sin cirugía, no duele y ayuda a perder volumen, dándole un cuerpo más modelado y definido, además de ayudar a mejorar la apariencia de la piel y reducir la celulitis.\n\nDespués de cada sesión de lipocavitación, se recomienda realizar una sesión de drenaje linfático y ejercicios físicos aeróbicos para garantizar la eliminación de la grasa, evitando su deposición en otras áreas del cuerpo. Además, es importante tener una dieta equilibrada para evitar la acumulación de grasa nuevamente."
+                "description": "Procedimiento estético no quirúrgico para eliminar grasa localizada en abdomen, muslos, flancos y espalda. Utiliza ultrasonido para destruir la grasa acumulada. No duele y ayuda a perder volumen, mejorando la apariencia de la piel y reduciendo la celulitis."
             },
             "image": "assets/imgs/servicios/lipocativation.webp",
             "duration": "1 h",
@@ -365,7 +463,7 @@
             "info": {
                 "name": "Radiofrecuencia corporal",
                 "category": "Tratamientos Corporales",
-                "description": "radiofrecuencia\nLa radiofrecuencia ayuda a combatir la celulitis\nOKDIARIO 27/08/2017 12:36 ACTUALIZADO: 27/08/2017 12:36\nMejorar el aspecto de la piel y sus imperfecciones (como la celulitis) es uno de los objetivos de muchos tratamientos estéticos. La radiofrecuencia es uno de los más efectivos y solicitados para lograr este objetivo. ¿Sabes en qué consiste? ¿Tiene contraindicaciones? ¡Toma nota!\n\n¿Qué es la radiofrecuencia?\nEs una técnica utilizada que combate la flacidez y la celulitis a través de radiaciones electromagnéticas que van provocando el calentamiento de las diferentes capas de la piel. De esta forma podemos acceder a las capas más profundas de la dermis.\n\nEste tratamiento estético se realiza con un cabezal que se va moviendo sobre la zona que se quiere tratar. La duración de la sesión dependerá del tipo de celulitis que se quiera combatir y del estado de la dermis. \n\nContraindicaciones de la radiofrecuencia\n\nNo se recomienda en embarazadas ni personas con problemas cardiovasculares.\nEl tratamiento no suele causar dolor, pero si hay determinados efectos secundarios y contraindicaciones que hay que conocer:\n\nHinchazón tras la sesión pero que suele desaparecer con el tiempo.\nAparición de irritación o hematomas.\nEn cuanto a sus contraindicaciones, no se recomienda la radiofrecuencia en casos de embarazo, lactancia, marcapasos, sufrir enfermedades cardiovasculares graves, cáncer; personas que tengan problemas de coagulación y personas con sobrepeso u obesidad.\n\nBeneficios de la radiofrecuencia\n\nEntre sus beneficios, la radiofrecuencia puede combatir la celulitis y el exceso de líquidos.\nFavorece la aparición y reestructuración del colágeno: Esto provoca que el tejido sea más firme y elástico.\nMejora la circulación sanguínea.\nElimina toxinas y combate el exceso de líquidos que provocan la celulitis, gracias al drenaje linfático.\nPromueve la migración de fibroplastos, que son los responsables de segregar las fibras de elastina y de colágeno.\nLa piel mejora su aspecto, se alisa y rejuvenece."
+                "description": "Técnica que combate la flacidez y la celulitis mediante radiaciones electromagnéticas. Beneficios: favorece la reestructuración del colágeno, mejora la circulación sanguínea, elimina toxinas, combate el exceso de líquidos y mejora el aspecto de la piel."
             },
             "image": "assets/imgs/servicios/radiofrecuenciacorporal.webp",
             "duration": "1 h",
@@ -375,7 +473,7 @@
             "info": {
                 "name": "Masaje Adelgazante",
                 "category": "Masajes",
-                "description": "El masaje adelgazante, masaje para adelgazar o masaje reductor, es un tipo de masaje que se aplica en las zonas del cuerpo con mayor cantidad de grasa acumulada, con el objetivo de favorecer o acelerar el proceso de reducir el peso y el volumen. Los masajes reductores sólo surten el efecto deseado si se acompañan con una dieta saludable o la práctica de actividad física.\n\nEl masaje reductor es aplicado en las áreas con mayores acumulaciones de adiposidad, en las que se provoca calor por medio de movimientos especiales que disuelven el tejido adiposo.\n\nDurante el masaje adelgazante se estimula la circulación activando el metabolismo local. Esto contribuye a un incremento del consumo de calorías que ayuda a la eliminación del exceso de grasa.\n\nLas zonas donde regularmente se aplica el masaje reductor son abdomen, cintura, caderas, espalda y papada.\n\nEs importante aclarar que el masaje adelgazante o reductor contribuye a reducir medidas pero no a bajar de peso"
+                "description": "Masaje aplicado en zonas con acumulación de grasa para acelerar el proceso de reducción de peso y volumen. Estimula la circulación activando el metabolismo local. Se aplica en abdomen, cintura, caderas, espalda y papada. Contribuye a reducir medidas."
             },
             "image": "assets/imgs/servicios/masajeadelgazante.webp",
             "duration": "1 h",
@@ -385,7 +483,7 @@
             "info": {
                 "name": "Maderoterapia",
                 "category": "Tratamientos Corporales",
-                "description": "Es una técnica que, mediante movimientos y presión sobre ciertos puntos vitales y otros importantes para el objetivo de la terapia, se ayuda de unos instrumentos de madera especiales para buscar una reacción de bienestar y sanación en el paciente. «La madera es un material que se considera beneficioso para la salud. Tiene efectos reafirmantes y tonificantes. Además, activa la circulación sanguínea y linfática del rostro por lo que ayuda a mejorar el aspecto de la piel. También activa la producción de colágeno y elastina y puede actuar sobre los músculos del cuerpo (piernas completas, abdomen, espalda, brazos) y el rostro."
+                "description": "Técnica que utiliza instrumentos de madera especiales mediante movimientos y presión sobre puntos vitales. Tiene efectos reafirmantes y tonificantes, activa la circulación sanguínea y linfática, mejora el aspecto de la piel y activa la producción de colágeno y elastina."
             },
             "image": "assets/imgs/servicios/maderoterapia.webp",
             "duration": "1 h",
@@ -395,7 +493,7 @@
             "info": {
                 "name": "Limpieza Facial",
                 "category": "Tratamientos Faciales",
-                "description": "La limpieza facial o tratamiento facial es el proceso mediante el cual se eliminan las células muertas de la piel en la cara sin causarle irritación. Para lograr esto es necesario aplicar productos, cremas o lociones, dependiendo del tipo de cutis que tenga la persona. Las 5 áreas principales en las cuales se aplican los tratamientos son la frente, la nariz, el cuello, el mentón y las mejillas.\n\nUn buen tratamiento facial puede resultar en un rejuvenecimiento de la piel, atenuación de manchas y hasta recuperación del brillo de la cara en los casos necesarios.\n\n\n \nFactores como las arrugas, flacidez de la piel y la exposición al sol, pueden ser contrarrestados con tratamientos faciales. Estos tratamientos pueden ser necesarios tanto para personas mayores como jóvenes, ya sean hombres o mujeres.\n\nLa salud del cutis puede depender en parte de la alimentación de la persona, la hidratación y lavarse la cara al menos dos veces al día. Pero esto no es todo si quieres conservar una buena salud de la piel y en ocasiones restaurarla, para esto también es necesario algún tratamiento de los cuales entraremos en detalle a continuación."
+                "description": "Proceso mediante el cual se eliminan las células muertas de la piel en la cara sin irritación. Puede resultar en rejuvenecimiento de la piel, atenuación de manchas y recuperación del brillo facial. Contrarresta arrugas, flacidez y daño solar."
             },
             "image": "assets/imgs/servicios/limpiezafacial.webp",
             "duration": "1 h",
@@ -405,7 +503,7 @@
             "info": {
                 "name": "Fototerapia y Cromoterapia",
                 "category": "Tratamientos Faciales",
-                "description": "FOTOTERAPIA Y CROMOTERAPIA \nLa Fototerapia con cromoterapia es un tratamiento natural de medicina alternativa en la que se utilizan los colores con fines curativos, para tratar enfermedades físicas y trastornos emocionales. \nEs una técnica natural antiquísima de sanación natural que emplea los colores para restablecer los des-equilibrios energéticos que provocan las enfermedades. \nA la Fototerapia con Cromoterapia también se le denomina biofotónica, curación por la luz ó luminoterapia. \nA la vez, entendemos que la Cromoterapia Energética sostiene que el ser humano es un prisma viviente, capaz de absorber y sintetizar la energía de cada uno de los colores del espectro cromático, mediante el sistema de “chakras“. \nEste proceso busca provocar reacciones en el organismo a través de las ondas o vibraciones que emiten los colores reuniendo aportaciones de la psicología, medicina, arte y física.\nLOS COLORES Y LA CROMOTERAPIA \nLos colores tienen la capacidad de calmar, inspirar, excitar, equilibrar o alterar nuestras percepciones, lo cual llevó a considerarlos como instrumentos terapéuticos por sí mismos. \nCada color emite unas vibraciones características que nos llegan de distinta manera y producen efectos diferentes. \nLa cromoterapia tiene como pilares los colores rojo, naranja, amarillo, verde, azul, violeta.\nLa base de los colores de la cromoterapia se divide principalmente entre colores fríos y cálidos:\n• Los tonos fríos de la cromoterapia: Son aquellos con una fuerte presencia del azul y van desde los violetas hasta los celestes.\n• Los tonos cálidos de la cromoterapia: Se componen de amarillo y rojo, como es el caso del naranja o la gama de marrones y tierras. \nLos cálidos, como su propio nombre indica, producen bienestar, pero si son muy intensos pueden dar lugar a fatiga, y ayudar a rebajar la actividad."
+                "description": "Tratamiento natural de medicina alternativa que utiliza los colores con fines curativos. Emplea los colores para restablecer los desequilibrios energéticos. También conocida como biofotónica, curación por la luz o luminoterapia."
             },
             "image": "assets/imgs/servicios/fototerapia.webp",
             "duration": "1 h",
@@ -415,7 +513,7 @@
             "info": {
                 "name": "Hidratación Facial",
                 "category": "Tratamientos Faciales",
-                "description": "La Hidratación Facial es un tratamiento especialmente indicado para todo tipo de piel. Su objetivo es reestablecer el equilibrio y la homeostasis cutánea y esto es logrado mediante una recuperación de la hidratación desde la profundidad del tejido a la superficie.\n\nNo debemos olvidar que la piel es el órgano más extenso de nuestro cuerpo y su función esencial es la de protección. Hay múltiples factores, internos y externos, que producen agresión al tejido: el stress, las disfunciones hormonales, la polución ambiental, la radiación solar, los ambientes climatizados, las condiciones ambientales tales como frío y viento, entre muchos otros. Todos estamos expuestos a factores hostiles a nuestra piel. Por eso, una buena hidratación es fundamental para restablecer la función barrera y protectora de la piel y para otorgarle la luminosidad, tersura y elasticidad perdidas. Esto se complementa con el uso diario de productos que aporten activos hidratantes y regeneradores según el biotipo cutáneo."
+                "description": "Tratamiento para todo tipo de piel que reestablece el equilibrio cutáneo mediante recuperación de hidratación desde la profundidad. Fundamental para restablecer la función barrera y otorgar luminosidad, tersura y elasticidad a la piel."
             },
             "image": "assets/imgs/servicios/hidratacionfacial.webp",
             "duration": "1 h",
@@ -425,7 +523,7 @@
             "info": {
                 "name": "Radiofrecuencia facial",
                 "category": "Tratamientos Faciales",
-                "description": "• La radiofrecuencia facial actúa mediante una corriente eléctrica, y no por una fuente de luz, como los láseres por ejemplo. Esto hace que la radiofrecuencia, no se absorba por la melanina, como las luces, y pueda aplicarse en todo tipo de color de piel y durante todo el año.\n\n• El post-tratamiento es muy amable, la mayoría de los pacientes sólo refieren ligero enrojecimiento o edema de la zona tratada y la incorporación a la “vida normal” es inmediata.\n\n¿Cuáles son las ventajas de la radiofrecuencia facial?\n• La radiofrecuencia facial actúa mediante una corriente eléctrica, y no por una fuente de luz, como los láseres por ejemplo. Esto hace que la radiofrecuencia, no se absorba por la melanina, como las luces, y pueda aplicarse en todo tipo de color de piel y durante todo el año.\n\n• El post-tratamiento es muy amable, la mayoría de los pacientes sólo refieren ligero enrojecimiento o edema de la zona tratada y la incorporación a la “vida normal” es inmediata.\n\n¿Cuáles son sus principales inconvenientes?\n\nNo es tan potente como tratamiento para el rejuvenecimiento facial como los procedimientos ablativos, es decir, los que alteran la epidermis, necesitan unos días de recuperación y por tanto son más invasivos .\n\n• Es un procedimiento molesto, especialmente cuando se utilizan altas energías puede ser doloroso, por lo que se necesita utilizar anestesia en crema antes del tratamiento o incluso dependiendo del dispositivo, sistemas de enfriamiento por aire .\n\n• No es tan potente como la realización de un lifting quirúrgico o un rejuvenecimiento ablativo, y por ello no está indicado para pacientes con pliegues profundos.\n\n• Una de las desventajas es la necesidad de aplicar múltiples sesiones, algo inherente cuando planteamos tratamientos mínimamente invasivos.\n\n• Está contraindicado en pacientes que lleven desfibrilador y con dermatosis activas en la zona a tratar.\n\n• No se recomienda su uso en zonas de piel con tatuajes ni en piel tratada con radioterapia ."
+                "description": "Tratamiento facial mediante corriente eléctrica (no luz). Se puede aplicar en todo tipo de piel durante todo el año. El post-tratamiento es muy amable con incorporación inmediata a la vida normal. Tratamiento de rejuvenecimiento facial no invasivo."
             },
             "image": "assets/imgs/servicios/radiofrecuenciafacial.webp",
             "duration": "1 h",
@@ -503,6 +601,16 @@
             document.getElementById(`content-${targetTab.dataset.category}`).classList.add('active');
         }
     });
+
+    // Mobile tap-to-flip functionality
+    if ('ontouchstart' in window) {
+        document.addEventListener('click', (event) => {
+            const card = event.target.closest('.card-flip');
+            if (card) {
+                card.classList.toggle('flipped');
+            }
+        });
+    }
 </script>
 
 </body>
