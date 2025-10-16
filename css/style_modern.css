@@ -1,9 +1,9 @@
 body {
     margin: 0;
     padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    color: #f8f9fa;
-    background: #343a40;
+    font-family: "Roboto", sans-serif;
+    color: #212529;
+    background: #fff;
     box-sizing: border-box;
     background-size: cover;
     z-index: -1;
@@ -23,7 +23,7 @@ body {
 
 .tab {
     padding: 10px 20px;
-    background-color: #ff214f;
+    background-color: #AB7442;
     color: white;
     border-radius: 5px 5px 0 0;
     margin-right: 5px;
@@ -31,7 +31,7 @@ body {
 }
 
 .tab.active {
-    color: #ff214f;
+    color: #AB7442;
     text-decoration: none;
     background-color: transparent;
 }
@@ -67,6 +67,8 @@ body {
     height: 450px; /* Set a fixed height for uniformity */
     position: relative;
     overflow: hidden;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
 }
 
 .card-inner {
@@ -95,13 +97,13 @@ body {
 
 .card-back {
     transform: rotateY(180deg);
+    padding: 20px;
 }
 
 .card-img-top {
     display: block;
     margin: 0 auto;
     height: 270px; /* or any specific height */
-
     width: auto;
     object-fit: cover; /* Ensures the image covers the container */
     object-position: center; /* Centers the image */
@@ -109,13 +111,22 @@ body {
 
 .card-body {
     text-align: center;
+    color: #212529;
+}
+
+.card-body h4 {
+    color: #212529;
+}
+
+.card-body p {
+    color: #6c757d;
 }
 
 .back-btn {
     display: block;
     margin: 20px 0 0;
     padding: 10px;
-    background-color: #007bff;
+    background-color: #AB7442;
     color: white;
     text-align: center;
     border-radius: 5px;
