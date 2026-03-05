@@ -1,0 +1,169 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Consentimientos | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Like Studio Academy</a>
+    <nav class="menu is-open" style="position: static; display: flex; box-shadow: none; border: 0; background: transparent; padding: 0;">
+      <a href="index.html">Inicio</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
+    <p class="eyebrow">Panel Admin</p>
+    <h1>Consentimientos firmados</h1>
+
+    <form id="search-form" class="form-grid" style="margin-bottom:14px">
+      <div>
+        <label for="full_name">Nombre cliente</label>
+        <input id="full_name" name="full_name" />
+      </div>
+      <div>
+        <label for="id_number">DNI/NIE</label>
+        <input id="id_number" name="id_number" />
+      </div>
+      <div>
+        <label for="consent_type">Tipo</label>
+        <select id="consent_type" name="consent_type">
+          <option value="">Todos</option>
+          <option value="micropigmentation">Micropigmentacion</option>
+          <option value="aesthetic_treatment">Tratamiento estetico</option>
+        </select>
+      </div>
+      <div>
+        <label for="signed_from">Desde</label>
+        <input id="signed_from" name="signed_from" type="date" />
+      </div>
+      <div>
+        <label for="signed_to">Hasta</label>
+        <input id="signed_to" name="signed_to" type="date" />
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px;">
+        <button class="btn" type="submit">Buscar</button>
+        <button class="btn btn-ghost" type="button" id="reset">Limpiar</button>
+      </div>
+    </form>
+
+    <p id="summary" class="form-note">Cargando...</p>
+    <div style="overflow:auto;border:1px solid var(--line);border-radius:12px;">
+      <table style="width:100%;border-collapse:collapse;background:#fff;min-width:860px;">
+        <thead>
+          <tr style="background:#f8f1eb;text-align:left;">
+            <th style="padding:10px">Fecha firma</th>
+            <th style="padding:10px">Cliente</th>
+            <th style="padding:10px">DNI/NIE</th>
+            <th style="padding:10px">Tipo</th>
+            <th style="padding:10px">Tratamiento/Area</th>
+            <th style="padding:10px">Profesional</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="form-actions" style="justify-content:space-between;">
+      <button id="prev" class="btn btn-ghost" type="button">Anterior</button>
+      <button id="next" class="btn btn-ghost" type="button">Siguiente</button>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = 'http://127.0.0.1:8000/admin/consents';
+    const limit = 20;
+    let offset = 0;
+    let lastTotal = 0;
+
+    const form = document.getElementById('search-form');
+    const summary = document.getElementById('summary');
+    const tableBody = document.getElementById('table-body');
+
+    function collectParams() {
+      const data = new FormData(form);
+      const params = new URLSearchParams();
+      ['full_name', 'id_number', 'consent_type', 'signed_from', 'signed_to'].forEach((key) => {
+        const value = data.get(key);
+        if (value) params.set(key, value);
+      });
+      params.set('limit', String(limit));
+      params.set('offset', String(offset));
+      return params;
+    }
+
+    function renderRows(items) {
+      if (!items.length) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="padding:12px">Sin resultados.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = items.map((item) => {
+        const kind = item.consent_type === 'micropigmentation' ? 'Micropigmentacion' : 'Tratamiento estetico';
+        return `
+          <tr style="border-top:1px solid var(--line)">
+            <td style="padding:10px">${item.signed_at}</td>
+            <td style="padding:10px">${item.client_name}</td>
+            <td style="padding:10px">${item.client_id_number}</td>
+            <td style="padding:10px">${kind}</td>
+            <td style="padding:10px">${item.treatment_areas}</td>
+            <td style="padding:10px">${item.therapist_name}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadConsents() {
+      summary.textContent = 'Cargando...';
+      try {
+        const response = await fetch(`${API_URL}?${collectParams().toString()}`);
+        if (!response.ok) throw new Error('No se pudieron obtener los consentimientos.');
+        const payload = await response.json();
+        lastTotal = payload.total;
+        renderRows(payload.items);
+
+        const from = payload.total === 0 ? 0 : payload.offset + 1;
+        const to = Math.min(payload.offset + payload.limit, payload.total);
+        summary.textContent = `Mostrando ${from}-${to} de ${payload.total} consentimientos.`;
+
+        document.getElementById('prev').disabled = payload.offset <= 0;
+        document.getElementById('next').disabled = payload.offset + payload.limit >= payload.total;
+      } catch (error) {
+        summary.textContent = error.message;
+        tableBody.innerHTML = '';
+      }
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      offset = 0;
+      loadConsents();
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      form.reset();
+      offset = 0;
+      loadConsents();
+    });
+
+    document.getElementById('prev').addEventListener('click', () => {
+      offset = Math.max(0, offset - limit);
+      loadConsents();
+    });
+
+    document.getElementById('next').addEventListener('click', () => {
+      if (offset + limit < lastTotal) {
+        offset += limit;
+        loadConsents();
+      }
+    });
+
+    loadConsents();
+  </script>
+</body>
+</html>

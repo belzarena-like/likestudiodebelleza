@@ -1,0 +1,151 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consentimiento Micropigmentacion | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Like Studio Academy</a>
+    <nav class="menu is-open" style="position: static; display: flex; box-shadow: none; border: 0; background: transparent; padding: 0;">
+      <a href="index.html#consent">Volver</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap">
+    <p class="eyebrow">Documento legal</p>
+    <h1>Consentimiento informado de micropigmentacion</h1>
+    <p class="form-note">Este formulario resume riesgos, cuidados y autorizacion del procedimiento de micropigmentacion. Debe firmarse antes del tratamiento.</p>
+
+    <form id="micropigmentacion-form" class="form-grid">
+      <div>
+        <label for="full_name">Nombre completo</label>
+        <input id="full_name" name="full_name" required />
+      </div>
+      <div>
+        <label for="id_number">DNI / NIE</label>
+        <input id="id_number" name="id_number" required />
+      </div>
+      <div>
+        <label for="phone">Telefono</label>
+        <input id="phone" name="phone" />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="areas">Areas a tratar</label>
+        <input id="areas" name="areas" placeholder="Ej: cejas, labios, areola..." required />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="medical_conditions">Enfermedades, alergias, alteraciones de coagulacion u otras condiciones relevantes</label>
+        <textarea id="medical_conditions" name="medical_conditions"></textarea>
+      </div>
+
+      <div class="form-grid-1">
+        <label for="personalized_risks">Riesgos personalizados informados</label>
+        <textarea id="personalized_risks" name="personalized_risks"></textarea>
+      </div>
+
+      <div class="form-grid-1">
+        <label for="case_particularities">Particularidades del caso</label>
+        <textarea id="case_particularities" name="case_particularities"></textarea>
+      </div>
+
+      <div class="form-grid-1 check-grid">
+        <label><input type="checkbox" name="acceptance_points" value="procedimiento" required /> Autorizo el procedimiento de micropigmentacion.</label>
+        <label><input type="checkbox" name="acceptance_points" value="anestesia" required /> Acepto anestesia cuando sea necesario.</label>
+        <label><input type="checkbox" name="acceptance_points" value="historial" required /> Confirmo historial medico veraz y completo.</label>
+        <label><input type="checkbox" name="acceptance_points" value="sin_garantias" required /> Entiendo que no hay garantia absoluta de resultado.</label>
+        <label><input type="checkbox" name="acceptance_points" value="cuidados" required /> Me comprometo a seguir los cuidados antes y despues.</label>
+        <label><input type="checkbox" name="acceptance_points" value="comprension" required /> He leido y comprendido todo el documento.</label>
+      </div>
+
+      <div class="form-grid-1 inline-check">
+        <input id="photos_allowed" name="photos_allowed" type="checkbox" />
+        <label for="photos_allowed">Autorizo fotografias pre y post tratamiento para fines clinicos/academicos.</label>
+      </div>
+
+      <div>
+        <label for="signed_at">Fecha de firma</label>
+        <input id="signed_at" name="signed_at" type="date" required />
+      </div>
+      <div>
+        <label for="therapist_name">Profesional que informa</label>
+        <input id="therapist_name" name="therapist_name" required />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="signature_text">Firma (texto de confirmacion)</label>
+        <input id="signature_text" name="signature_text" placeholder="Escriba su nombre como firma" required />
+      </div>
+
+      <div class="form-actions form-grid-1">
+        <button class="btn" type="submit">Guardar consentimiento</button>
+        <a class="btn btn-ghost" href="index.html#consent">Cancelar</a>
+      </div>
+      <p id="form-message" class="form-grid-1" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('signed_at').valueAsDate = new Date();
+
+    document.getElementById('micropigmentacion-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      var form = event.currentTarget;
+      var message = document.getElementById('form-message');
+      var formData = new FormData(form);
+
+      var points = formData.getAll('acceptance_points');
+      if (points.length < 6) {
+        message.textContent = 'Debes aceptar todos los puntos obligatorios.';
+        return;
+      }
+
+      var payload = {
+        consent_type: 'micropigmentation',
+        full_name: formData.get('full_name'),
+        id_number: formData.get('id_number'),
+        phone: formData.get('phone') || null,
+        email: formData.get('email') || null,
+        treatment_areas: formData.get('areas'),
+        medical_conditions: formData.get('medical_conditions') || null,
+        personalized_risks: formData.get('personalized_risks') || null,
+        case_particularities: formData.get('case_particularities') || null,
+        acceptance_points: points,
+        photos_allowed: formData.get('photos_allowed') === 'on',
+        signed_at: formData.get('signed_at'),
+        therapist_name: formData.get('therapist_name'),
+        signature_text: formData.get('signature_text')
+      };
+
+      try {
+        var response = await fetch('http://127.0.0.1:8000/consents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
+        }
+
+        message.textContent = 'Consentimiento guardado correctamente.';
+        form.reset();
+        document.getElementById('signed_at').valueAsDate = new Date();
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

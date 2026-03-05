@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - LikeByLi</title>
+    <style>
+        :root {
+            --primary: #ff214f;
+            --secondary: #d4002c;
+            --dark: #343a40;
+            --light: #f8f9fa;
+            --accent: #ff5477;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            color: var(--light);
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 163, 115, 0.2);
+            transition: all 0.3s ease;
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+
+        .tab:hover {
+            background: rgba(212, 163, 115, 0.2);
+            border-color: var(--primary);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(255, 33, 79, 0.4);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 0.5rem;
+        }
+
+        .card-flip {
+            perspective: 1000px;
+            height: 420px;
+            position: relative;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .card-flip:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            background: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 163, 115, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .card-front {
+            transform: rotateY(0deg);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            padding: 1.5rem;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        .card-img-top {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-body h4 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-body p {
+            color: #c4c4c4;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-body .badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            border: none;
+        }
+
+        .card-back h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .card-back p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c4c4c4;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .tabs-container {
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0.25rem;
+            }
+
+            .card-flip {
+                height: 380px;
+            }
+
+            .card-img-top {
+                height: 160px;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .card-body h4 {
+                font-size: 1.1rem;
+            }
+
+            .card-back {
+                padding: 1rem;
+            }
+
+            .card-back h4 {
+                font-size: 1.1rem;
+            }
+
+            .card-back p {
+                font-size: 0.8rem;
+                line-height: 1.5;
+            }
+
+            /* Enable tap to flip on mobile */
+            .card-flip.flipped .card-inner {
+                transform: rotateY(180deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-flip {
+                height: 360px;
+            }
+
+            .card-img-top {
+                height: 140px;
+            }
+
+            .card-body h4,
+            .card-back h4 {
+                font-size: 1rem;
+            }
+
+            .tab {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Smooth scrollbar for card back */
+        .card-back::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .card-back::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .card-back::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .card-back::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+<div id="tabsContainer" class="tabs-container"></div>
+<div class="tab-content" id="tabContents"></div>
+
+<script>
+    const offerings = [
+     {
+        "info": {
+                "name": "Micropigmentación de Cejas",
+                "category": "Micropigmentación",
+                "description": "Trazos hiperrealistas con diseño y proporción áurea para un efecto increíblemente natural!<br><br>BOLD BROWS es una técnica en maquillaje semipermanente que revoluciona el Microblading a nivel mundial. El patrón de cejas es diferente al estilo clásico, con pelos inferiores dibujados con movimientos suaves y curvos en S, llenos de pelos pequeños para un mejor efecto de volumen y una apariencia más natural desde cualquier ángulo.<br><br>¿Cuándo usar este procedimiento?<br>Para un aspecto voluminizador y más eficaz (extremo audaz).<br>Para un look más natural (suave negrita).<br><br>Ventajas de las cejas audaces:<br>Cejas con aspecto en forma de volumen.<br>Diferentes trazos de los clásicos."
+            },
+            "image": "assets/imgs/servicios/microfemenina.jpeg",
+            "duration": "2 h",
+            "price": 0
+        },
+        {
+        "info": {
+                "name": "Micropigmentación Capilar",
+                "category": "Micropigmentación",
+                "description": "La micropigmentación capilar es una técnica no quirúrgica y no invasiva que crea la apariencia de mayor densidad capilar, camufla cicatrices o logra un efecto de cabello rapado muy realista. Es popular entre hombres y mujeres que buscan disimular la alopecia o mejorar la densidad del cabello tras un trasplante.<br><br>¿Cómo se realiza?<br>Evaluación inicial: Un profesional evalúa tus necesidades y diseña un plan personalizado.<br>Preparación: Se limpia y desinfecta el cuero cabelludo.<br>Aplicación: Con una máquina rotativa y agujas finas, se aplican pigmentos en la capa superior de la piel para imitar los folículos pilosos.<br>Sesiones: Generalmente se requieren de 3 a 4 sesiones.<br><br>Beneficios<br>Resultados inmediatos: Desde la primera sesión se pueden observar cambios.<br>Apariencia natural: Imitación precisa de los folículos pilosos.<br>Durabilidad: Los resultados pueden durar varios años antes de necesitar retoques."
+            },
+            "image": "assets/imgs/servicios/micro_capilar.jpeg",
+            "duration": "2 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Eliminación de tatuajes",
+                "category": "Micropigmentación",
+                "description": "NanoRemoval es una técnica superficial que causa menos daño en la piel, menos irritación y resultados más rápidos, con curación rápida y sin riesgo de cicatrices.<br><br>La técnica comienza a funcionar casi inmediatamente después de esbozar el área de un viejo tatuaje o PMU. Forma una pequeña costra sobre el área tratada que se desprende naturalmente, extrayendo la tinta del tatuaje no deseado o Microblading.<br><br>NanoRemoval elimina viejos Microbladings y tatuajes suavemente en la piel con una máquina de maquillaje permanente y PhiRemoval, una solución líquida.<br><br>Ventajas:<br>• Curación rápida<br>• Muy suave para la piel<br>• Sin sangrado durante y después del tratamiento"
+            },
+            "image": "assets/imgs/servicios/nano.webp",
+            "duration": "1 h",
+            "price": 60
+        },
+        {
+            "info": {
+                "name": "Micropigmentación de Labios",
+                "category": "Micropigmentación",
+                "description": "Es una nueva técnica de maquillaje semipermanente que busca prescindir de los lápices a través de la definición y coloreado de los labios con un color de aspecto natural. El resultado son unos labios rellenos, perfectos y como recién pintados de manera semipermanente."
+            },
+            "image": "assets/imgs/servicios/microlabios.jpg",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Eyeliner",
+                "category": "Micropigmentación",
+                "description": "La Micropigmentación de ojos, también conocido como delineado permanente de ojos o tatuaje permanente de ojos, consiste en pigmentar el eyeliner superior. Así se consigue un maquillaje permanente de ojos."
+            },
+            "image": "assets/imgs/servicios/eyeliner.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Micropigmentación de Areolas",
+                "category": "Micropigmentación",
+                "description": "Este procedimiento ayuda a mejorar la apariencia y la autoestima de las mujeres y hombres que se han sometido a una cirugía de mama. La Micropigmentación de Areolas puede crear una areola después de la reconstrucción de mama, minimizar la apariencia de cicatrices o restaurar una areola o pezón para dar un color más natural y forma."
+            },
+            "image": "assets/imgs/servicios/aerolas.webp",
+            "duration": "2 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Lifting de Pestañas",
+                "category": "Pestañas",
+                "description": "El lifting de pestañas es uno de los tratamientos estéticos más demandados en la actualidad. Con un efecto duradero, asegura resultados y permite olvidar las molestas pestañas postizas. Este tratamiento da expresión a la mirada, especialmente en aquellas personas que acuden a las clínicas estéticas con unas pestañas cortas y con poca densidad."
+            },
+            "image": "assets/imgs/servicios/liftingpestanas.webp",
+            "duration": "1 h",
+            "price": 20
+        },
+        {
+            "info": {
+                "name": "Diseño y depilación de Cejas",
+                "category": "Depilación",
+                "description": "Básicamente un diseño de cejas profesional implica que la depilación de tus cejas se haga a conciencia y profesionalidad para sacarle el máximo partido a tus cejas y potencias su expresividad. O sea que es lo contrario a lo que haces en casa."
+            },
+            "image": "assets/imgs/servicios/disenoydepilacion.webp",
+            "duration": "1 h",
+            "price": 19.9
+        },
+        {
+            "info": {
+                "name": "Laminado de Cejas",
+                "category": "Depilación",
+                "description": "La laminación de cejas o laminado de cejas es básicamente una permanente para tus cejas, ya que les da una forma fija y uniforme durante un período prolongado de tiempo.<br><br>Solo que, en lugar de rizos, una loción de fijación ayuda a que el cabello de la ceja permanezca cepillado y levantado hacia arriba durante aproximadamente seis semanas."
+            },
+            "image": "assets/imgs/servicios/laminado.webp",
+            "duration": "1 h",
+            "price": 25
+        },
+        {
+            "info": {
+                "name": "Depilación De Labios",
+                "category": "Depilación",
+                "description": "Depilación profesional del vello facial en la zona del labio superior. Tratamiento rápido y efectivo para mantener una piel suave y sin vello no deseado."
+            },
+            "image": "assets/imgs/servicios/depilacionlabios.webp",
+            "duration": "30 min",
+            "price": 5
+        },
+        {
+            "info": {
+                "name": "Depilación Masculina",
+                "category": "Depilación",
+                "description": "Servicios de depilación masculina profesional para diferentes zonas del cuerpo incluyendo pecho, espalda, axilas y otras áreas. Utilizamos técnicas adaptadas específicamente para la piel masculina garantizando resultados efectivos y duraderos."
+            },
+            "image": "assets/imgs/servicios/depilacionmasculina.webp",
+            "duration": "45 min",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje Californiano",
+                "category": "Masajes",
+                "description": "El masaje californiano es un masaje de relajación. Sus movimientos ayudan a la sensibilidad del cuerpo.<br><br>Beneficios:<br>• Elimina toxinas del organismo<br>• Reduce el estrés<br>• Facilita la movilidad muscular<br>• Mejora las condiciones anímicas y emocionales<br>• Trabaja el sistema circulatorio<br>• Optimiza la respiración<br>• Disminuye molestias del embarazo y postparto"
+            },
+            "image": "assets/imgs/servicios/masagecaliforniano.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje Circulatorio",
+                "category": "Masajes",
+                "description": "Masaje realizado en el sentido del riego sanguíneo para aumentar la oxigenación y evitar la insuficiencia sanguínea. Especialmente beneficioso para trastornos circulatorios, retención de líquidos, celulitis, dolores de cabeza, insomnio y situaciones de estrés."
+            },
+            "image": "assets/imgs/servicios/masagecirculatorio.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje Deportivo",
+                "category": "Masajes",
+                "description": "Masaje especializado que prepara los tejidos para el esfuerzo deportivo. Ideal para prevención y recuperación de lesiones tanto en entrenamiento como en competición. Mantiene los tejidos en estado óptimo y ayuda en la recuperación de la forma física del deportista."
+            },
+            "image": "assets/imgs/servicios/masagedeportivo.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje Relajante",
+                "category": "Masajes",
+                "description": "El objetivo principal del Masaje Relajante es aliviar la tensión y conseguir un estado mental de relajación, priorizando las manipulaciones y los pases suaves por encima de los movimientos bruscos y fuertes."
+            },
+            "image": "assets/imgs/servicios/masagerelajante.webp",
+            "duration": "30 min",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Drenaje Linfático",
+                "category": "Masajes",
+                "description": "Masaje suave sobre el sistema circulatorio linfático. Beneficios: incentiva la circulación linfática, reduce inflamación, mejora las defensas, estimula la función renal, mejora el aspecto de la piel, efecto analgésico y relajante del sistema nervioso."
+            },
+            "image": "assets/imgs/servicios/drenajelinfatica.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje de Pies",
+                "category": "Masajes",
+                "description": "Masaje especializado para pies cansados. En nuestros pies se encuentran todas las conexiones nerviosas del cuerpo, por lo que este masaje no solo libera la tensión de los pies sino que también ayuda a relajar el cuerpo por completo."
+            },
+            "image": "assets/imgs/servicios/masajedepies.webp",
+            "duration": "30 min",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Lipocavitación",
+                "category": "Tratamientos Corporales",
+                "description": "Procedimiento estético no quirúrgico para eliminar grasa localizada en abdomen, muslos, flancos y espalda. Utiliza ultrasonido para destruir la grasa acumulada. No duele y ayuda a perder volumen, mejorando la apariencia de la piel y reduciendo la celulitis."
+            },
+            "image": "assets/imgs/servicios/lipocativation.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Radiofrecuencia corporal",
+                "category": "Tratamientos Corporales",
+                "description": "Técnica que combate la flacidez y la celulitis mediante radiaciones electromagnéticas. Beneficios: favorece la reestructuración del colágeno, mejora la circulación sanguínea, elimina toxinas, combate el exceso de líquidos y mejora el aspecto de la piel."
+            },
+            "image": "assets/imgs/servicios/radiofrecuenciacorporal.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Masaje Adelgazante",
+                "category": "Masajes",
+                "description": "Masaje aplicado en zonas con acumulación de grasa para acelerar el proceso de reducción de peso y volumen. Estimula la circulación activando el metabolismo local. Se aplica en abdomen, cintura, caderas, espalda y papada. Contribuye a reducir medidas."
+            },
+            "image": "assets/imgs/servicios/masajeadelgazante.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Maderoterapia",
+                "category": "Tratamientos Corporales",
+                "description": "Técnica que utiliza instrumentos de madera especiales mediante movimientos y presión sobre puntos vitales. Tiene efectos reafirmantes y tonificantes, activa la circulación sanguínea y linfática, mejora el aspecto de la piel y activa la producción de colágeno y elastina."
+            },
+            "image": "assets/imgs/servicios/maderoterapia.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Limpieza Facial",
+                "category": "Tratamientos Faciales",
+                "description": "Proceso mediante el cual se eliminan las células muertas de la piel en la cara sin irritación. Puede resultar en rejuvenecimiento de la piel, atenuación de manchas y recuperación del brillo facial. Contrarresta arrugas, flacidez y daño solar."
+            },
+            "image": "assets/imgs/servicios/limpiezafacial.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Fototerapia y Cromoterapia",
+                "category": "Tratamientos Faciales",
+                "description": "Tratamiento natural de medicina alternativa que utiliza los colores con fines curativos. Emplea los colores para restablecer los desequilibrios energéticos. También conocida como biofotónica, curación por la luz o luminoterapia."
+            },
+            "image": "assets/imgs/servicios/fototerapia.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Hidratación Facial",
+                "category": "Tratamientos Faciales",
+                "description": "Tratamiento para todo tipo de piel que reestablece el equilibrio cutáneo mediante recuperación de hidratación desde la profundidad. Fundamental para restablecer la función barrera y otorgar luminosidad, tersura y elasticidad a la piel."
+            },
+            "image": "assets/imgs/servicios/hidratacionfacial.webp",
+            "duration": "1 h",
+            "price": 0
+        },
+        {
+            "info": {
+                "name": "Radiofrecuencia facial",
+                "category": "Tratamientos Faciales",
+                "description": "Tratamiento facial mediante corriente eléctrica (no luz). Se puede aplicar en todo tipo de piel durante todo el año. El post-tratamiento es muy amable con incorporación inmediata a la vida normal. Tratamiento de rejuvenecimiento facial no invasivo."
+            },
+            "image": "assets/imgs/servicios/radiofrecuenciafacial.webp",
+            "duration": "1 h",
+            "price": 0
+        }
+    ];
+
+    const categories = {};
+    offerings.forEach(service => {
+        const categoryName = service.info.category;
+        if (!categories[categoryName]) {
+            categories[categoryName] = [];
+        }
+        categories[categoryName].push(service);
+    });
+
+    const tabsContainer = document.getElementById('tabsContainer');
+    const tabContentsContainer = document.getElementById('tabContents');
+
+    Object.keys(categories).forEach((categoryName, index) => {
+        const categoryId = categoryName.replace(/[^a-zA-Z0-9]/g, '');
+        const tab = document.createElement('button');
+        tab.classList.add('tab');
+        if (index === 0) tab.classList.add('active');
+        tab.textContent = categoryName;
+        tab.dataset.category = categoryId;
+        tabsContainer.appendChild(tab);
+
+        const tabPane = document.createElement('div');
+        tabPane.classList.add('tab-pane');
+        if (index === 0) tabPane.classList.add('active');
+        tabPane.id = `content-${categoryId}`;
+
+        const grid = document.createElement('div');
+        grid.classList.add('services-grid');
+
+        categories[categoryName].forEach(service => {
+            const cardWrapper = document.createElement('div');
+            cardWrapper.classList.add('card-flip');
+
+            const priceText = service.price ? `${service.price}€` : 'Consultar';
+
+            cardWrapper.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="${service.image || 'assets/imgs/about.jpeg'}" class="card-img-top" alt="${service.info.name}">
+                        <div class="card-body">
+                            <div>
+                                <h4>${service.info.name}</h4>
+                                <p>${service.duration || 'N/A'}</p>
+                            </div>
+                            <span class="badge">${priceText}</span>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <h4>${service.info.name}</h4>
+                        <p>${service.info.description}</p>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(cardWrapper);
+        });
+
+        tabPane.appendChild(grid);
+        tabContentsContainer.appendChild(tabPane);
+    });
+
+    tabsContainer.addEventListener('click', (event) => {
+        const targetTab = event.target.closest('.tab');
+        if (targetTab) {
+            document.querySelector('.tab.active').classList.remove('active');
+            document.querySelector('.tab-pane.active').classList.remove('active');
+
+            targetTab.classList.add('active');
+            document.getElementById(`content-${targetTab.dataset.category}`).classList.add('active');
+        }
+    });
+
+    // Mobile tap-to-flip functionality
+    if ('ontouchstart' in window) {
+        document.addEventListener('click', (event) => {
+            const card = event.target.closest('.card-flip');
+            if (card) {
+                card.classList.toggle('flipped');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
