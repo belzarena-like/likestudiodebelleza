@@ -7,13 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="../css/site.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html">Like Studio Academy</a>
-    <nav class="menu is-open" style="position: static; display: flex; box-shadow: none; border: 0; background: transparent; padding: 0;">
-      <a href="index.html#consent">Volver</a>
+    <a class="brand" href="../index.html">Like Studio Academy</a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
     </nav>
   </header>
 
@@ -21,6 +23,17 @@
     <p class="eyebrow">Ficha previa</p>
     <h1>Ficha de tratamiento estetico corporal</h1>
     <p class="form-note">Incluye antecedentes, estilo de vida y politica de citas/bonos para registrar el tratamiento de forma estructurada.</p>
+    <section class="legal-box">
+      <h3>Texto informativo para lectura previa</h3>
+      <ol>
+        <li>La persona usuaria declara que los datos personales y antecedentes aportados son veraces y completos.</li>
+        <li>Se informa sobre la necesidad de comunicar enfermedades previas, alergias, embarazo, patologias cardiacas, diabetes, hepatitis, implantes metalicos, cirugias u otras condiciones relevantes.</li>
+        <li>El tratamiento y numero de sesiones se definen segun valoracion profesional y evolucion individual, pudiendo requerir ajustes.</li>
+        <li>Si no se presenta a la cita, o no cancela con al menos 24 horas de antelacion, se registrara como cita perdida.</li>
+        <li>Los bonos tienen una caducidad de 6 meses desde la fecha de compra y no se aceptan una vez caducados.</li>
+        <li>La solicitud de citas, cambios o cancelaciones se realiza por WhatsApp oficial del centro.</li>
+      </ol>
+    </section>
 
     <form id="estetico-form" class="form-grid">
       <div><label for="full_name">Nombre</label><input id="full_name" name="full_name" required /></div>
@@ -121,12 +134,15 @@
 
       <div class="form-actions form-grid-1">
         <button class="btn" type="submit">Guardar ficha</button>
-        <a class="btn btn-ghost" href="index.html#consent">Cancelar</a>
+        <a class="btn btn-ghost" href="index.html">Cancelar</a>
       </div>
       <p id="form-message" class="form-grid-1" aria-live="polite"></p>
     </form>
   </main>
 
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
   <script>
     document.getElementById('signed_at').valueAsDate = new Date();
 
@@ -168,7 +184,7 @@
       };
 
       try {
-        var response = await fetch('http://127.0.0.1:8000/consents', {
+        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -188,3 +204,6 @@
   </script>
 </body>
 </html>
+
+
+

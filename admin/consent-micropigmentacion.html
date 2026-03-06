@@ -7,13 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="../css/site.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html">Like Studio Academy</a>
-    <nav class="menu is-open" style="position: static; display: flex; box-shadow: none; border: 0; background: transparent; padding: 0;">
-      <a href="index.html#consent">Volver</a>
+    <a class="brand" href="../index.html">Like Studio Academy</a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
     </nav>
   </header>
 
@@ -21,6 +23,24 @@
     <p class="eyebrow">Documento legal</p>
     <h1>Consentimiento informado de micropigmentacion</h1>
     <p class="form-note">Este formulario resume riesgos, cuidados y autorizacion del procedimiento de micropigmentacion. Debe firmarse antes del tratamiento.</p>
+    <section class="legal-box">
+      <h3>Texto de consentimiento para lectura previa</h3>
+      <ol>
+        <li>El objetivo de la tecnica es crear un diseno bajo la piel en labios, cejas, contorno de ojos, camuflaje de pequenas imperfecciones o rediseño de areolas. Es una practica invasiva de la epidermis y puede implicar riesgos menores.</li>
+        <li>La tecnica y los materiales son de un solo uso y cumplen normativa vigente. El resultado puede desvanecerse por intensidad del color, cuidados inadecuados, cosmeticos no recomendados u otros factores individuales.</li>
+        <li>Se ha realizado prueba de alergia y visagismo/diseno previo, que la persona usuaria revisa y acepta (forma, color e intensidad).</li>
+        <li>Antes y despues del tratamiento se podran tomar fotografias del area tratada para fines clinicos, educativos o cientificos.</li>
+        <li>Si existen enfermedades de piel, alergias, problemas de coagulacion u otras condiciones, debe consultarse previamente con personal medico.</li>
+        <li>Tras la micropigmentacion, el area debe mantenerse limpia, hidratada y desinfectada. Debe evitarse exposicion solar/UV directa hasta la correcta cicatrizacion y evitar peelings o tratamientos despigmentantes durante ese periodo.</li>
+        <li>Puede existir variabilidad individual y efectos no deseados como inflamacion, enrojecimiento, picor, descamacion o ampollas en dias posteriores.</li>
+        <li>No se garantiza un resultado exacto. La persona declara que no omite informacion medica relevante y se compromete a seguir las indicaciones pre y post tratamiento.</li>
+        <li>Ante cualquier complicacion, debe consultarse con su medico.</li>
+      </ol>
+    </section>
+    <section class="legal-box">
+      <h3>Declaracion final de consentimiento</h3>
+      <p>Declaro que he leido y comprendido este consentimiento en lenguaje claro, que he podido resolver mis dudas, que conozco los riesgos y cuidados, y que autorizo voluntariamente el procedimiento de micropigmentacion en las areas indicadas.</p>
+    </section>
 
     <form id="micropigmentacion-form" class="form-grid">
       <div>
@@ -90,12 +110,15 @@
 
       <div class="form-actions form-grid-1">
         <button class="btn" type="submit">Guardar consentimiento</button>
-        <a class="btn btn-ghost" href="index.html#consent">Cancelar</a>
+        <a class="btn btn-ghost" href="index.html">Cancelar</a>
       </div>
       <p id="form-message" class="form-grid-1" aria-live="polite"></p>
     </form>
   </main>
 
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
   <script>
     document.getElementById('signed_at').valueAsDate = new Date();
 
@@ -129,7 +152,7 @@
       };
 
       try {
-        var response = await fetch('http://127.0.0.1:8000/consents', {
+        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -149,3 +172,6 @@
   </script>
 </body>
 </html>
+
+
+

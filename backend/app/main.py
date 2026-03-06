@@ -1,11 +1,20 @@
 ﻿from datetime import date
+import os
+import sys
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from . import crud, models, schemas
-from .database import Base, SessionLocal, engine
+if __package__:
+    from . import crud, models, schemas
+    from .database import Base, SessionLocal, engine
+else:
+    sys.path.append(os.path.dirname(__file__))
+    import crud  # type: ignore
+    import models  # type: ignore
+    import schemas  # type: ignore
+    from database import Base, SessionLocal, engine  # type: ignore
 
 app = FastAPI(title="Like Studio Backend", version="0.1.0")
 

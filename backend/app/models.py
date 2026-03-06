@@ -4,7 +4,10 @@ from enum import Enum
 from sqlalchemy import Boolean, Date, DateTime, Enum as SQLEnum, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .database import Base
+if __package__:
+    from .database import Base
+else:
+    from database import Base  # type: ignore
 
 
 class ConsentType(str, Enum):

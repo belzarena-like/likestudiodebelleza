@@ -15,11 +15,15 @@
   <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="#home">Like Studio Academy</a>
+    <a class="brand" href="#home">
+      <img class="brand-logo" src="assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Studio Academy</span>
+    </a>
     <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
     <nav class="menu" data-menu>
       <a href="#services">Servicios</a>
-      <a href="#resultados">Resultados</a>
+      <a href="gallery.html">Galeria</a>
+      <a href="#instagram">Instagram</a>
       <a href="#academy">Academia</a>
       <a href="#contact">Contacto</a>
       <a class="btn btn-sm" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
@@ -33,7 +37,7 @@
       <p class="lead">Diseno personalizado, seguridad clinica y formacion profesional para artistas que quieren vivir de la micropigmentacion.</p>
       <div class="hero-actions">
         <a class="btn" href="#booking">Reservar cita</a>
-        <a class="btn btn-ghost" href="#academy">Ver academia</a>
+        <a class="btn btn-ghost" href="servicios.html">Ver todos los servicios</a>
       </div>
       <ul class="trust-strip">
         <li>Protocolos de higiene estrictos</li>
@@ -48,43 +52,63 @@
         <h2>Especialistas en micropigmentacion y diseno facial.</h2>
       </div>
       <div class="grid cards-3">
-        <article class="card media-card">
-          <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80" alt="Tratamiento de cejas" />
+        <a class="card media-card service-link" href="gallery.html?cat=Cejas%20Femeninas">
+          <img src="assets/imgs/servicios/microfemenina.jpeg" alt="Tratamiento de cejas" />
           <div class="media-content">
-          <h3>Cejas</h3>
-          <p>Microblading, nanoblading y efecto polvo con visagismo para armonizar rasgos.</p>
+            <h3>Cejas</h3>
+            <p>Microblading, nanoblading y efecto polvo con visagismo para armonizar rasgos.</p>
           </div>
-        </article>
-        <article class="card media-card">
-          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=1200&q=80" alt="Tratamiento de labios" />
+        </a>
+        <a class="card media-card service-link" href="gallery.html?cat=Micropigmentacion">
+          <img src="assets/imgs/servicios/microlabios.jpg" alt="Tratamiento de labios" />
           <div class="media-content">
-          <h3>Labios</h3>
-          <p>Neutralizacion, perfilado y efecto acuarela para mejorar forma y color.</p>
+            <h3>Labios</h3>
+            <p>Neutralizacion, perfilado y efecto acuarela para mejorar forma y color.</p>
           </div>
-        </article>
-        <article class="card media-card">
-          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80" alt="Micropigmentacion de ojos" />
+        </a>
+        <a class="card media-card service-link" href="gallery.html?cat=Micropigmentacion">
+          <img src="assets/imgs/servicios/eyeliner.webp" alt="Micropigmentacion de ojos" />
           <div class="media-content">
-          <h3>Ojos y areolas</h3>
-          <p>Eye liner y micropigmentacion reconstructiva con enfoque natural y seguro.</p>
+            <h3>Ojos y areolas</h3>
+            <p>Eye liner y micropigmentacion reconstructiva con enfoque natural y seguro.</p>
           </div>
-        </article>
+        </a>
       </div>
     </section>
 
-    <section id="resultados" class="section reveal">
+    <section class="section reveal">
       <div class="section-head">
-        <p class="eyebrow">Resultados</p>
-        <h2>Trabajos recientes del estudio.</h2>
+        <p class="eyebrow">Galeria</p>
+        <h2>Explora mas trabajos reales del estudio.</h2>
       </div>
       <div class="gallery-grid">
-        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=1200&q=80" alt="Antes y despues de cejas" />
-        <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1200&q=80" alt="Detalle de micropigmentacion" />
-        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80" alt="Resultado final de tratamiento" />
-        <img src="https://images.unsplash.com/photo-1503342394128-c104d54dba01?auto=format&fit=crop&w=1200&q=80" alt="Sesion en cabina de belleza" />
-        <img src="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=1200&q=80" alt="Diseno facial y visagismo" />
-        <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1200&q=80" alt="Tratamiento profesional en estudio" />
+        <a class="gallery-link" href="gallery.html?cat=Cejas%20Femeninas">
+          <img src="assets/imgs/cejasFemininas/cejas_femininas (1).jpeg" alt="Trabajo de cejas" />
+        </a>
+        <a class="gallery-link" href="gallery.html?cat=Micro%20Capilar">
+          <img src="assets/imgs/microCapilar/micro_capilar (1).jpeg" alt="Trabajo capilar" />
+        </a>
+        <a class="gallery-link" href="gallery.html?cat=Micropigmentacion">
+          <img src="assets/imgs/servicios/microlabios.webp" alt="Micropigmentacion de labios" />
+        </a>
       </div>
+    </section>
+
+    <section id="instagram" class="section reveal">
+      <div class="section-head">
+        <p class="eyebrow">Recientes</p>
+        <h2>Nuestro Feed De Noticias</h2>
+      </div>
+      <div id="curator-feed-default-feed-layout" class="instagram-feed"></div>
+    </section>
+
+    <section id="testmonial" class="section reveal">
+      <div class="section-head">
+        <p class="eyebrow">Testimonios</p>
+        <h2>Lo que dicen nuestras clientas</h2>
+      </div>
+      <script src="https://elfsightcdn.com/platform.js" async></script>
+      <div class="elfsight-app-c119887b-421b-440d-8469-a88412a493d4" data-elfsight-app-lazy></div>
     </section>
 
     <section id="academy" class="section reveal split">
@@ -92,20 +116,40 @@
         <p class="eyebrow">Academia</p>
         <h2>Formamos profesionales con metodologia real de cabina.</h2>
         <p>Programas intensivos con teoria, practica guiada y protocolos de negocio para comenzar a facturar con criterio profesional.</p>
-        <a class="btn" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20informacion%20sobre%20la%20academia" target="_blank" rel="noreferrer">Pedir programa</a>
+        <div class="academy-topics">
+          <article class="topic-card">
+            <h3>Efecto Rapado</h3>
+            <p>Diseno de linea frontal, patron de puntos y transiciones para resultados hiperrealistas en micropigmentacion capilar.</p>
+          </article>
+          <article class="topic-card">
+            <h3>Densificacion</h3>
+            <p>Tecnicas para aumentar visualmente la densidad en zonas con perdida difusa manteniendo naturalidad y equilibrio.</p>
+          </article>
+          <article class="topic-card">
+            <h3>Camuflaje de Cicatriz / Injerto Fallido</h3>
+            <p>Protocolos de correccion para disimular cicatrices o resultados previos no satisfactorios con criterios seguros.</p>
+          </article>
+        </div>
+        <a class="btn" href="https://api.whatsapp.com/send?phone=34689417527&text=Hola,%20quiero%20informacion%20sobre%20las%20formaciones%20de%20la%20academia" target="_blank" rel="noreferrer">Pedir informacion de formaciones</a>
       </div>
-      <div class="stat-stack">
-        <article class="stat-card">
-          <p class="stat-number">1:1</p>
-          <p>Tutoria personalizada</p>
+      <div class="instructors">
+        <article class="card instructor-card">
+          <img src="assets/imgs/li.jpeg" alt="Instructora Li" />
+          <div>
+            <h3>Li</h3>
+            <p>Con más de 10 años de experiencia en el mundo de la micropigmentación, Li ha transformado no solo miradas, sino también autoestimas y trayectorias de vida.</p>
+            <p>Su trabajo se distingue por técnicas avanzadas, resultados naturales, delicados y armónicos, y una conexión real con cada persona que atiende.</p>
+            <p>Además de atender con excelencia, Li ya ha formado a decenas de alumnas que hoy brillan en el mercado. Su compromiso con la calidad y la empatía hacen de cada sesión una experiencia única.</p>
+          </div>
         </article>
-        <article class="stat-card">
-          <p class="stat-number">360</p>
-          <p>Enfoque tecnico + comercial</p>
-        </article>
-        <article class="stat-card">
-          <p class="stat-number">Pro</p>
-          <p>Flujo de trabajo para clientes reales</p>
+        <article class="card instructor-card">
+          <img src="assets/imgs/josemi.jpeg" alt="Instructor Josemi" />
+          <div>
+            <h3>Josemi</h3>
+            <p>Josemi es un profesional de reconocido prestigio en el mercado de la Micropigmentación, especializado en técnicas avanzadas de micropigmentación capilar.</p>
+            <p>Su pasión por la micro va más allá de la técnica, enfocandose en un trato personalizado, y asegurar que cada cliente obtenga un resultado único.</p>
+            <p>Se destaca por su habilidad, dedicación, compromiso con el bien estar de sus clientes y alumnos.</p>
+          </div>
         </article>
       </div>
     </section>
@@ -149,6 +193,7 @@
     <p>&copy; <span id="year"></span> Like Studio Academy</p>
   </footer>
 
+  <script src="https://cdn.curator.io/published/c4274854-8bf5-4670-b53b-1dc119573358.js"></script>
   <script src="static/js/site.js"></script>
 </body>
 </html>

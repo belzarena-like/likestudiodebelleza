@@ -1,366 +1,121 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería - LikeByLi</title>
-    <style>
-        :root {
-            --primary: #ff214f;
-            --secondary: #d4002c;
-            --dark: #343a40;
-            --light: #f8f9fa;
-            --accent: #ff5477;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: var(--light);
-            padding: 2rem 0;
-            min-height: 100vh;
-        }
-
-        .gallery-section {
-            max-width: 1400px;
-            margin: 0 auto 4rem;
-            padding: 0 1rem;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .gallery-section:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .gallery-section:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .section-header h2 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .section-header::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            margin: 1rem auto;
-            border-radius: 2px;
-        }
-
-        .carousel-container {
-            position: relative;
-            overflow: hidden;
-            padding: 0 60px;
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s ease;
-            gap: 1.5rem;
-        }
-
-        .carousel-item {
-            flex: 0 0 calc(25% - 1.125rem);
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            aspect-ratio: 1;
-            cursor: pointer;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-            background: rgba(30, 30, 30, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(212, 163, 115, 0.2);
-        }
-
-        .carousel-item:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(255, 33, 79, 0.3);
-            border-color: var(--primary);
-            z-index: 10;
-        }
-
-        .carousel-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease, filter 0.4s ease;
-        }
-
-        .carousel-item:hover .carousel-img {
-            transform: scale(1.1);
-            filter: brightness(1.1);
-        }
-
-        .carousel-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 33, 79, 0.9), rgba(212, 0, 44, 0.9));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .carousel-item:hover .carousel-overlay {
-            opacity: 1;
-        }
-
-        .carousel-icon {
-            width: 60px;
-            height: 60px;
-            border: 3px solid white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-            transform: scale(0.8) rotate(-90deg);
-            transition: transform 0.4s ease;
-        }
-
-        .carousel-item:hover .carousel-icon {
-            transform: scale(1) rotate(0deg);
-        }
-
-        .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-
-        .carousel-nav:hover {
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 5px 20px rgba(255, 33, 79, 0.6);
-        }
-
-        .carousel-prev {
-            left: 0;
-        }
-
-        .carousel-next {
-            right: 0;
-        }
-
-        .carousel-indicators {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .indicator.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            width: 30px;
-            border-radius: 5px;
-        }
-
-        /* Lightbox Modal */
-        .lightbox {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .lightbox.active {
-            display: flex;
-        }
-
-        .lightbox-content {
-            max-width: 90%;
-            max-height: 90vh;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(255, 33, 79, 0.5);
-            animation: scaleIn 0.4s ease;
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .lightbox-close:hover {
-            transform: rotate(90deg) scale(1.1);
-            box-shadow: 0 5px 20px rgba(255, 33, 79, 0.6);
-        }
-
-        .lightbox-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 33, 79, 0.8);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .lightbox-nav:hover {
-            background: var(--primary);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .lightbox-prev {
-            left: 2rem;
-        }
-
-        .lightbox-next {
-            right: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .carousel-item {
-                flex: 0 0 calc(33.333% - 1rem);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .section-header h2 {
-                font-size: 2rem;
-            }
-
-            .carousel-container {
-                padding: 0 50px;
-            }
-
-            .carousel-item {
-                flex: 0 0 calc(50% - 0.75rem);
-            }
-
-            .carousel-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .lightbox-nav,
-            .lightbox-close {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .lightbox-prev {
-                left: 1rem;
-            }
-
-            .lightbox-next {
-                right: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .carousel-item {
-                flex: 0 0 100%;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galeria | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css" />
+  <style>
+    .gallery-wrap { width: min(1200px, 100% - 2rem); margin: 2rem auto 4rem; }
+    .gallery-filter { display: flex; gap: 10px; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+    .gallery-filter button { border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; background: #141922; color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+    .gallery-filter button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .gallery-masonry { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .gallery-masonry img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); cursor: zoom-in; box-shadow: var(--shadow); }
+    .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.86); display: none; place-items: center; z-index: 99; padding: 2rem; }
+    .lightbox.active { display: grid; }
+    .lightbox img { max-width: min(1000px, 100%); max-height: 85vh; border-radius: 12px; }
+    .lightbox button { position: absolute; top: 20px; right: 20px; border: 0; border-radius: 999px; width: 42px; height: 42px; background: #fff; font-size: 22px; cursor: pointer; }
+    @media (max-width: 900px) { .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px) { .gallery-masonry { grid-template-columns: 1fr; } .gallery-masonry img { height: 230px; } }
+  </style>
 </head>
 <body>
-    <div id="galleriesContainer"></div>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Like Studio Academy</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Inicio</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="gallery.html">Galeria</a>
+      <a href="index.html#instagram">Instagram</a>
+      <a href="index.html#academy">Academia</a>
+      <a href="index.html#contact">Contacto</a>
+      <a class="btn btn-sm" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
+    </nav>
+  </header>
 
-    <!-- Lightbox Modal -->
-    <div class="lightbox" id="lightbox">
-        <button class="lightbox-close" id="lightboxClose">×</button>
-        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
-        <img class="lightbox-content" id="lightboxImg" alt="Gallery Image">
-        <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
-    </div>
+  <main class="gallery-wrap">
+    <p class="eyebrow">Galeria</p>
+    <h1>Trabajos reales</h1>
+    <div class="gallery-filter" id="galleryFilter"></div>
+    <div class="gallery-masonry" id="galleryGrid"></div>
+  </main>
 
-<script src="assets/js/gallery.js"></script>
+  <div class="lightbox" id="lightbox">
+    <button id="lightboxClose" aria-label="Cerrar">&times;</button>
+    <img id="lightboxImg" alt="Trabajo ampliado" />
+  </div>
+
+  <script>
+    const images = [
+
+      ...Array.from({ length: 13 }, (_, i) => `assets/imgs/cejasFemininas/cejas_femininas (${i + 1}).jpeg`),
+      ...Array.from({ length: 4 }, (_, i) => `assets/imgs/cejasMasculinas/cejas_masculinas (${i + 1}).jpeg`),
+      ...Array.from({ length: 8 }, (_, i) => `assets/imgs/microCapilar/micro_capilar (${i + 1}).jpeg`),
+    
+    ];
+
+    const items = images.map((src) => {
+      let c = 'General';
+      if (src.includes('/cejasFemininas/')) c = 'Cejas Femeninas';
+      else if (src.includes('/cejasMasculinas/')) c = 'Cejas Masculinas';
+      else if (src.includes('/microCapilar/')) c = 'Micro Capilar';
+      else if (src.includes('/servicios/')) c = 'Micropigmentacion';
+      return { c, src };
+    });
+
+    const categories = ['Todos', ...new Set(items.map((i) => i.c))];
+    const params = new URLSearchParams(window.location.search);
+    const initialCat = categories.includes(params.get('cat')) ? params.get('cat') : 'Todos';
+
+    const filter = document.getElementById('galleryFilter');
+    const grid = document.getElementById('galleryGrid');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    function renderButtons(active) {
+      filter.innerHTML = categories
+        .map((c) => `<button class="${c === active ? 'active' : ''}" data-cat="${c}">${c}</button>`)
+        .join('');
+    }
+
+    function renderGrid(active) {
+      const filtered = active === 'Todos' ? items : items.filter((i) => i.c === active);
+      grid.innerHTML = filtered.map((i) => `<img src="${i.src}" alt="${i.c}" loading="lazy" />`).join('');
+    }
+
+    renderButtons(initialCat);
+    renderGrid(initialCat);
+
+    filter.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-cat]');
+      if (!btn) return;
+      const cat = btn.dataset.cat;
+      renderButtons(cat);
+      renderGrid(cat);
+      const url = new URL(window.location.href);
+      if (cat === 'Todos') url.searchParams.delete('cat');
+      else url.searchParams.set('cat', cat);
+      history.replaceState({}, '', url);
+    });
+
+    grid.addEventListener('click', (e) => {
+      const img = e.target.closest('img');
+      if (!img) return;
+      lightboxImg.src = img.src;
+      lightbox.classList.add('active');
+    });
+
+    document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('active'));
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('active'); });
+  </script>
+  <script src="static/js/site.js"></script>
 </body>
 </html>

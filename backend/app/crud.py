@@ -3,7 +3,11 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+if __package__:
+    from . import models, schemas
+else:
+    import models  # type: ignore
+    import schemas  # type: ignore
 
 
 def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:

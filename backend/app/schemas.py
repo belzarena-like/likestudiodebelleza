@@ -1,15 +1,18 @@
 ﻿from datetime import date, datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
-from .models import ConsentType
+if __package__:
+    from .models import ConsentType
+else:
+    from models import ConsentType  # type: ignore
 
 
 class ClientCreate(BaseModel):
     full_name: str = Field(min_length=2, max_length=180)
     id_number: str = Field(min_length=3, max_length=40)
     phone: str | None = Field(default=None, max_length=40)
-    email: EmailStr | None = None
+    email: str | None = None
 
 
 class ClientRead(ClientCreate):
@@ -40,7 +43,7 @@ class ConsentCreate(BaseModel):
     full_name: str = Field(min_length=2, max_length=180)
     id_number: str = Field(min_length=3, max_length=40)
     phone: str | None = Field(default=None, max_length=40)
-    email: EmailStr | None = None
+    email: str | None = None
     treatment_areas: str = Field(min_length=2, max_length=220)
     medical_conditions: str | None = None
     personalized_risks: str | None = None
