@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
 </head>
-<body>
+<body data-consent-form="estetico">
   <header class="topbar">
     <a class="brand" href="../index.html">Like Studio Academy</a>
     <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
@@ -42,7 +42,7 @@
       <div><label for="profession">Profesion</label><input id="profession" name="profession" /></div>
       <div><label for="children">Hijos</label><input id="children" name="children" type="number" min="0" /></div>
       <div><label for="dni">DNI</label><input id="dni" name="dni" required /></div>
-      <div><label for="phone">Telefono</label><input id="phone" name="phone" /></div>
+      <div><label for="phone">Telefono</label><input id="phone" name="phone" required /></div>
       <div><label for="email">Correo</label><input id="email" name="email" type="email" /></div>
 
       <div class="form-grid-1">
@@ -142,6 +142,8 @@
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/consent-print.js"></script>
+  <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     document.getElementById('signed_at').valueAsDate = new Date();
@@ -151,12 +153,23 @@
       var form = event.currentTarget;
       var message = document.getElementById('form-message');
       var data = new FormData(form);
+      var firstName = String(data.get('full_name') || '').trim();
+      var lastName = String(data.get('last_name') || '').trim();
+      var idNumber = String(data.get('dni') || '').trim();
+      var phone = String(data.get('phone') || '').trim();
+      var signatureText = String(data.get('signature_text') || '').trim();
+      var fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+
+      if (!fullName || !idNumber || !phone || !signatureText) {
+        message.textContent = 'Nombre, DNI/NIE, telefono y firma son obligatorios.';
+        return;
+      }
 
       var payload = {
         consent_type: 'aesthetic_treatment',
-        full_name: [data.get('full_name'), data.get('last_name')].filter(Boolean).join(' '),
-        id_number: data.get('dni'),
-        phone: data.get('phone') || null,
+        full_name: fullName,
+        id_number: idNumber,
+        phone: phone,
         email: data.get('email') || null,
         treatment_areas: data.get('treatment'),
         medical_conditions: JSON.stringify({
@@ -180,7 +193,7 @@
         photos_allowed: false,
         signed_at: data.get('signed_at'),
         therapist_name: 'Like Studio Team',
-        signature_text: data.get('signature_text')
+        signature_text: signatureText
       };
 
       try {

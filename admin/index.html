@@ -43,6 +43,39 @@
       padding: 12px;
     }
 
+    .quick-create {
+      margin: 0 0 16px;
+    }
+
+    .quick-create details {
+      display: inline-block;
+      min-width: 280px;
+    }
+
+    .quick-create summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .quick-create summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .quick-create-panel {
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0f141d;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .quick-create-panel a {
+      text-decoration: none;
+    }
+
     @media (max-width: 700px) {
       .admin-table {
         min-width: 680px;
@@ -73,9 +106,16 @@
     <p class="eyebrow">Panel Admin</p>
     <h1>Consentimientos firmados</h1>
 
-    <div class="form-actions" style="margin: 0 0 16px;">
-      <a class="btn" href="consent-micropigmentacion.html">Nuevo consentimiento micropigmentacion</a>
-      <a class="btn btn-ghost" href="consent-estetico.html">Nueva ficha estetica corporal</a>
+    <div class="quick-create">
+      <details>
+        <summary class="btn">Nuevo consentimiento</summary>
+        <div class="quick-create-panel">
+          <a class="btn btn-ghost" href="consent-micropigmentacion.html">Micropigmentacion</a>
+          <a class="btn btn-ghost" href="consent-estetico.html">Ficha estetica corporal</a>
+          <a class="btn btn-ghost" href="consent-laser.html">Depilacion laser</a>
+          <a class="btn btn-ghost" href="consent-eliminacion-laser.html">Eliminacion tatuaje/micropigmentacion</a>
+        </div>
+      </details>
     </div>
 
     <form id="search-form" class="form-grid" style="margin-bottom:14px">
@@ -93,6 +133,7 @@
           <option value="">Todos</option>
           <option value="micropigmentation">Micropigmentacion</option>
           <option value="aesthetic_treatment">Tratamiento estetico</option>
+          <option value="laser">Depilacion laser</option>
         </select>
       </div>
       <div>
@@ -120,6 +161,7 @@
             <th>Tipo</th>
             <th>Tratamiento/Area</th>
             <th>Profesional</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -159,12 +201,17 @@
 
     function renderRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="6">Sin resultados.</td></tr>';
+        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="7">Sin resultados.</td></tr>';
         return;
       }
 
       tableBody.innerHTML = items.map((item) => {
-        const kind = item.consent_type === 'micropigmentation' ? 'Micropigmentacion' : 'Tratamiento estetico';
+        const kindMap = {
+          micropigmentation: 'Micropigmentacion',
+          aesthetic_treatment: 'Tratamiento estetico',
+          laser: 'Depilacion laser'
+        };
+        const kind = kindMap[item.consent_type] || item.consent_type;
         return `
           <tr>
             <td>${item.signed_at}</td>
@@ -173,6 +220,7 @@
             <td>${kind}</td>
             <td>${item.treatment_areas}</td>
             <td>${item.therapist_name}</td>
+            <td><a class="btn btn-ghost" href="consent-view.html?id=${item.id}" target="_blank" rel="noopener">Abrir</a></td>
           </tr>
         `;
       }).join('');

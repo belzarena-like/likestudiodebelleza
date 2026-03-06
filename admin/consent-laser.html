@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consentimiento Depilacion Laser | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+</head>
+<body data-consent-form="laser-depilacion">
+  <header class="topbar">
+    <a class="brand" href="../index.html">Like Studio Academy</a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap">
+    <p class="eyebrow">Documento legal</p>
+    <h1>Consentimiento informado para depilacion laser</h1>
+    <p class="form-note">Lectura obligatoria previa al tratamiento. La firma confirma comprension y autorizacion.</p>
+
+    <section class="legal-box">
+      <h3>Texto de consentimiento para lectura previa</h3>
+      <ol>
+        <li>La depilacion laser produce calentamiento selectivo del foliculo piloso para disminuir progresivamente el vello sin afectar tejidos circundantes.</li>
+        <li>El numero de sesiones varia segun fototipo de piel, color/grosor del vello y zona tratada; en algunos casos pueden requerirse sesiones adicionales.</li>
+        <li>No se garantiza eliminacion total del vello ni un resultado identico en todas las personas.</li>
+        <li>Pueden aparecer efectos secundarios transitorios: enrojecimiento, edema, irritacion, escozor, quemazon leve o alteraciones pigmentarias temporales.</li>
+        <li>Existen contraindicaciones y factores de riesgo que deben informarse previamente: embarazo/lactancia, herpes activo, tratamientos fotosensibilizantes, patologias cutaneas, cicatrizaciones anormales, exposicion solar reciente, entre otros.</li>
+        <li>Se deben seguir estrictamente las indicaciones antes, durante y despues del tratamiento, incluyendo fotoproteccion y evitar radiacion UVA en la zona tratada.</li>
+        <li>La persona usuaria declara que no oculta datos clinicos relevantes y entiende su derecho a rechazar o revocar este consentimiento.</li>
+        <li>Se autoriza la toma de fotografias clinicas de seguimiento cuando proceda, con tratamiento confidencial de la informacion.</li>
+      </ol>
+    </section>
+    <section class="legal-box">
+      <h3>Contraindicaciones (informacion que debe aportar el cliente)</h3>
+      <p>El tratamiento no se recomienda si la persona presenta alguna de las siguientes condiciones:</p>
+      <ul>
+        <li>Enfermedades de piel en la zona (psoriasis, dermatitis activa, queratosis, infecciones, verrugas u otras).</li>
+        <li>Tendencia a formacion de queloides.</li>
+        <li>Uso de medicacion fotosensibilizante o anticoagulantes sin supervision medica.</li>
+        <li>Embarazo o lactancia.</li>
+        <li>Problemas medicos importantes (por ejemplo diabetes o problemas inmunitarios) que afecten la cicatrizacion.</li>
+        <li>Exposicion solar intensa o radiacion UV reciente en la zona a tratar.</li>
+      </ul>
+    </section>
+    <section class="legal-box">
+      <h3>Cuidados previos al tratamiento</h3>
+      <ul>
+        <li>No exponer la zona al sol al menos 5 dias antes del tratamiento.</li>
+        <li>No usar autobronceadores.</li>
+        <li>Evitar sensibilidad o irritacion por productos fuertes o exfoliaciones en dias previos.</li>
+        <li>Informar alergias, tratamiento medico actual y cualquier condicion relevante.</li>
+      </ul>
+    </section>
+    <section class="legal-box">
+      <h3>Cuidados posteriores y seguimiento</h3>
+      <ul>
+        <li>Mantener la zona limpia y seca.</li>
+        <li>Aplicar cremas o productos indicados durante el periodo de curacion.</li>
+        <li>Evitar exposicion solar directa y usar protector solar de alto factor.</li>
+        <li>No arrancar costras si aparecen.</li>
+        <li>Asistir a las sesiones de seguimiento programadas.</li>
+      </ul>
+    </section>
+    <section class="legal-box">
+      <h3>Declaracion final de consentimiento</h3>
+      <p>Declaro que he leido este documento, que se me ha explicado el tratamiento, sus riesgos, beneficios y alternativas, y que he tenido oportunidad de hacer preguntas, las cuales han sido respondidas satisfactoriamente.</p>
+      <p>Autorizo que el tratamiento descrito sea realizado por Like Studio Academy.</p>
+    </section>
+
+    <form id="laser-form" class="form-grid">
+      <div>
+        <label for="full_name">Nombre completo</label>
+        <input id="full_name" name="full_name" required />
+      </div>
+      <div>
+        <label for="birth_date">Fecha de nacimiento</label>
+        <input id="birth_date" name="birth_date" type="date" required />
+      </div>
+      <div>
+        <label for="id_number">DNI / NIE</label>
+        <input id="id_number" name="id_number" required />
+      </div>
+      <div>
+        <label for="phone">Telefono</label>
+        <input id="phone" name="phone" required />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" />
+      </div>
+      <div>
+        <label for="signed_at">Fecha de firma</label>
+        <input id="signed_at" name="signed_at" type="date" required />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="treatment_area">Zona/s a tratar</label>
+        <input id="treatment_area" name="treatment_area" placeholder="Ej: axilas, ingles, piernas..." required />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="medical_conditions">Antecedentes, medicacion o contraindicaciones relevantes</label>
+        <textarea id="medical_conditions" name="medical_conditions"></textarea>
+      </div>
+
+      <div class="form-grid-1 check-grid">
+        <label><input type="checkbox" name="acceptance_points" value="riesgos" required /> Confirmo que comprendo riesgos y posibles efectos secundarios.</label>
+        <label><input type="checkbox" name="acceptance_points" value="contraindicaciones" required /> Declaro que informo contraindicaciones y datos medicos relevantes.</label>
+        <label><input type="checkbox" name="acceptance_points" value="cuidados" required /> Me comprometo a seguir los cuidados y fotoproteccion indicados.</label>
+        <label><input type="checkbox" name="acceptance_points" value="sin_garantia" required /> Entiendo que no existe garantia absoluta de resultado.</label>
+        <label><input type="checkbox" name="acceptance_points" value="revocacion" required /> Conozco mi derecho a rechazar o revocar este consentimiento.</label>
+      </div>
+
+      <div class="form-grid-1 inline-check">
+        <input id="photos_allowed" name="photos_allowed" type="checkbox" />
+        <label for="photos_allowed">Autorizo fotografias clinicas de seguimiento.</label>
+      </div>
+
+      <div>
+        <label for="therapist_name">Profesional que informa</label>
+        <input id="therapist_name" name="therapist_name" required />
+      </div>
+      <div class="form-grid-1">
+        <label for="signature_text">Firma (texto de confirmacion)</label>
+        <input id="signature_text" name="signature_text" placeholder="Escriba su nombre como firma" required />
+      </div>
+
+      <div class="form-actions form-grid-1">
+        <button class="btn" type="submit">Guardar consentimiento laser</button>
+        <a class="btn btn-ghost" href="index.html">Cancelar</a>
+      </div>
+      <p id="form-message" class="form-grid-1" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/consent-print.js"></script>
+  <script src="../static/js/consent-prefill.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script>
+    document.getElementById('signed_at').valueAsDate = new Date();
+
+    document.getElementById('laser-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      var form = event.currentTarget;
+      var message = document.getElementById('form-message');
+      var formData = new FormData(form);
+      var fullName = String(formData.get('full_name') || '').trim();
+      var idNumber = String(formData.get('id_number') || '').trim();
+      var phone = String(formData.get('phone') || '').trim();
+      var signatureText = String(formData.get('signature_text') || '').trim();
+      var points = formData.getAll('acceptance_points');
+
+      if (!fullName || !idNumber || !phone || !signatureText) {
+        message.textContent = 'Nombre, DNI/NIE, telefono y firma son obligatorios.';
+        return;
+      }
+
+      if (points.length < 5) {
+        message.textContent = 'Debes aceptar todos los puntos obligatorios.';
+        return;
+      }
+
+      var payload = {
+        consent_type: 'laser',
+        full_name: fullName,
+        id_number: idNumber,
+        phone: phone,
+        email: formData.get('email') || null,
+        treatment_areas: 'Depilacion laser - ' + formData.get('treatment_area'),
+        medical_conditions: JSON.stringify({
+          birth_date: formData.get('birth_date'),
+          contraindications: formData.get('medical_conditions') || null
+        }),
+        personalized_risks: 'Consentimiento depilacion laser',
+        case_particularities: null,
+        acceptance_points: points,
+        photos_allowed: formData.get('photos_allowed') === 'on',
+        signed_at: formData.get('signed_at'),
+        therapist_name: formData.get('therapist_name'),
+        signature_text: signatureText
+      };
+
+      try {
+        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
+        }
+
+        message.textContent = 'Consentimiento de depilacion laser guardado correctamente.';
+        form.reset();
+        document.getElementById('signed_at').valueAsDate = new Date();
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

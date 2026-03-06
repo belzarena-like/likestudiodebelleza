@@ -1,10 +1,47 @@
 ﻿(function () {
-  var AUTH_KEY = "likestudio_admin_auth";
+  var AUTH_KEY = "likestudio_admin_auth_v2";
+  var LEGACY_AUTH_KEY = "likestudio_admin_auth";
+  var AUTH_TTL_MS = 2 * 60 * 60 * 1000;
   var USERNAME = "likestudio";
   var PASSWORD = "liegeJosemi2026";
 
+  function now() {
+    return Date.now();
+  }
+
+  function writeSession() {
+    localStorage.setItem(
+      AUTH_KEY,
+      JSON.stringify({
+        ok: true,
+        expires_at: now() + AUTH_TTL_MS
+      })
+    );
+  }
+
   function isAuthenticated() {
-    return sessionStorage.getItem(AUTH_KEY) === "ok";
+    var raw = localStorage.getItem(AUTH_KEY);
+    if (raw) {
+      try {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.ok && Number(parsed.expires_at) > now()) {
+          // Sliding expiration while admin is active.
+          writeSession();
+          return true;
+        }
+      } catch (e) {
+        // Ignore malformed values and force re-auth.
+      }
+    }
+
+    // One-time migration from old sessionStorage key.
+    if (sessionStorage.getItem(LEGACY_AUTH_KEY) === "ok") {
+      sessionStorage.removeItem(LEGACY_AUTH_KEY);
+      writeSession();
+      return true;
+    }
+
+    return false;
   }
 
   function createOverlay() {
@@ -44,7 +81,7 @@
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       if (user.value === USERNAME && pass.value === PASSWORD) {
-        sessionStorage.setItem(AUTH_KEY, "ok");
+        writeSession();
         overlay.remove();
         return;
       }
@@ -53,7 +90,8 @@
   }
 
   window.likestudioAdminLogout = function () {
-    sessionStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(LEGACY_AUTH_KEY);
     window.location.reload();
   };
 
