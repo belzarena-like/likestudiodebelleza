@@ -1,0 +1,209 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha Estetica Corporal | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">Like Studio Academy</a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap">
+    <p class="eyebrow">Ficha previa</p>
+    <h1>Ficha de tratamiento estetico corporal</h1>
+    <p class="form-note">Incluye antecedentes, estilo de vida y politica de citas/bonos para registrar el tratamiento de forma estructurada.</p>
+    <section class="legal-box">
+      <h3>Texto informativo para lectura previa</h3>
+      <ol>
+        <li>La persona usuaria declara que los datos personales y antecedentes aportados son veraces y completos.</li>
+        <li>Se informa sobre la necesidad de comunicar enfermedades previas, alergias, embarazo, patologias cardiacas, diabetes, hepatitis, implantes metalicos, cirugias u otras condiciones relevantes.</li>
+        <li>El tratamiento y numero de sesiones se definen segun valoracion profesional y evolucion individual, pudiendo requerir ajustes.</li>
+        <li>Si no se presenta a la cita, o no cancela con al menos 24 horas de antelacion, se registrara como cita perdida.</li>
+        <li>Los bonos tienen una caducidad de 6 meses desde la fecha de compra y no se aceptan una vez caducados.</li>
+        <li>La solicitud de citas, cambios o cancelaciones se realiza por WhatsApp oficial del centro.</li>
+      </ol>
+    </section>
+
+    <form id="estetico-form" class="form-grid">
+      <div><label for="full_name">Nombre</label><input id="full_name" name="full_name" required /></div>
+      <div><label for="last_name">Apellidos</label><input id="last_name" name="last_name" required /></div>
+      <div><label for="age">Edad</label><input id="age" name="age" type="number" min="0" /></div>
+      <div><label for="profession">Profesion</label><input id="profession" name="profession" /></div>
+      <div><label for="children">Hijos</label><input id="children" name="children" type="number" min="0" /></div>
+      <div><label for="dni">DNI</label><input id="dni" name="dni" required /></div>
+      <div><label for="phone">Telefono</label><input id="phone" name="phone" /></div>
+      <div><label for="email">Correo</label><input id="email" name="email" type="email" /></div>
+
+      <div class="form-grid-1">
+        <label for="history">Antecedentes personales</label>
+        <textarea id="history" name="history"></textarea>
+      </div>
+
+      <div class="form-grid-1 check-grid">
+        <label><input type="checkbox" name="conditions" value="dermatitis" /> Dermatitis</label>
+        <label><input type="checkbox" name="conditions" value="cirugias" /> Cirugias previas</label>
+        <label><input type="checkbox" name="conditions" value="embarazo" /> Embarazo</label>
+        <label><input type="checkbox" name="conditions" value="hepatitis" /> Hepatitis</label>
+        <label><input type="checkbox" name="conditions" value="cardiaco" /> Problemas cardiacos</label>
+        <label><input type="checkbox" name="conditions" value="cancer" /> Cancer</label>
+        <label><input type="checkbox" name="conditions" value="diabetes" /> Diabetes</label>
+        <label><input type="checkbox" name="conditions" value="fracturas" /> Fracturas</label>
+        <label><input type="checkbox" name="conditions" value="implantes" /> Implantes metalicos</label>
+      </div>
+
+      <div>
+        <label for="lifestyle">Modo de vida</label>
+        <select id="lifestyle" name="lifestyle">
+          <option value="">Seleccionar...</option>
+          <option value="active">Activa</option>
+          <option value="sedentary">Sedentaria</option>
+        </select>
+      </div>
+      <div>
+        <label for="sleep_quality">Calidad del sueno</label>
+        <select id="sleep_quality" name="sleep_quality">
+          <option value="">Seleccionar...</option>
+          <option value="good">Buena</option>
+          <option value="normal">Normal</option>
+          <option value="bad">Mala</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="smoking">Fuma</label>
+        <select id="smoking" name="smoking">
+          <option value="">Seleccionar...</option>
+          <option value="yes">Si</option>
+          <option value="no">No</option>
+          <option value="occasional">Ocasionalmente</option>
+        </select>
+      </div>
+      <div>
+        <label for="alcohol">Alcohol</label>
+        <select id="alcohol" name="alcohol">
+          <option value="">Seleccionar...</option>
+          <option value="yes">Si</option>
+          <option value="no">No</option>
+          <option value="occasional">Ocasionalmente</option>
+        </select>
+      </div>
+
+      <div class="form-grid-1">
+        <label for="sports">Deportes practicados</label>
+        <input id="sports" name="sports" />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="treatment">Tratamiento</label>
+        <input id="treatment" name="treatment" required />
+      </div>
+      <div>
+        <label for="sessions">Numero de sesiones</label>
+        <input id="sessions" name="sessions" type="number" min="1" />
+      </div>
+      <div>
+        <label for="signed_at">Fecha de firma</label>
+        <input id="signed_at" name="signed_at" type="date" required />
+      </div>
+
+      <div class="form-grid-1">
+        <label for="observations">Observaciones generales</label>
+        <textarea id="observations" name="observations"></textarea>
+      </div>
+
+      <div class="form-grid-1 inline-check">
+        <input id="appointment_policy" name="appointment_policy" type="checkbox" required />
+        <label for="appointment_policy">Entiendo la politica: cita perdida sin aviso 24h y bonos con caducidad de 6 meses.</label>
+      </div>
+
+      <div class="form-grid-1">
+        <label for="signature_text">Firma (texto de confirmacion)</label>
+        <input id="signature_text" name="signature_text" placeholder="Escriba su nombre como firma" required />
+      </div>
+
+      <div class="form-actions form-grid-1">
+        <button class="btn" type="submit">Guardar ficha</button>
+        <a class="btn btn-ghost" href="index.html">Cancelar</a>
+      </div>
+      <p id="form-message" class="form-grid-1" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script>
+    document.getElementById('signed_at').valueAsDate = new Date();
+
+    document.getElementById('estetico-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      var form = event.currentTarget;
+      var message = document.getElementById('form-message');
+      var data = new FormData(form);
+
+      var payload = {
+        consent_type: 'aesthetic_treatment',
+        full_name: [data.get('full_name'), data.get('last_name')].filter(Boolean).join(' '),
+        id_number: data.get('dni'),
+        phone: data.get('phone') || null,
+        email: data.get('email') || null,
+        treatment_areas: data.get('treatment'),
+        medical_conditions: JSON.stringify({
+          conditions: data.getAll('conditions'),
+          history: data.get('history') || null,
+          profession: data.get('profession') || null,
+          age: data.get('age') || null,
+          children: data.get('children') || null,
+          lifestyle: data.get('lifestyle') || null,
+          sleep_quality: data.get('sleep_quality') || null,
+          smoking: data.get('smoking') || null,
+          alcohol: data.get('alcohol') || null,
+          sports: data.get('sports') || null,
+          sessions: data.get('sessions') || null,
+          observations: data.get('observations') || null,
+          appointment_policy_accepted: data.get('appointment_policy') === 'on'
+        }),
+        personalized_risks: null,
+        case_particularities: null,
+        acceptance_points: ['appointment_policy_accepted'],
+        photos_allowed: false,
+        signed_at: data.get('signed_at'),
+        therapist_name: 'Like Studio Team',
+        signature_text: data.get('signature_text')
+      };
+
+      try {
+        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
+        }
+
+        message.textContent = 'Ficha guardada correctamente.';
+        form.reset();
+        document.getElementById('signed_at').valueAsDate = new Date();
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
