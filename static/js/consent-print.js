@@ -35,6 +35,11 @@
     }
   }
 
+  function printableId(value) {
+    var id = String(value || "");
+    return id.indexOf("NO-DOC-") === 0 ? "" : id;
+  }
+
   function setChecks(name, values) {
     var set = new Set(Array.isArray(values) ? values : []);
     document.querySelectorAll('input[name="' + name + '"]').forEach(function (el) {
@@ -81,7 +86,7 @@
 
   function fillMicropigmentacion(c) {
     setValue("full_name", c.client_name);
-    setValue("id_number", c.client_id_number);
+    setValue("id_number", printableId(c.client_id_number));
     setValue("phone", c.client_phone);
     setValue("email", c.client_email);
     setValue("areas", c.treatment_areas);
@@ -101,7 +106,7 @@
     var name = splitName(c.client_name);
     setValue("full_name", name.first);
     setValue("last_name", name.last);
-    setValue("dni", c.client_id_number);
+    setValue("dni", printableId(c.client_id_number));
     setValue("phone", c.client_phone);
     setValue("email", c.client_email);
     setValue("history", info.history);
@@ -127,7 +132,7 @@
     var info = safeJson(c.medical_conditions) || {};
     var area = String(c.treatment_areas || "").replace(/^Depilacion laser\s*-\s*/i, "");
     setValue("full_name", c.client_name);
-    setValue("id_number", c.client_id_number);
+    setValue("id_number", printableId(c.client_id_number));
     setValue("phone", c.client_phone);
     setValue("email", c.client_email);
     setValue("birth_date", info.birth_date);
@@ -145,7 +150,7 @@
     var info = safeJson(c.medical_conditions) || {};
     var area = String(c.treatment_areas || "").replace(/^Eliminacion tatuaje\/micropigmentacion\s*-\s*/i, "");
     setValue("full_name", c.client_name);
-    setValue("id_number", c.client_id_number);
+    setValue("id_number", printableId(c.client_id_number));
     setValue("phone", c.client_phone);
     setValue("email", c.client_email);
     setValue("age", info.age);
@@ -155,6 +160,21 @@
     setValue("medical_conditions", info.notes || c.medical_conditions);
     setChecks("acceptance_points", c.acceptance_points);
     setValue("signed_at", c.signed_at);
+    setValue("therapist_name", c.therapist_name);
+    setValue("signature_text", c.signature_text);
+  }
+
+  function fillCapilarCondiciones(c) {
+    var info = safeJson(c.medical_conditions) || {};
+    setValue("full_name", c.client_name);
+    setValue("id_number", printableId(c.client_id_number));
+    setValue("phone", c.client_phone);
+    setValue("signed_at", c.signed_at);
+    setValue("total_amount", info.total_amount);
+    setValue("reserve_amount", info.reserve_amount);
+    setValue("payment_terms", info.payment_terms);
+    setValue("payments", info.payments);
+    setChecks("acceptance_points", c.acceptance_points);
     setValue("therapist_name", c.therapist_name);
     setValue("signature_text", c.signature_text);
   }
@@ -173,6 +193,7 @@
       if (formType === "estetico") fillEstetico(c);
       if (formType === "laser-depilacion") fillLaserDepilacion(c);
       if (formType === "laser-eliminacion") fillLaserEliminacion(c);
+      if (formType === "capilar-condiciones") fillCapilarCondiciones(c);
 
       disableFormForPrint();
 

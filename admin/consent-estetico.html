@@ -41,7 +41,7 @@
       <div><label for="age">Edad</label><input id="age" name="age" type="number" min="0" /></div>
       <div><label for="profession">Profesion</label><input id="profession" name="profession" /></div>
       <div><label for="children">Hijos</label><input id="children" name="children" type="number" min="0" /></div>
-      <div><label for="dni">DNI</label><input id="dni" name="dni" required /></div>
+      <div><label for="dni">DNI/NIE</label><input id="dni" name="dni" placeholder="Opcional" /></div>
       <div><label for="phone">Telefono</label><input id="phone" name="phone" required /></div>
       <div><label for="email">Correo</label><input id="email" name="email" type="email" /></div>
 
@@ -159,16 +159,17 @@
       var phone = String(data.get('phone') || '').trim();
       var signatureText = String(data.get('signature_text') || '').trim();
       var fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
 
-      if (!fullName || !idNumber || !phone || !signatureText) {
-        message.textContent = 'Nombre, DNI/NIE, telefono y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText) {
+        message.textContent = 'Nombre, telefono y firma son obligatorios.';
         return;
       }
 
       var payload = {
         consent_type: 'aesthetic_treatment',
         full_name: fullName,
-        id_number: idNumber,
+        id_number: normalizedId,
         phone: phone,
         email: data.get('email') || null,
         treatment_areas: data.get('treatment'),

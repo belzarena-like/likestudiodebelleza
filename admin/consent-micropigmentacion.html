@@ -22,24 +22,25 @@
   <main class="form-wrap">
     <p class="eyebrow">Documento legal</p>
     <h1>Consentimiento informado de micropigmentacion</h1>
-    <p class="form-note">Este formulario resume riesgos, cuidados y autorizacion del procedimiento de micropigmentacion. Debe firmarse antes del tratamiento.</p>
+    <p class="form-note">Documento legal de riesgos y consentimiento informado. Debe firmarse antes del procedimiento.</p>
     <section class="legal-box">
       <h3>Texto de consentimiento para lectura previa</h3>
       <ol>
-        <li>El objetivo de la tecnica es crear un diseno bajo la piel en labios, cejas, contorno de ojos, camuflaje de pequenas imperfecciones o rediseño de areolas. Es una practica invasiva de la epidermis y puede implicar riesgos menores.</li>
-        <li>La tecnica y los materiales son de un solo uso y cumplen normativa vigente. El resultado puede desvanecerse por intensidad del color, cuidados inadecuados, cosmeticos no recomendados u otros factores individuales.</li>
-        <li>Se ha realizado prueba de alergia y visagismo/diseno previo, que la persona usuaria revisa y acepta (forma, color e intensidad).</li>
-        <li>Antes y despues del tratamiento se podran tomar fotografias del area tratada para fines clinicos, educativos o cientificos.</li>
-        <li>Si existen enfermedades de piel, alergias, problemas de coagulacion u otras condiciones, debe consultarse previamente con personal medico.</li>
-        <li>Tras la micropigmentacion, el area debe mantenerse limpia, hidratada y desinfectada. Debe evitarse exposicion solar/UV directa hasta la correcta cicatrizacion y evitar peelings o tratamientos despigmentantes durante ese periodo.</li>
-        <li>Puede existir variabilidad individual y efectos no deseados como inflamacion, enrojecimiento, picor, descamacion o ampollas en dias posteriores.</li>
-        <li>No se garantiza un resultado exacto. La persona declara que no omite informacion medica relevante y se compromete a seguir las indicaciones pre y post tratamiento.</li>
-        <li>Ante cualquier complicacion, debe consultarse con su medico.</li>
+        <li>La tecnica consiste en implantar pigmento bajo la epidermis para cejas, labios, ojos, camuflajes o areolas. Los materiales son de un solo uso y cumplen normativa vigente.</li>
+        <li>La especialista realiza prueba de alergia y visagismo/diseno previo, confirmado por la persona usuaria en forma, color e intensidad.</li>
+        <li>Se autoriza la toma de fotografias de la zona antes y despues del tratamiento con fines clinicos, didacticos o cientificos.</li>
+        <li>Si existen enfermedades de piel, alergias, alteraciones de coagulacion u otras condiciones medicas, debe consultarse previamente con personal medico.</li>
+        <li>Tras el tratamiento, la zona debe permanecer limpia, hidratada y desinfectada; evitando exposicion solar/UVA, peelings o despigmentantes hasta cicatrizacion completa.</li>
+        <li>Puede existir variabilidad individual y efectos no deseados (hinchazon, enrojecimiento, escozor, descamacion o ampollas), habitualmente transitorios.</li>
+        <li>No se garantiza un resultado exacto ni identico en todos los casos.</li>
+        <li>Las zonas a tratar y particularidades personalizadas se registran en este formulario.</li>
+        <li>La persona usuaria asume seguir instrucciones pre y post tratamiento y consultar a su medico ante cualquier complicacion.</li>
       </ol>
     </section>
     <section class="legal-box">
       <h3>Declaracion final de consentimiento</h3>
-      <p>Declaro que he leido y comprendido este consentimiento en lenguaje claro, que he podido resolver mis dudas, que conozco los riesgos y cuidados, y que autorizo voluntariamente el procedimiento de micropigmentacion en las areas indicadas.</p>
+      <p>Declaro que he leido y comprendido este documento, que he podido aclarar mis dudas, y doy consentimiento al procedimiento de micropigmentacion y a los puntos informados en lenguaje claro.</p>
+      <p>Reconozco que se me ha explicado de forma comprensible el tratamiento y sus riesgos, incluyendo mis riesgos personalizados cuando aplique.</p>
     </section>
 
     <form id="micropigmentacion-form" class="form-grid">
@@ -49,7 +50,7 @@
       </div>
       <div>
         <label for="id_number">DNI / NIE</label>
-        <input id="id_number" name="id_number" required />
+        <input id="id_number" name="id_number" placeholder="Opcional" />
       </div>
       <div>
         <label for="phone">Telefono</label>
@@ -83,10 +84,10 @@
       <div class="form-grid-1 check-grid">
         <label><input type="checkbox" name="acceptance_points" value="procedimiento" required /> Autorizo el procedimiento de micropigmentacion.</label>
         <label><input type="checkbox" name="acceptance_points" value="anestesia" required /> Acepto anestesia cuando sea necesario.</label>
-        <label><input type="checkbox" name="acceptance_points" value="historial" required /> Confirmo historial medico veraz y completo.</label>
+        <label><input type="checkbox" name="acceptance_points" value="historial" required /> Confirmo historial medico veraz y completo, sin omisiones.</label>
         <label><input type="checkbox" name="acceptance_points" value="sin_garantias" required /> Entiendo que no hay garantia absoluta de resultado.</label>
-        <label><input type="checkbox" name="acceptance_points" value="cuidados" required /> Me comprometo a seguir los cuidados antes y despues.</label>
-        <label><input type="checkbox" name="acceptance_points" value="comprension" required /> He leido y comprendido todo el documento.</label>
+        <label><input type="checkbox" name="acceptance_points" value="cuidados" required /> Me comprometo a seguir fielmente cuidados antes, durante y despues.</label>
+        <label><input type="checkbox" name="acceptance_points" value="comprension" required /> He leido y comprendido totalmente este documento.</label>
       </div>
 
       <div class="form-grid-1 inline-check">
@@ -133,9 +134,10 @@
       var idNumber = String(formData.get('id_number') || '').trim();
       var phone = String(formData.get('phone') || '').trim();
       var signatureText = String(formData.get('signature_text') || '').trim();
+      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
 
-      if (!fullName || !idNumber || !phone || !signatureText) {
-        message.textContent = 'Nombre, DNI/NIE, telefono y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText) {
+        message.textContent = 'Nombre, telefono y firma son obligatorios.';
         return;
       }
 
@@ -148,7 +150,7 @@
       var payload = {
         consent_type: 'micropigmentation',
         full_name: fullName,
-        id_number: idNumber,
+        id_number: normalizedId,
         phone: phone,
         email: formData.get('email') || null,
         treatment_areas: formData.get('areas'),

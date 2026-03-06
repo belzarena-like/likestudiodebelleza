@@ -131,6 +131,10 @@
   <script>
     function byId(id) { return document.getElementById(id); }
     function textOrDash(v) { return v ? String(v) : '-'; }
+    function clientIdLabel(v) {
+      var id = String(v || '');
+      return id.indexOf('NO-DOC-') === 0 ? '-' : textOrDash(id);
+    }
     function typeLabel(v) {
       return ({
         micropigmentation: 'Micropigmentacion',
@@ -139,7 +143,13 @@
       })[v] || v;
     }
     function printTemplatePath(consent) {
-      if (consent.consent_type === 'micropigmentation') return 'consent-micropigmentacion.html';
+      if (consent.consent_type === 'micropigmentation') {
+        var area = String(consent.treatment_areas || '').toLowerCase();
+        if (area.indexOf('micropigmentacion capilar - condiciones de pago y reservas') === 0) {
+          return 'consent-capilar-condiciones.html';
+        }
+        return 'consent-micropigmentacion.html';
+      }
       if (consent.consent_type === 'aesthetic_treatment') return 'consent-estetico.html';
       if (consent.consent_type === 'laser') {
         var area = String(consent.treatment_areas || '').toLowerCase();
@@ -172,7 +182,7 @@
         byId('v-type').textContent = typeLabel(c.consent_type);
         byId('v-therapist').textContent = textOrDash(c.therapist_name);
         byId('v-client').textContent = textOrDash(c.client_name);
-        byId('v-id-number').textContent = textOrDash(c.client_id_number);
+        byId('v-id-number').textContent = clientIdLabel(c.client_id_number);
         byId('v-phone').textContent = textOrDash(c.client_phone);
         byId('v-email').textContent = textOrDash(c.client_email);
         byId('v-photos').textContent = c.photos_allowed ? 'Si' : 'No';

@@ -58,7 +58,7 @@
       </div>
       <div>
         <label for="id_number">DNI / NIE</label>
-        <input id="id_number" name="id_number" required />
+        <input id="id_number" name="id_number" placeholder="Opcional" />
       </div>
       <div>
         <label for="age">Edad</label>
@@ -137,9 +137,10 @@
       var phone = String(formData.get('phone') || '').trim();
       var signatureText = String(formData.get('signature_text') || '').trim();
       var points = formData.getAll('acceptance_points');
+      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
 
-      if (!fullName || !idNumber || !phone || !signatureText) {
-        message.textContent = 'Nombre, DNI/NIE, telefono y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText) {
+        message.textContent = 'Nombre, telefono y firma son obligatorios.';
         return;
       }
 
@@ -151,7 +152,7 @@
       var payload = {
         consent_type: 'laser',
         full_name: fullName,
-        id_number: idNumber,
+        id_number: normalizedId,
         phone: phone,
         email: formData.get('email') || null,
         treatment_areas: 'Eliminacion tatuaje/micropigmentacion - ' + formData.get('treatment_area'),
