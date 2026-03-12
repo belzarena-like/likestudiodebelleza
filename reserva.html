@@ -226,11 +226,12 @@
         const response = await fetch(`${API_BASE}/public/availability?date=${date}&service_id=${serviceId}&professional_name=${encodeURIComponent(professional)}`);
         if (!response.ok) throw new Error('No se pudieron cargar los horarios.');
         const payload = await response.json();
-        if (!payload.start_times.length) {
+        const hourSlots = payload.start_times.filter((time) => time.endsWith(':00'));
+        if (!hourSlots.length) {
           clearSlots('No hay horarios disponibles para ese dia.');
           return;
         }
-        slotsContainer.innerHTML = payload.start_times.map((time) => `
+        slotsContainer.innerHTML = hourSlots.map((time) => `
           <button type="button" data-time="${time}">${time}</button>
         `).join('');
         slotMessage.textContent = 'Selecciona un horario disponible.';
