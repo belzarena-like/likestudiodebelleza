@@ -60,6 +60,18 @@ If `DATABASE_URL` is not set, SQLite is used automatically.
 - `GET /admin/consents` (search + pagination for admin listing)
 - `GET /admin/clients` (list clients)
 - `GET /admin/appointments` (list appointments)
+- `GET /admin/services` (list services)
+- `POST /admin/services` (create service)
+- `PUT /admin/services/{service_id}` (update service)
+- `PUT /admin/sessions/{session_id}` (update treatment session)
+- `GET /admin/session-agenda` (sessions linked to appointments for a date)
+- `POST /admin/session-attendance` (mark attendance and update session counts)
+- `GET /admin/client-profiles` (list CRM profiles)
+- `PUT /admin/client-profiles/{client_id}` (upsert CRM profile)
+- `PUT /admin/clients/{client_id}` (update client)
+- `GET /public/services` (list active services)
+- `GET /public/availability` (available slots for a date + service + professional)
+- `POST /public/bookings` (self-booking)
 
 ### Admin consent filters
 
@@ -71,6 +83,7 @@ Imports `admin/bookings_old_system.json` into the new `appointments` table. If a
 
 ```bash
 cd backend
+python -m app.migrate_services
 python -m app.import_bookings
 ```
 
@@ -79,6 +92,18 @@ The script writes a JSON with inserted rows to `backend/import_bookings_output.j
 ```bash
 python -m app.import_bookings --out C:\temp\likestudio_bookings_import.json
 ```
+
+## Services migration
+
+Creates the `services` table, seeds default services, and maps `appointments.service_id` when the name matches.
+
+```bash
+python -m app.migrate_services
+```
+
+This also ensures a `deleted_at` column exists on `appointments`.
+
+It also ensures `services.duration_minutes` and the `client_profiles` table exist, and updates service durations.
 
 ## Frontend integration
 

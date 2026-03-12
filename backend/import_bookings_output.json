@@ -1,10 +1,11 @@
 {
   "source_path": "C:\\Users\\JNBE\\develop\\personal\\likestudiodebelleza\\admin\\bookings_old_system.json",
-  "generated_at": "2026-03-12T15:17:56.942237Z",
+  "generated_at": "2026-03-12T16:03:36.749320Z",
   "created_appointments": [
     {
       "id": 1,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-29",
@@ -17,6 +18,7 @@
     {
       "id": 2,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-29",
@@ -29,6 +31,7 @@
     {
       "id": 3,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-29",
@@ -41,6 +44,7 @@
     {
       "id": 4,
       "client_id": null,
+      "service_id": null,
       "service_name": "ghcdhgc",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-29",
@@ -48,11 +52,12 @@
       "end_time": "20:30",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 5,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-29",
@@ -65,6 +70,7 @@
     {
       "id": 6,
       "client_id": null,
+      "service_id": null,
       "service_name": "f",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-30",
@@ -72,11 +78,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 7,
       "client_id": null,
+      "service_id": null,
       "service_name": "f",
       "professional_name": "Liege Liege",
       "appointment_date": "2025-12-31",
@@ -84,11 +91,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 8,
       "client_id": null,
+      "service_id": null,
       "service_name": "f",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-01",
@@ -96,11 +104,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 9,
       "client_id": null,
+      "service_id": null,
       "service_name": "f",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-02",
@@ -108,11 +117,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 10,
       "client_id": null,
+      "service_id": null,
       "service_name": "dgesg",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-05",
@@ -120,11 +130,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 11,
       "client_id": null,
+      "service_id": null,
       "service_name": "ds",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-06",
@@ -132,11 +143,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 12,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-07",
@@ -144,11 +156,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 13,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-08",
@@ -156,11 +169,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 14,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-09",
@@ -168,11 +182,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 15,
       "client_id": null,
+      "service_id": null,
       "service_name": "vv",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-13",
@@ -180,11 +195,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 16,
       "client_id": null,
+      "service_id": null,
       "service_name": "xc",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-14",
@@ -192,11 +208,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 17,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-15",
@@ -204,11 +221,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 18,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-16",
@@ -216,11 +234,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 19,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-17",
@@ -228,11 +247,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 20,
       "client_id": null,
+      "service_id": null,
       "service_name": "df",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-19",
@@ -240,11 +260,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 21,
       "client_id": null,
+      "service_id": null,
       "service_name": "xzs",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-20",
@@ -252,11 +273,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 22,
       "client_id": null,
+      "service_id": null,
       "service_name": "xd",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-21",
@@ -264,11 +286,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 23,
       "client_id": null,
+      "service_id": null,
       "service_name": "ds",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-22",
@@ -276,11 +299,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 24,
       "client_id": null,
+      "service_id": null,
       "service_name": "d",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-23",
@@ -288,11 +312,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 25,
       "client_id": null,
+      "service_id": null,
       "service_name": "g",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-26",
@@ -300,11 +325,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 26,
       "client_id": null,
+      "service_id": null,
       "service_name": "f",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-27",
@@ -312,11 +338,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 27,
       "client_id": null,
+      "service_id": null,
       "service_name": "s",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-28",
@@ -324,11 +351,12 @@
       "end_time": "23:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 28,
       "client_id": null,
+      "service_id": null,
       "service_name": "KUHJUYH",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-29",
@@ -336,11 +364,12 @@
       "end_time": "23:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 29,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-30",
@@ -353,6 +382,7 @@
     {
       "id": 30,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-30",
@@ -364,7 +394,8 @@
     },
     {
       "id": 31,
-      "client_id": 10,
+      "client_id": 1,
+      "service_id": 3,
       "service_name": "Depilaci\u00f3n Luz Pulsada",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-30",
@@ -372,11 +403,12 @@
       "end_time": "19:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 32,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-30",
@@ -389,6 +421,7 @@
     {
       "id": 33,
       "client_id": null,
+      "service_id": 10,
       "service_name": "Eliminaci\u00f3n de tatuajes",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-31",
@@ -401,6 +434,7 @@
     {
       "id": 34,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-01-31",
@@ -413,6 +447,7 @@
     {
       "id": 35,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-02",
@@ -425,6 +460,7 @@
     {
       "id": 36,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-02",
@@ -437,6 +473,7 @@
     {
       "id": 37,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-02",
@@ -449,6 +486,7 @@
     {
       "id": 38,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-02",
@@ -461,6 +499,7 @@
     {
       "id": 39,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-02",
@@ -473,6 +512,7 @@
     {
       "id": 40,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -485,6 +525,7 @@
     {
       "id": 41,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -497,6 +538,7 @@
     {
       "id": 42,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -509,6 +551,7 @@
     {
       "id": 43,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -521,6 +564,7 @@
     {
       "id": 44,
       "client_id": null,
+      "service_id": 4,
       "service_name": "Laminado de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -532,7 +576,8 @@
     },
     {
       "id": 45,
-      "client_id": 11,
+      "client_id": 2,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -545,6 +590,7 @@
     {
       "id": 46,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -557,6 +603,7 @@
     {
       "id": 47,
       "client_id": null,
+      "service_id": 12,
       "service_name": "Lifting de Pesta\u00f1as",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-03",
@@ -569,6 +616,7 @@
     {
       "id": 48,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-04",
@@ -581,6 +629,7 @@
     {
       "id": 49,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-04",
@@ -592,7 +641,8 @@
     },
     {
       "id": 50,
-      "client_id": 12,
+      "client_id": 3,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-04",
@@ -605,6 +655,7 @@
     {
       "id": 51,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-04",
@@ -617,6 +668,7 @@
     {
       "id": 52,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-04",
@@ -629,6 +681,7 @@
     {
       "id": 53,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -640,7 +693,8 @@
     },
     {
       "id": 54,
-      "client_id": 13,
+      "client_id": 4,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -653,6 +707,7 @@
     {
       "id": 55,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -664,7 +719,8 @@
     },
     {
       "id": 56,
-      "client_id": 14,
+      "client_id": 5,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -677,6 +733,7 @@
     {
       "id": 57,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -689,6 +746,7 @@
     {
       "id": 58,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -701,6 +759,7 @@
     {
       "id": 59,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -713,6 +772,7 @@
     {
       "id": 60,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -724,7 +784,8 @@
     },
     {
       "id": 61,
-      "client_id": 15,
+      "client_id": 6,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-05",
@@ -737,6 +798,7 @@
     {
       "id": 62,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -749,6 +811,7 @@
     {
       "id": 63,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -761,6 +824,7 @@
     {
       "id": 64,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -773,6 +837,7 @@
     {
       "id": 65,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -785,6 +850,7 @@
     {
       "id": 66,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -797,6 +863,7 @@
     {
       "id": 67,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -809,6 +876,7 @@
     {
       "id": 68,
       "client_id": null,
+      "service_id": 4,
       "service_name": "Laminado de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -820,7 +888,8 @@
     },
     {
       "id": 69,
-      "client_id": 16,
+      "client_id": 7,
+      "service_id": 4,
       "service_name": "Laminado de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-06",
@@ -828,11 +897,12 @@
       "end_time": "20:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 70,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-07",
@@ -845,6 +915,7 @@
     {
       "id": 71,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-09",
@@ -857,6 +928,7 @@
     {
       "id": 72,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-09",
@@ -868,7 +940,8 @@
     },
     {
       "id": 73,
-      "client_id": 17,
+      "client_id": 8,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-09",
@@ -876,11 +949,12 @@
       "end_time": "19:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 74,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-09",
@@ -892,7 +966,8 @@
     },
     {
       "id": 75,
-      "client_id": 18,
+      "client_id": 9,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-10",
@@ -905,6 +980,7 @@
     {
       "id": 76,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-11",
@@ -912,11 +988,12 @@
       "end_time": "10:30",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 77,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-11",
@@ -929,6 +1006,7 @@
     {
       "id": 78,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-11",
@@ -941,18 +1019,20 @@
     {
       "id": 79,
       "client_id": null,
-      "service_name": "Manu",
+      "service_id": 1,
+      "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-11",
       "start_time": "16:00",
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 80,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -965,6 +1045,7 @@
     {
       "id": 81,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -977,6 +1058,7 @@
     {
       "id": 82,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -988,7 +1070,8 @@
     },
     {
       "id": 83,
-      "client_id": 19,
+      "client_id": 10,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1000,7 +1083,8 @@
     },
     {
       "id": 84,
-      "client_id": 13,
+      "client_id": 4,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1008,11 +1092,12 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 85,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1025,6 +1110,7 @@
     {
       "id": 86,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1036,7 +1122,8 @@
     },
     {
       "id": 87,
-      "client_id": 15,
+      "client_id": 6,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1048,7 +1135,8 @@
     },
     {
       "id": 88,
-      "client_id": 20,
+      "client_id": 11,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-12",
@@ -1061,6 +1149,7 @@
     {
       "id": 89,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-13",
@@ -1073,6 +1162,7 @@
     {
       "id": 90,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-13",
@@ -1080,23 +1170,25 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 91,
       "client_id": null,
-      "service_name": "Manu",
+      "service_id": 1,
+      "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-13",
       "start_time": "16:00",
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 92,
-      "client_id": 21,
+      "client_id": 12,
+      "service_id": null,
       "service_name": "LIPOLASER",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1104,11 +1196,12 @@
       "end_time": "12:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 93,
-      "client_id": 22,
+      "client_id": 13,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1121,6 +1214,7 @@
     {
       "id": 94,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1133,6 +1227,7 @@
     {
       "id": 95,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1144,7 +1239,8 @@
     },
     {
       "id": 96,
-      "client_id": 23,
+      "client_id": 14,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1152,11 +1248,12 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 97,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1169,6 +1266,7 @@
     {
       "id": 98,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1181,6 +1279,7 @@
     {
       "id": 99,
       "client_id": null,
+      "service_id": 11,
       "service_name": "Masaje Deportivo",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-14",
@@ -1192,7 +1291,8 @@
     },
     {
       "id": 100,
-      "client_id": 24,
+      "client_id": 15,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1204,7 +1304,8 @@
     },
     {
       "id": 101,
-      "client_id": 25,
+      "client_id": 16,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1217,6 +1318,7 @@
     {
       "id": 102,
       "client_id": null,
+      "service_id": 10,
       "service_name": "Eliminaci\u00f3n de tatuajes",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1228,7 +1330,8 @@
     },
     {
       "id": 103,
-      "client_id": 20,
+      "client_id": 11,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1240,7 +1343,8 @@
     },
     {
       "id": 104,
-      "client_id": 26,
+      "client_id": 17,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1253,6 +1357,7 @@
     {
       "id": 105,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1265,6 +1370,7 @@
     {
       "id": 106,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1276,7 +1382,8 @@
     },
     {
       "id": 107,
-      "client_id": 15,
+      "client_id": 6,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-16",
@@ -1288,7 +1395,8 @@
     },
     {
       "id": 108,
-      "client_id": 27,
+      "client_id": 18,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-18",
@@ -1301,6 +1409,7 @@
     {
       "id": 109,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-18",
@@ -1313,6 +1422,7 @@
     {
       "id": 110,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-18",
@@ -1324,7 +1434,8 @@
     },
     {
       "id": 111,
-      "client_id": 28,
+      "client_id": 19,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-18",
@@ -1336,7 +1447,8 @@
     },
     {
       "id": 112,
-      "client_id": 29,
+      "client_id": 20,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-18",
@@ -1344,11 +1456,12 @@
       "end_time": "20:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 113,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1361,6 +1474,7 @@
     {
       "id": 114,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1373,6 +1487,7 @@
     {
       "id": 115,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1384,7 +1499,8 @@
     },
     {
       "id": 116,
-      "client_id": 30,
+      "client_id": 21,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1396,7 +1512,8 @@
     },
     {
       "id": 117,
-      "client_id": 31,
+      "client_id": 22,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1409,6 +1526,7 @@
     {
       "id": 118,
       "client_id": null,
+      "service_id": null,
       "service_name": "DENTISTA",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1416,11 +1534,12 @@
       "end_time": "10:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 119,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1433,6 +1552,7 @@
     {
       "id": 120,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-19",
@@ -1445,6 +1565,7 @@
     {
       "id": 121,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1456,7 +1577,8 @@
     },
     {
       "id": 122,
-      "client_id": 14,
+      "client_id": 5,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1468,7 +1590,8 @@
     },
     {
       "id": 123,
-      "client_id": 32,
+      "client_id": 23,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1480,7 +1603,8 @@
     },
     {
       "id": 124,
-      "client_id": 33,
+      "client_id": 24,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1493,6 +1617,7 @@
     {
       "id": 125,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1505,6 +1630,7 @@
     {
       "id": 126,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1517,6 +1643,7 @@
     {
       "id": 127,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-20",
@@ -1528,7 +1655,8 @@
     },
     {
       "id": 128,
-      "client_id": 34,
+      "client_id": 25,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1541,6 +1669,7 @@
     {
       "id": 129,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1552,7 +1681,8 @@
     },
     {
       "id": 130,
-      "client_id": 35,
+      "client_id": 26,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1565,6 +1695,7 @@
     {
       "id": 131,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1576,7 +1707,8 @@
     },
     {
       "id": 132,
-      "client_id": 21,
+      "client_id": 12,
+      "service_id": null,
       "service_name": "LIPOLASER",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1584,11 +1716,12 @@
       "end_time": "20:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 133,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-21",
@@ -1601,6 +1734,7 @@
     {
       "id": 134,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-22",
@@ -1612,7 +1746,8 @@
     },
     {
       "id": 135,
-      "client_id": 36,
+      "client_id": 27,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1625,6 +1760,7 @@
     {
       "id": 136,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1637,6 +1773,7 @@
     {
       "id": 137,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1649,6 +1786,7 @@
     {
       "id": 138,
       "client_id": null,
+      "service_id": 2,
       "service_name": "Dise\u00f1o y Depilaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1661,6 +1799,7 @@
     {
       "id": 139,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1673,6 +1812,7 @@
     {
       "id": 140,
       "client_id": null,
+      "service_id": 11,
       "service_name": "Masaje Deportivo",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-24",
@@ -1684,7 +1824,8 @@
     },
     {
       "id": 141,
-      "client_id": 37,
+      "client_id": 28,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-25",
@@ -1697,6 +1838,7 @@
     {
       "id": 142,
       "client_id": null,
+      "service_id": null,
       "service_name": "cavitacoin en la maquina",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-25",
@@ -1704,11 +1846,12 @@
       "end_time": "12:30",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 143,
-      "client_id": 17,
+      "client_id": 8,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-25",
@@ -1716,11 +1859,12 @@
       "end_time": "14:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 144,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-25",
@@ -1733,18 +1877,20 @@
     {
       "id": 145,
       "client_id": null,
-      "service_name": "Manu",
+      "service_id": 1,
+      "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-25",
       "start_time": "16:00",
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 146,
-      "client_id": 25,
+      "client_id": 16,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1757,6 +1903,7 @@
     {
       "id": 147,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1768,7 +1915,8 @@
     },
     {
       "id": 148,
-      "client_id": 38,
+      "client_id": 29,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1780,7 +1928,8 @@
     },
     {
       "id": 149,
-      "client_id": 11,
+      "client_id": 2,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1793,6 +1942,7 @@
     {
       "id": 150,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1804,7 +1954,8 @@
     },
     {
       "id": 151,
-      "client_id": 21,
+      "client_id": 12,
+      "service_id": null,
       "service_name": "LIPOLASER",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1812,11 +1963,12 @@
       "end_time": "20:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 152,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-26",
@@ -1828,7 +1980,8 @@
     },
     {
       "id": 153,
-      "client_id": 39,
+      "client_id": 30,
+      "service_id": 12,
       "service_name": "Lifting de Pesta\u00f1as",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-27",
@@ -1836,11 +1989,12 @@
       "end_time": "12:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 154,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-27",
@@ -1852,7 +2006,8 @@
     },
     {
       "id": 155,
-      "client_id": 32,
+      "client_id": 23,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-27",
@@ -1860,23 +2015,25 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 156,
       "client_id": null,
-      "service_name": "Manu",
+      "service_id": 1,
+      "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-27",
       "start_time": "16:00",
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 157,
-      "client_id": 24,
+      "client_id": 15,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1889,6 +2046,7 @@
     {
       "id": 158,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1900,7 +2058,8 @@
     },
     {
       "id": 159,
-      "client_id": 40,
+      "client_id": 31,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1912,7 +2071,8 @@
     },
     {
       "id": 160,
-      "client_id": 14,
+      "client_id": 5,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1920,11 +2080,12 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 161,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1936,7 +2097,8 @@
     },
     {
       "id": 162,
-      "client_id": 21,
+      "client_id": 12,
+      "service_id": null,
       "service_name": "LIPOLASER",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-02-28",
@@ -1944,11 +2106,12 @@
       "end_time": "20:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 163,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -1960,7 +2123,8 @@
     },
     {
       "id": 164,
-      "client_id": 41,
+      "client_id": 32,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -1973,6 +2137,7 @@
     {
       "id": 165,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -1985,6 +2150,7 @@
     {
       "id": 166,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -1996,7 +2162,8 @@
     },
     {
       "id": 167,
-      "client_id": 42,
+      "client_id": 33,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -2009,6 +2176,7 @@
     {
       "id": 168,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-02",
@@ -2020,7 +2188,8 @@
     },
     {
       "id": 169,
-      "client_id": 43,
+      "client_id": 34,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2033,6 +2202,7 @@
     {
       "id": 170,
       "client_id": null,
+      "service_id": 10,
       "service_name": "Eliminaci\u00f3n de tatuajes",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2044,7 +2214,8 @@
     },
     {
       "id": 171,
-      "client_id": 44,
+      "client_id": 35,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2052,11 +2223,12 @@
       "end_time": "15:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 172,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2068,7 +2240,8 @@
     },
     {
       "id": 173,
-      "client_id": 26,
+      "client_id": 17,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2080,7 +2253,8 @@
     },
     {
       "id": 174,
-      "client_id": 20,
+      "client_id": 11,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2092,7 +2266,8 @@
     },
     {
       "id": 175,
-      "client_id": 45,
+      "client_id": 36,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2105,6 +2280,7 @@
     {
       "id": 176,
       "client_id": null,
+      "service_id": 12,
       "service_name": "Lifting de Pesta\u00f1as",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-03",
@@ -2117,6 +2293,7 @@
     {
       "id": 177,
       "client_id": null,
+      "service_id": null,
       "service_name": "dentiara 8.30",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-04",
@@ -2124,11 +2301,12 @@
       "end_time": "09:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 178,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-04",
@@ -2140,7 +2318,8 @@
     },
     {
       "id": 179,
-      "client_id": 40,
+      "client_id": 31,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-05",
@@ -2153,6 +2332,7 @@
     {
       "id": 180,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-05",
@@ -2165,6 +2345,7 @@
     {
       "id": 181,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-05",
@@ -2176,7 +2357,8 @@
     },
     {
       "id": 182,
-      "client_id": 38,
+      "client_id": 29,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-05",
@@ -2188,7 +2370,8 @@
     },
     {
       "id": 183,
-      "client_id": 46,
+      "client_id": 37,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-05",
@@ -2201,6 +2384,7 @@
     {
       "id": 184,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-06",
@@ -2213,6 +2397,7 @@
     {
       "id": 185,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-07",
@@ -2225,6 +2410,7 @@
     {
       "id": 186,
       "client_id": null,
+      "service_id": null,
       "service_name": "YFYJGLJG",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-07",
@@ -2232,11 +2418,12 @@
       "end_time": "23:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 187,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-08",
@@ -2248,7 +2435,8 @@
     },
     {
       "id": 188,
-      "client_id": 47,
+      "client_id": 38,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-09",
@@ -2261,6 +2449,7 @@
     {
       "id": 189,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-09",
@@ -2273,6 +2462,7 @@
     {
       "id": 190,
       "client_id": null,
+      "service_id": 4,
       "service_name": "Laminado de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-09",
@@ -2285,6 +2475,7 @@
     {
       "id": 191,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-09",
@@ -2297,6 +2488,7 @@
     {
       "id": 192,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-09",
@@ -2309,6 +2501,7 @@
     {
       "id": 193,
       "client_id": null,
+      "service_id": null,
       "service_name": "ALQUILER",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-10",
@@ -2316,11 +2509,12 @@
       "end_time": "10:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 194,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-10",
@@ -2333,6 +2527,7 @@
     {
       "id": 195,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-10",
@@ -2344,7 +2539,8 @@
     },
     {
       "id": 196,
-      "client_id": 48,
+      "client_id": 39,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2357,6 +2553,7 @@
     {
       "id": 197,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2369,6 +2566,7 @@
     {
       "id": 198,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2381,6 +2579,7 @@
     {
       "id": 199,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2392,7 +2591,8 @@
     },
     {
       "id": 200,
-      "client_id": 44,
+      "client_id": 35,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2405,6 +2605,7 @@
     {
       "id": 201,
       "client_id": null,
+      "service_id": null,
       "service_name": "jkbhlb",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-11",
@@ -2412,11 +2613,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 202,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2428,7 +2630,8 @@
     },
     {
       "id": 203,
-      "client_id": 14,
+      "client_id": 5,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2436,11 +2639,12 @@
       "end_time": "15:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 204,
-      "client_id": 12,
+      "client_id": 3,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2448,11 +2652,12 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 205,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2464,7 +2669,8 @@
     },
     {
       "id": 206,
-      "client_id": 34,
+      "client_id": 25,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2477,6 +2683,7 @@
     {
       "id": 207,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2489,6 +2696,7 @@
     {
       "id": 208,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-12",
@@ -2501,6 +2709,7 @@
     {
       "id": 209,
       "client_id": null,
+      "service_id": null,
       "service_name": "DENTIDTA",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-13",
@@ -2508,11 +2717,12 @@
       "end_time": "16:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 210,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-13",
@@ -2520,11 +2730,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 211,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipolaser",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2536,7 +2747,8 @@
     },
     {
       "id": 212,
-      "client_id": 19,
+      "client_id": 10,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2544,11 +2756,12 @@
       "end_time": "14:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 213,
-      "client_id": 32,
+      "client_id": 23,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2556,11 +2769,12 @@
       "end_time": "16:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 214,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2572,7 +2786,8 @@
     },
     {
       "id": 215,
-      "client_id": 10,
+      "client_id": 1,
+      "service_id": 3,
       "service_name": "Depilaci\u00f3n Luz Pulsada",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2580,11 +2795,12 @@
       "end_time": "19:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 216,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-14",
@@ -2597,6 +2813,7 @@
     {
       "id": 217,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2608,7 +2825,8 @@
     },
     {
       "id": 218,
-      "client_id": 38,
+      "client_id": 29,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2616,11 +2834,12 @@
       "end_time": "13:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 219,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2633,6 +2852,7 @@
     {
       "id": 220,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2644,7 +2864,8 @@
     },
     {
       "id": 221,
-      "client_id": 49,
+      "client_id": 40,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2657,6 +2878,7 @@
     {
       "id": 222,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2669,6 +2891,7 @@
     {
       "id": 223,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-16",
@@ -2681,6 +2904,7 @@
     {
       "id": 224,
       "client_id": null,
+      "service_id": null,
       "service_name": "KGJHK",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-17",
@@ -2688,11 +2912,12 @@
       "end_time": "22:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 225,
       "client_id": null,
+      "service_id": null,
       "service_name": "SEFADF",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-18",
@@ -2700,11 +2925,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 226,
       "client_id": null,
+      "service_id": null,
       "service_name": "NO TRABAJO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-19",
@@ -2712,11 +2938,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 227,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-20",
@@ -2729,6 +2956,7 @@
     {
       "id": 228,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-20",
@@ -2741,6 +2969,7 @@
     {
       "id": 229,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-20",
@@ -2752,7 +2981,8 @@
     },
     {
       "id": 230,
-      "client_id": 35,
+      "client_id": 26,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-20",
@@ -2760,11 +2990,12 @@
       "end_time": "18:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 231,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-20",
@@ -2777,6 +3008,7 @@
     {
       "id": 232,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-22",
@@ -2789,6 +3021,7 @@
     {
       "id": 233,
       "client_id": null,
+      "service_id": 9,
       "service_name": "Radiofrecuencia Facial",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2800,7 +3033,8 @@
     },
     {
       "id": 234,
-      "client_id": 43,
+      "client_id": 34,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2808,11 +3042,12 @@
       "end_time": "13:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 235,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2825,6 +3060,7 @@
     {
       "id": 236,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2837,6 +3073,7 @@
     {
       "id": 237,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2849,6 +3086,7 @@
     {
       "id": 238,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-24",
@@ -2860,7 +3098,8 @@
     },
     {
       "id": 239,
-      "client_id": 36,
+      "client_id": 27,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-25",
@@ -2868,11 +3107,12 @@
       "end_time": "12:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 240,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-25",
@@ -2884,7 +3124,8 @@
     },
     {
       "id": 241,
-      "client_id": 34,
+      "client_id": 25,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-25",
@@ -2892,11 +3133,12 @@
       "end_time": "15:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 242,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-25",
@@ -2904,11 +3146,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 243,
       "client_id": null,
+      "service_id": 10,
       "service_name": "Eliminaci\u00f3n de tatuajes",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-26",
@@ -2920,7 +3163,8 @@
     },
     {
       "id": 244,
-      "client_id": 43,
+      "client_id": 34,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-26",
@@ -2933,6 +3177,7 @@
     {
       "id": 245,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-26",
@@ -2945,6 +3190,7 @@
     {
       "id": 246,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-26",
@@ -2957,6 +3203,7 @@
     {
       "id": 247,
       "client_id": null,
+      "service_id": null,
       "service_name": "ghfhgf",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-27",
@@ -2969,6 +3216,7 @@
     {
       "id": 248,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-27",
@@ -2976,11 +3224,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 249,
       "client_id": null,
+      "service_id": null,
       "service_name": "dfgdfgd",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-28",
@@ -2988,11 +3237,12 @@
       "end_time": "21:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 250,
       "client_id": null,
+      "service_id": null,
       "service_name": "dgfdsfsd",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-30",
@@ -3000,11 +3250,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 251,
       "client_id": null,
+      "service_id": null,
       "service_name": "dvdsfd",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-03-31",
@@ -3012,11 +3263,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 252,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-02",
@@ -3029,6 +3281,7 @@
     {
       "id": 253,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-02",
@@ -3041,6 +3294,7 @@
     {
       "id": 254,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-03",
@@ -3053,6 +3307,7 @@
     {
       "id": 255,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-03",
@@ -3065,6 +3320,7 @@
     {
       "id": 256,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-03",
@@ -3076,7 +3332,8 @@
     },
     {
       "id": 257,
-      "client_id": 37,
+      "client_id": 28,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-04",
@@ -3084,11 +3341,12 @@
       "end_time": "12:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 258,
-      "client_id": 47,
+      "client_id": 38,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-04",
@@ -3096,11 +3354,12 @@
       "end_time": "13:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 259,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-05",
@@ -3113,6 +3372,7 @@
     {
       "id": 260,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-06",
@@ -3125,6 +3385,7 @@
     {
       "id": 261,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-06",
@@ -3137,6 +3398,7 @@
     {
       "id": 262,
       "client_id": null,
+      "service_id": 6,
       "service_name": "Masaje Relajante",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-06",
@@ -3149,6 +3411,7 @@
     {
       "id": 263,
       "client_id": null,
+      "service_id": null,
       "service_name": "MBJ",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-06",
@@ -3156,11 +3419,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 264,
       "client_id": null,
+      "service_id": null,
       "service_name": "JFJOLYG",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-07",
@@ -3168,11 +3432,12 @@
       "end_time": "16:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 265,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-07",
@@ -3180,11 +3445,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 266,
       "client_id": null,
+      "service_id": null,
       "service_name": "KLJKL",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-08",
@@ -3192,11 +3458,12 @@
       "end_time": "20:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 267,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-08",
@@ -3204,11 +3471,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 268,
       "client_id": null,
+      "service_id": null,
       "service_name": "GUU",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-09",
@@ -3216,11 +3484,12 @@
       "end_time": "16:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 269,
       "client_id": null,
+      "service_id": null,
       "service_name": "JGFYJGJUG",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-10",
@@ -3228,11 +3497,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 270,
       "client_id": null,
+      "service_id": null,
       "service_name": "competicion",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-11",
@@ -3240,11 +3510,12 @@
       "end_time": "12:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 271,
-      "client_id": 47,
+      "client_id": 38,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-14",
@@ -3252,11 +3523,12 @@
       "end_time": "12:00",
       "appointment_type": "appointment",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 272,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-14",
@@ -3269,6 +3541,7 @@
     {
       "id": 273,
       "client_id": null,
+      "service_id": 8,
       "service_name": "Laser de DIODO",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-14",
@@ -3281,6 +3554,7 @@
     {
       "id": 274,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-15",
@@ -3293,6 +3567,7 @@
     {
       "id": 275,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-16",
@@ -3305,6 +3580,7 @@
     {
       "id": 276,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-16",
@@ -3317,6 +3593,7 @@
     {
       "id": 277,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-16",
@@ -3329,6 +3606,7 @@
     {
       "id": 278,
       "client_id": null,
+      "service_id": 7,
       "service_name": "Micropigmentaci\u00f3n de Cejas",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-17",
@@ -3341,6 +3619,7 @@
     {
       "id": 279,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-21",
@@ -3348,11 +3627,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 280,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-22",
@@ -3365,6 +3645,7 @@
     {
       "id": 281,
       "client_id": null,
+      "service_id": 1,
       "service_name": "manu",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-23",
@@ -3372,11 +3653,12 @@
       "end_time": "00:00",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 282,
       "client_id": null,
+      "service_id": null,
       "service_name": "Lipocavitac\u00edon",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-04-28",
@@ -3389,6 +3671,7 @@
     {
       "id": 283,
       "client_id": null,
+      "service_id": null,
       "service_name": "competicion",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-05-02",
@@ -3401,6 +3684,7 @@
     {
       "id": 284,
       "client_id": null,
+      "service_id": null,
       "service_name": "joemi",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-05-05",
@@ -3408,11 +3692,12 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     },
     {
       "id": 285,
       "client_id": null,
+      "service_id": null,
       "service_name": "josemki",
       "professional_name": "Liege Liege",
       "appointment_date": "2026-05-06",
@@ -3420,207 +3705,207 @@
       "end_time": "20:30",
       "appointment_type": "block",
       "status": "scheduled",
-      "notes": null
+      "notes": ""
     }
   ],
   "created_clients": [
     {
-      "id": 10,
+      "id": 1,
       "full_name": "Emma Benites",
       "id_number": "BOOKING-b7dd5135"
     },
     {
-      "id": 11,
+      "id": 2,
       "full_name": "gabriela gareato",
       "id_number": "BOOKING-5408266d"
     },
     {
-      "id": 12,
+      "id": 3,
       "full_name": "carlos garcia burgos",
       "id_number": "BOOKING-d8a5fbce"
     },
     {
-      "id": 13,
+      "id": 4,
       "full_name": "hugo ferraz",
       "id_number": "BOOKING-ba8eed3c"
     },
     {
-      "id": 14,
+      "id": 5,
       "full_name": "elena j",
       "id_number": "BOOKING-c00906e3"
     },
     {
-      "id": 15,
+      "id": 6,
       "full_name": "ANA HIDALGO",
       "id_number": "BOOKING-3d1e65ce"
     },
     {
-      "id": 16,
+      "id": 7,
       "full_name": "Tania Arenas",
       "id_number": "BOOKING-85ad857c"
     },
     {
-      "id": 17,
+      "id": 8,
       "full_name": "beata drilena",
       "id_number": "BOOKING-5eaa2eb3"
     },
     {
-      "id": 18,
+      "id": 9,
       "full_name": "ana jose puig garcia",
       "id_number": "BOOKING-65454376"
     },
     {
-      "id": 19,
+      "id": 10,
       "full_name": "DANIELA VARGAS RUIZ",
       "id_number": "BOOKING-b8942e27"
     },
     {
-      "id": 20,
+      "id": 11,
       "full_name": "lola mora",
       "id_number": "BOOKING-b691e81a"
     },
     {
-      "id": 21,
+      "id": 12,
       "full_name": "Ana Bel\u00e9n Garcia Asensio",
       "id_number": "BOOKING-ef2ffdff"
     },
     {
-      "id": 22,
+      "id": 13,
       "full_name": "paula baleani",
       "id_number": "BOOKING-f909d513"
     },
     {
-      "id": 23,
+      "id": 14,
       "full_name": "Hanna Shauchenka",
       "id_number": "BOOKING-0e8d1d83"
     },
     {
-      "id": 24,
+      "id": 15,
       "full_name": "beatriz garcia argudo",
       "id_number": "BOOKING-53740925"
     },
     {
-      "id": 25,
+      "id": 16,
       "full_name": "MONICA ALAPUNT",
       "id_number": "BOOKING-d0b3e17a"
     },
     {
-      "id": 26,
+      "id": 17,
       "full_name": "MARIBEL BERLOSO ZAFA",
       "id_number": "BOOKING-6253d314"
     },
     {
-      "id": 27,
+      "id": 18,
       "full_name": "sol medina",
       "id_number": "BOOKING-e2e6f755"
     },
     {
-      "id": 28,
+      "id": 19,
       "full_name": "leidy moana quintero",
       "id_number": "BOOKING-912f42f4"
     },
     {
-      "id": 29,
+      "id": 20,
       "full_name": "Maria Villalba",
       "id_number": "BOOKING-aa1bfb5e"
     },
     {
-      "id": 30,
+      "id": 21,
       "full_name": "MARIA TARDELAS 5514",
       "id_number": "BOOKING-b2e43c0c"
     },
     {
-      "id": 31,
+      "id": 22,
       "full_name": "IRENE ALCAL",
       "id_number": "BOOKING-926bdf96"
     },
     {
-      "id": 32,
+      "id": 23,
       "full_name": "carla azcoiti simo",
       "id_number": "BOOKING-7faf6a33"
     },
     {
-      "id": 33,
+      "id": 24,
       "full_name": "marta souto",
       "id_number": "BOOKING-0b932409"
     },
     {
-      "id": 34,
+      "id": 25,
       "full_name": "sara pallordo",
       "id_number": "BOOKING-ebee7add"
     },
     {
-      "id": 35,
+      "id": 26,
       "full_name": "eduardo lopez",
       "id_number": "BOOKING-b52687e6"
     },
     {
-      "id": 36,
+      "id": 27,
       "full_name": "karla patricia maldonado",
       "id_number": "BOOKING-c9d3b65f"
     },
     {
-      "id": 37,
+      "id": 28,
       "full_name": "noelia santos",
       "id_number": "BOOKING-e24f2517"
     },
     {
-      "id": 38,
+      "id": 29,
       "full_name": "miguel algel roig",
       "id_number": "BOOKING-9f14211e"
     },
     {
-      "id": 39,
+      "id": 30,
       "full_name": "Sof\u00eda S\u00e1nchez Veral",
       "id_number": "BOOKING-839707a2"
     },
     {
-      "id": 40,
+      "id": 31,
       "full_name": "martina lucchese",
       "id_number": "BOOKING-bd162ee4"
     },
     {
-      "id": 41,
+      "id": 32,
       "full_name": "lorena bai",
       "id_number": "BOOKING-a93534ef"
     },
     {
-      "id": 42,
+      "id": 33,
       "full_name": "jose vicente andreu",
       "id_number": "BOOKING-cffb9191"
     },
     {
-      "id": 43,
+      "id": 34,
       "full_name": "ESTHER BRAVO GOMEZ",
       "id_number": "BOOKING-06da4073"
     },
     {
-      "id": 44,
+      "id": 35,
       "full_name": "Soraya Potosi",
       "id_number": "BOOKING-7623267b"
     },
     {
-      "id": 45,
+      "id": 36,
       "full_name": "borja 0058",
       "id_number": "BOOKING-28ebe3ea"
     },
     {
-      "id": 46,
+      "id": 37,
       "full_name": "ana belen garcia asensio",
       "id_number": "BOOKING-3e478a2b"
     },
     {
-      "id": 47,
+      "id": 38,
       "full_name": "MIGUEL MARTINEZ RODRIGUEZ",
       "id_number": "BOOKING-d8ce1bc7"
     },
     {
-      "id": 48,
+      "id": 39,
       "full_name": "olga martin clavero",
       "id_number": "BOOKING-ca29fef1"
     },
     {
-      "id": 49,
+      "id": 40,
       "full_name": "maria sala 1781",
       "id_number": "BOOKING-7d87d566"
     }

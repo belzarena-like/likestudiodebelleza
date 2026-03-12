@@ -36,6 +36,38 @@ class Client(Base):
     sessions: Mapped[list["TreatmentSession"]] = relationship(back_populates="client")
     consents: Mapped[list["Consent"]] = relationship(back_populates="client")
     appointments: Mapped[list["Appointment"]] = relationship(back_populates="client")
+    profile: Mapped["ClientProfile | None"] = relationship(back_populates="client", uselist=False)
+
+
+class Service(Base):
+    __tablename__ = "services"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(220), unique=True, index=True, nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    duration_minutes: Mapped[int] = mapped_column(Integer, default=60, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    appointments: Mapped[list["Appointment"]] = relationship(back_populates="service")
+
+
+class ClientProfile(Base):
+    __tablename__ = "client_profiles"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"), unique=True, index=True, nullable=False)
+    instagram: Mapped[str | None] = mapped_column(String(120))
+    shoot_type: Mapped[str | None] = mapped_column(String(120))
+    shoot_date: Mapped[date | None] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+    client: Mapped[Client] = relationship(back_populates="profile")
 
 
 class TreatmentSession(Base):
@@ -78,6 +110,7 @@ class Appointment(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), nullable=True, index=True)
+    service_id: Mapped[int | None] = mapped_column(ForeignKey("services.id"), nullable=True, index=True)
     service_name: Mapped[str] = mapped_column(String(220), nullable=False)
     professional_name: Mapped[str] = mapped_column(String(180), nullable=False)
     appointment_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
@@ -85,6 +118,7 @@ class Appointment(Base):
     end_time: Mapped[time] = mapped_column(Time, nullable=False)
     appointment_type: Mapped[str] = mapped_column(String(32), default="appointment", nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="scheduled", nullable=False)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
@@ -95,3 +129,4 @@ class Appointment(Base):
     )
 
     client: Mapped[Client | None] = relationship(back_populates="appointments")
+    service: Mapped[Service | None] = relationship(back_populates="appointments")

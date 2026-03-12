@@ -1,10 +1,11 @@
-﻿from datetime import date
+from datetime import date, datetime, time
 import os
 import sys
+from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 if __package__:
@@ -69,6 +70,18 @@ def upsert_treatment_session(payload: schemas.TreatmentSessionUpsert, db: Sessio
     return crud.upsert_session(db, payload)
 
 
+@app.put("/admin/sessions/{session_id}", response_model=schemas.TreatmentSessionRead)
+def admin_update_session(
+    session_id: int,
+    payload: schemas.TreatmentSessionUpdate,
+    db: Session = Depends(get_db),
+):
+    updated = crud.update_session(db, session_id, payload)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return updated
+
+
 @app.get("/admin/clients", response_model=schemas.AdminClientSearchResponse)
 def admin_search_clients(
     query: str | None = Query(default=None),
@@ -81,10 +94,52 @@ def admin_search_clients(
     return schemas.AdminClientSearchResponse(items=items, total=total, limit=limit, offset=offset)
 
 
+@app.put("/admin/clients/{client_id}", response_model=schemas.ClientRead)
+def admin_update_client(
+    client_id: int,
+    payload: schemas.ClientUpdate,
+    db: Session = Depends(get_db),
+):
+    try:
+        updated = crud.update_client(db, client_id, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not updated:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return updated
+
+
+@app.get("/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse)
+def admin_search_client_profiles(
+    query: str | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+):
+    items, total = crud.search_client_profiles(db, query=query, limit=limit, offset=offset)
+    return schemas.AdminClientProfileSearchResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@app.put("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead)
+def admin_upsert_client_profile(
+    client_id: int,
+    payload: schemas.ClientProfileUpsert,
+    db: Session = Depends(get_db),
+):
+    if not db.get(models.Client, client_id):
+        raise HTTPException(status_code=404, detail="Client not found")
+    profile = crud.upsert_client_profile(db, client_id, payload)
+    return profile
+
+
 @app.post("/appointments", response_model=schemas.AppointmentRead)
 def create_appointment(payload: schemas.AppointmentCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_appointment(db, payload)
+    except crud.AppointmentConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -97,11 +152,27 @@ def update_appointment(
 ):
     try:
         updated = crud.update_appointment(db, appointment_id, payload)
+    except crud.AppointmentConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not updated:
         raise HTTPException(status_code=404, detail="Appointment not found")
     return updated
+
+
+@app.delete("/appointments/{appointment_id}")
+def delete_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    payload = schemas.AppointmentUpdate(deleted=True)
+    try:
+        updated = crud.update_appointment(db, appointment_id, payload)
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not updated:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return {"status": "deleted"}
 
 
 @app.get("/admin/appointments", response_model=schemas.AppointmentSearchResponse)
@@ -140,6 +211,171 @@ def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     return appointment
 
 
+@app.get("/admin/services", response_model=schemas.ServiceSearchResponse)
+def admin_search_services(
+    query: str | None = Query(default=None),
+    active_only: bool = Query(default=False),
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+):
+    items, total = crud.search_services(
+        db,
+        query=query,
+        active_only=active_only,
+        limit=limit,
+        offset=offset,
+    )
+    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@app.post("/admin/services", response_model=schemas.ServiceRead)
+def admin_create_service(payload: schemas.ServiceCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_service(db, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.put("/admin/services/{service_id}", response_model=schemas.ServiceRead)
+def admin_update_service(
+    service_id: int,
+    payload: schemas.ServiceUpdate,
+    db: Session = Depends(get_db),
+):
+    try:
+        updated = crud.update_service(db, service_id, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not updated:
+        raise HTTPException(status_code=404, detail="Service not found")
+    return updated
+
+
+@app.get("/public/services", response_model=schemas.ServiceSearchResponse)
+def public_services(
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+):
+    items, total = crud.search_services(db, query=None, active_only=True, limit=limit, offset=offset)
+    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@app.get("/public/availability", response_model=schemas.AvailabilityResponse)
+def public_availability(
+    appointment_date: date = Query(alias="date"),
+    service_id: int = Query(..., ge=1),
+    professional_name: str = Query(..., min_length=2, max_length=180),
+    db: Session = Depends(get_db),
+):
+    service = db.get(models.Service, service_id)
+    if not service or not service.active:
+        raise HTTPException(status_code=404, detail="Service not found")
+
+    duration = service.duration_minutes or 60
+    start_minutes = 9 * 60
+    end_minutes = 21 * 60
+
+    rows = db.execute(
+        select(models.Appointment.start_time, models.Appointment.end_time)
+        .where(
+            models.Appointment.appointment_date == appointment_date,
+            models.Appointment.professional_name == professional_name,
+            models.Appointment.status != "cancelled",
+            models.Appointment.deleted_at.is_(None),
+        )
+    ).all()
+
+    busy = [(row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute) for row in rows]
+
+    def is_free(start: int, end: int) -> bool:
+        for busy_start, busy_end in busy:
+            if start < busy_end and end > busy_start:
+                return False
+        return True
+
+    start_times: list[str] = []
+    step = 15
+    latest_start = end_minutes - duration
+    for candidate in range(start_minutes, latest_start + 1, step):
+        if is_free(candidate, candidate + duration):
+            hour = candidate // 60
+            minute = candidate % 60
+            start_times.append(f"{hour:02d}:{minute:02d}")
+
+    return schemas.AvailabilityResponse(
+        date=appointment_date,
+        professional_name=professional_name,
+        service_id=service_id,
+        service_name=service.name,
+        duration_minutes=duration,
+        start_times=start_times,
+    )
+
+
+@app.post("/public/bookings", response_model=schemas.PublicBookingResponse)
+def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(get_db)):
+    service = db.get(models.Service, payload.service_id)
+    if not service or not service.active:
+        raise HTTPException(status_code=404, detail="Service not found")
+
+    duration = service.duration_minutes or 60
+    start_minutes = payload.start_time.hour * 60 + payload.start_time.minute
+    end_minutes = start_minutes + duration
+    if start_minutes < 9 * 60 or end_minutes > 21 * 60:
+        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+
+    end_time = time(end_minutes // 60, end_minutes % 60)
+
+    client = db.scalar(
+        select(models.Client)
+        .where(
+            models.Client.full_name == payload.full_name,
+            models.Client.phone == payload.phone,
+        )
+    )
+    if not client:
+        generated_id = f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        client = crud.upsert_client(
+            db,
+            schemas.ClientCreate(
+                full_name=payload.full_name,
+                id_number=generated_id,
+                phone=payload.phone,
+                email=None,
+            ),
+        )
+
+    if payload.instagram:
+        crud.upsert_client_profile(
+            db,
+            client.id,
+            schemas.ClientProfileUpsert(instagram=payload.instagram),
+        )
+
+    appointment_payload = schemas.AppointmentCreate(
+        client_id=client.id,
+        service_id=service.id,
+        service_name=service.name,
+        professional_name=payload.professional_name,
+        appointment_date=payload.appointment_date,
+        start_time=payload.start_time,
+        end_time=end_time,
+        appointment_type=schemas.AppointmentType.APPOINTMENT,
+        status="scheduled",
+        notes=payload.notes,
+    )
+    try:
+        appointment = crud.create_appointment(db, appointment_payload)
+    except crud.AppointmentConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return schemas.PublicBookingResponse(appointment_id=appointment.id)
+
+
 @app.get("/admin/sessions", response_model=schemas.TreatmentSessionSearchResponse)
 def admin_search_sessions(
     full_name: str | None = Query(default=None),
@@ -160,6 +396,35 @@ def admin_search_sessions(
         offset=offset,
     )
     return schemas.TreatmentSessionSearchResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@app.get("/admin/session-agenda", response_model=schemas.SessionAgendaResponse)
+def admin_session_agenda(
+    appointment_date: date = Query(alias="date"),
+    db: Session = Depends(get_db),
+):
+    items = crud.session_agenda(db, appointment_date=appointment_date)
+    return schemas.SessionAgendaResponse(items=items)
+
+
+@app.post("/admin/session-attendance")
+def admin_session_attendance(
+    payload: schemas.SessionAttendanceUpdate,
+    db: Session = Depends(get_db),
+):
+    try:
+        appointment, session = crud.mark_session_attendance(
+            db, appointment_id=payload.appointment_id, attended=payload.attended
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {
+        "appointment_id": appointment.id,
+        "status": appointment.status,
+        "session_id": session.id if session else None,
+        "completed_sessions": session.completed_sessions if session else None,
+        "planned_sessions": session.planned_sessions if session else None,
+    }
 
 
 @app.post("/consents", response_model=schemas.ConsentRead)
@@ -241,3 +506,4 @@ def admin_client_prefill(
         phone=client.phone,
         email=client.email,
     )
+

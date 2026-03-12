@@ -43,6 +43,54 @@
       padding: 12px;
     }
 
+    .session-agenda {
+      margin-bottom: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #0f141d;
+    }
+
+    .session-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .session-card {
+      border: 1px solid #2a354a;
+      border-radius: 12px;
+      padding: 12px;
+      background: #121822;
+    }
+
+    .session-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .session-meta {
+      color: #c7d0df;
+      font-size: 0.9rem;
+    }
+
+    .session-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .session-message {
+      margin: 6px 0 0;
+      color: #d9e1ee;
+      font-size: 0.85rem;
+      min-height: 1.1rem;
+    }
+
     @media (max-width: 900px) {
       .admin-table {
         min-width: 760px;
@@ -71,6 +119,23 @@
   <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
     <p class="eyebrow">Panel Admin</p>
     <h1>Sesiones de tratamiento</h1>
+
+    <section class="session-agenda">
+      <div class="section-head" style="margin-bottom:10px;">
+        <p class="eyebrow">Agenda de sesiones</p>
+        <h2 style="font-size:1.4rem;margin-bottom:6px;">Citas de hoy con sesiones</h2>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="agenda-date">Fecha</label>
+          <input id="agenda-date" type="date" />
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px;">
+          <button id="agenda-refresh" class="btn btn-ghost" type="button">Actualizar</button>
+        </div>
+      </div>
+      <div id="agenda-list" class="session-list"></div>
+    </section>
 
     <form id="search-form" class="form-grid" style="margin-bottom:14px">
       <div>
@@ -128,6 +193,8 @@
   <script src="../static/js/site.js"></script>
   <script>
     const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/sessions`;
+    const AGENDA_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/session-agenda`;
+    const ATTENDANCE_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/session-attendance`;
     const limit = 20;
     let offset = 0;
     let lastTotal = 0;
@@ -135,6 +202,9 @@
     const form = document.getElementById('search-form');
     const summary = document.getElementById('summary');
     const tableBody = document.getElementById('table-body');
+    const agendaDate = document.getElementById('agenda-date');
+    const agendaList = document.getElementById('agenda-list');
+    const agendaRefresh = document.getElementById('agenda-refresh');
 
     function collectParams() {
       const data = new FormData(form);
@@ -161,6 +231,55 @@
         document.getElementById('full_name').innerHTML = options;
       } catch (error) {
         // Keep default options on failure.
+      }
+    }
+
+    function renderAgenda(items) {
+      if (!items.length) {
+        agendaList.innerHTML = '<p class="form-note">No hay sesiones programadas para este dia.</p>';
+        return;
+      }
+
+      agendaList.innerHTML = items.map((item) => `
+        <article class="session-card" data-session-id="${item.session_id}" data-appointment-id="${item.appointment_id}">
+          <div class="session-row">
+            <strong>${item.client_name}</strong>
+            <span>${item.start_time} - ${item.end_time} · ${item.service_name}</span>
+          </div>
+          <div class="session-meta">
+            ${item.professional_name} · Sesiones ${item.completed_sessions}/${item.planned_sessions} · Estado ${item.status}
+          </div>
+          <div class="form-grid" style="margin-top:10px;">
+            <div>
+              <label>Completadas</label>
+              <input type="number" min="0" max="${item.planned_sessions}" value="${item.completed_sessions}" data-field="completed" />
+            </div>
+            <div class="form-grid-1">
+              <label>Notas</label>
+              <input type="text" value="${item.notes || ''}" data-field="notes" />
+            </div>
+          </div>
+          <div class="session-actions">
+            <button class="btn btn-sm" type="button" data-attend="yes">Asistio</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-attend="no">No asistio</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-save-session>Guardar detalles</button>
+          </div>
+          <p class="session-message" data-message></p>
+        </article>
+      `).join('');
+    }
+
+    async function loadAgenda() {
+      const dateValue = agendaDate.value;
+      if (!dateValue) return;
+      agendaList.innerHTML = '<p class="form-note">Cargando...</p>';
+      try {
+        const response = await fetch(`${AGENDA_URL}?date=${dateValue}`);
+        if (!response.ok) throw new Error('No se pudo cargar la agenda de sesiones.');
+        const payload = await response.json();
+        renderAgenda(payload.items || []);
+      } catch (error) {
+        agendaList.innerHTML = `<p class="form-note">${error.message}</p>`;
       }
     }
 
@@ -205,6 +324,62 @@
       }
     }
 
+    agendaList.addEventListener('click', async (event) => {
+      const card = event.target.closest('.session-card');
+      if (!card) return;
+      const message = card.querySelector('[data-message]');
+      const sessionId = card.dataset.sessionId;
+      const appointmentId = card.dataset.appointmentId;
+
+      if (event.target.closest('[data-attend]')) {
+        const attended = event.target.closest('[data-attend]').dataset.attend === 'yes';
+        message.textContent = 'Guardando...';
+        try {
+          const response = await fetch(ATTENDANCE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ appointment_id: parseInt(appointmentId, 10), attended: attended })
+          });
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.detail || 'No se pudo actualizar la asistencia.');
+          }
+          message.textContent = attended ? 'Asistencia marcada.' : 'No asistencia marcada.';
+          loadAgenda();
+          loadSessions();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+        return;
+      }
+
+      if (event.target.closest('[data-save-session]')) {
+        const completedInput = card.querySelector('[data-field=\"completed\"]');
+        const notesInput = card.querySelector('[data-field=\"notes\"]');
+        const completedValue = parseInt(completedInput.value, 10);
+        message.textContent = 'Guardando detalles...';
+        try {
+          const response = await fetch(`${API_URL}/${sessionId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              completed_sessions: Number.isNaN(completedValue) ? 0 : completedValue,
+              notes: notesInput.value || null
+            })
+          });
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.detail || 'No se pudo guardar la sesion.');
+          }
+          message.textContent = 'Sesion actualizada.';
+          loadAgenda();
+          loadSessions();
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+    });
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       offset = 0;
@@ -229,7 +404,14 @@
       }
     });
 
-    loadClients().finally(loadSessions);
+    agendaDate.valueAsDate = new Date();
+    agendaRefresh.addEventListener('click', loadAgenda);
+    agendaDate.addEventListener('change', loadAgenda);
+
+    loadClients().finally(() => {
+      loadSessions();
+      loadAgenda();
+    });
   </script>
 </body>
 </html>

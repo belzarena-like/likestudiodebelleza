@@ -248,6 +248,10 @@
           throw new Error(data.detail || 'No se pudo actualizar el perfil.');
         }
 
+        const headerName = card.querySelector('h3');
+        if (headerName) {
+          headerName.textContent = fullName;
+        }
         message.textContent = 'Guardado.';
       } catch (error) {
         message.textContent = error.message;

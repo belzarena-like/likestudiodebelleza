@@ -3,7 +3,7 @@ import json
 import os
 import sys
 import zlib
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -51,6 +51,18 @@ def normalize_service(service: str | None, appointment_type: str) -> str:
     if name:
         return name
     return "Bloqueo" if appointment_type == "block" else "Servicio"
+
+
+def fix_mojibake(value: str | None) -> str:
+    if not value:
+        return ""
+    text = str(value)
+    if "Ã" in text or "Â" in text:
+        try:
+            return text.encode("latin1").decode("utf-8")
+        except Exception:
+            return text
+    return text
 
 
 def normalize_professional(payload: dict) -> str:
@@ -112,6 +124,10 @@ def appointment_exists(
     return db.scalar(query) is not None
 
 
+def get_service_by_name(db: Session, name: str) -> models.Service | None:
+    return db.scalar(select(models.Service).where(func.lower(models.Service.name) == name.lower()))
+
+
 def import_bookings(path: str, output_path: str) -> None:
     with open(path, "r", encoding="utf-8") as handle:
         payload = json.load(handle)
@@ -138,9 +154,15 @@ def import_bookings(path: str, output_path: str) -> None:
                     skipped += 1
                     continue
 
-                service_name = normalize_service(entry.get("service"), appointment_type)
+                service_name = normalize_service(fix_mojibake(entry.get("service")), appointment_type)
+                service_id = None
+                if service_name:
+                    service = get_service_by_name(db, service_name)
+                    if service:
+                        service_id = service.id
+                        service_name = service.name
                 client_id = None
-                customer = (entry.get("customer") or "").strip()
+                customer = fix_mojibake(entry.get("customer")).strip()
                 if appointment_type != "block" and customer:
                     try:
                         client, created_flag = get_or_create_client(db, customer)
@@ -174,6 +196,7 @@ def import_bookings(path: str, output_path: str) -> None:
 
                 appointment = models.Appointment(
                     client_id=client_id,
+                    service_id=service_id,
                     service_name=service_name,
                     professional_name=professional_name,
                     appointment_date=appointment_date,
@@ -181,7 +204,7 @@ def import_bookings(path: str, output_path: str) -> None:
                     end_time=end_time,
                     appointment_type=appointment_type,
                     status="scheduled",
-                    notes=entry.get("notes"),
+                    notes=fix_mojibake(entry.get("notes")),
                 )
                 db.add(appointment)
                 db.commit()
@@ -190,6 +213,7 @@ def import_bookings(path: str, output_path: str) -> None:
                     {
                         "id": appointment.id,
                         "client_id": appointment.client_id,
+                        "service_id": appointment.service_id,
                         "service_name": appointment.service_name,
                         "professional_name": appointment.professional_name,
                         "appointment_date": appointment.appointment_date.isoformat(),
@@ -206,7 +230,7 @@ def import_bookings(path: str, output_path: str) -> None:
 
     output_payload = {
         "source_path": os.path.abspath(path),
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "created_appointments": created_appointments,
         "created_clients": created_clients,
         "summary": {

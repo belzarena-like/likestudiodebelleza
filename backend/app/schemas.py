@@ -22,10 +22,17 @@ class ClientRead(ClientCreate):
 
     model_config = {"from_attributes": True}
 
+class ClientUpdate(BaseModel):
+    full_name: str = Field(min_length=2, max_length=180)
+    id_number: str = Field(min_length=3, max_length=40)
+    phone: str | None = Field(default=None, max_length=40)
+    email: str | None = None
+
 
 class AdminClientRead(BaseModel):
     id: int
     full_name: str
+    id_number: str
     phone: str | None
     email: str | None
     consent_count: int | None = None
@@ -36,6 +43,92 @@ class AdminClientSearchResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class ServiceCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=220)
+    active: bool = True
+    duration_minutes: int = Field(default=60, ge=15, le=480)
+
+
+class ServiceUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=220)
+    active: bool | None = None
+    duration_minutes: int | None = Field(default=None, ge=15, le=480)
+
+
+class ServiceRead(BaseModel):
+    id: int
+    name: str
+    active: bool
+    duration_minutes: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ServiceSearchResponse(BaseModel):
+    items: list[ServiceRead]
+    total: int
+    limit: int
+    offset: int
+
+
+class ClientProfileUpsert(BaseModel):
+    instagram: str | None = Field(default=None, max_length=120)
+    shoot_type: str | None = Field(default=None, max_length=120)
+    shoot_date: date | None = None
+
+
+class ClientProfileRead(ClientProfileUpsert):
+    id: int
+    client_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AdminClientProfileRead(BaseModel):
+    client_id: int
+    full_name: str
+    id_number: str
+    phone: str | None
+    email: str | None
+    instagram: str | None
+    shoot_type: str | None
+    shoot_date: date | None
+
+
+class AdminClientProfileSearchResponse(BaseModel):
+    items: list[AdminClientProfileRead]
+    total: int
+    limit: int
+    offset: int
+
+
+class AvailabilityResponse(BaseModel):
+    date: date
+    professional_name: str
+    service_id: int
+    service_name: str
+    duration_minutes: int
+    start_times: list[str]
+
+
+class PublicBookingCreate(BaseModel):
+    full_name: str = Field(min_length=2, max_length=180)
+    phone: str = Field(min_length=3, max_length=40)
+    instagram: str | None = Field(default=None, max_length=120)
+    professional_name: str = Field(min_length=2, max_length=180)
+    service_id: int
+    appointment_date: date
+    start_time: time
+    notes: str | None = None
+
+
+class PublicBookingResponse(BaseModel):
+    appointment_id: int
 
 
 class TreatmentSessionCreate(BaseModel):
@@ -62,6 +155,13 @@ class TreatmentSessionUpsert(BaseModel):
     notes: str | None = None
 
 
+class TreatmentSessionUpdate(BaseModel):
+    planned_sessions: int | None = Field(default=None, ge=1)
+    completed_sessions: int | None = Field(default=None, ge=0)
+    status: str | None = Field(default=None, max_length=40)
+    notes: str | None = None
+
+
 class TreatmentSessionAdminRead(BaseModel):
     id: int
     client_id: int
@@ -83,6 +183,32 @@ class TreatmentSessionSearchResponse(BaseModel):
     offset: int
 
 
+class SessionAgendaItem(BaseModel):
+    appointment_id: int
+    appointment_date: date
+    start_time: time
+    end_time: time
+    professional_name: str
+    service_name: str
+    client_id: int
+    client_name: str
+    client_phone: str | None
+    session_id: int
+    planned_sessions: int
+    completed_sessions: int
+    status: str
+    notes: str | None
+
+
+class SessionAgendaResponse(BaseModel):
+    items: list[SessionAgendaItem]
+
+
+class SessionAttendanceUpdate(BaseModel):
+    appointment_id: int
+    attended: bool
+
+
 class AppointmentType(str, Enum):
     APPOINTMENT = "appointment"
     BLOCK = "block"
@@ -90,7 +216,8 @@ class AppointmentType(str, Enum):
 
 class AppointmentCreate(BaseModel):
     client_id: int | None = None
-    service_name: str = Field(min_length=2, max_length=220)
+    service_id: int | None = None
+    service_name: str | None = Field(default=None, min_length=2, max_length=220)
     professional_name: str = Field(min_length=2, max_length=180)
     appointment_date: date
     start_time: time
@@ -102,6 +229,7 @@ class AppointmentCreate(BaseModel):
 
 class AppointmentUpdate(BaseModel):
     client_id: int | None = None
+    service_id: int | None = None
     service_name: str | None = Field(default=None, min_length=2, max_length=220)
     professional_name: str | None = Field(default=None, min_length=2, max_length=180)
     appointment_date: date | None = None
@@ -110,6 +238,7 @@ class AppointmentUpdate(BaseModel):
     appointment_type: AppointmentType | None = None
     status: str | None = Field(default=None, max_length=32)
     notes: str | None = None
+    deleted: bool | None = None
 
 
 class AppointmentRead(AppointmentCreate):
@@ -125,6 +254,7 @@ class AppointmentAdminRead(BaseModel):
     client_id: int | None
     client_name: str | None
     client_phone: str | None
+    service_id: int | None
     service_name: str
     professional_name: str
     appointment_date: date
