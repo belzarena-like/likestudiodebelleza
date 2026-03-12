@@ -147,6 +147,7 @@
         <thead>
           <tr>
             <th>Servicio</th>
+            <th>Duracion (min)</th>
             <th>Activo</th>
             <th>Acciones</th>
           </tr>
@@ -175,6 +176,10 @@
         <div>
           <label for="service-name">Nombre del servicio</label>
           <input id="service-name" required />
+        </div>
+        <div>
+          <label for="service-duration">Duracion (min)</label>
+          <input id="service-duration" type="number" min="15" max="480" step="15" value="60" required />
         </div>
         <div>
           <label for="service-active">Activo</label>
@@ -209,6 +214,7 @@
     const serviceIdInput = document.getElementById('service-id');
     const serviceNameInput = document.getElementById('service-name');
     const serviceActiveInput = document.getElementById('service-active');
+    const serviceDurationInput = document.getElementById('service-duration');
     const serviceMessage = document.getElementById('service-message');
     const serviceSubmit = document.getElementById('service-submit');
     const serviceModal = document.getElementById('service-modal');
@@ -245,6 +251,7 @@
       serviceIdInput.value = '';
       serviceNameInput.value = '';
       serviceActiveInput.value = 'true';
+      serviceDurationInput.value = '60';
       serviceSubmit.textContent = 'Guardar';
       serviceMessage.textContent = '';
       serviceModalTitle.textContent = 'Nuevo servicio';
@@ -252,13 +259,14 @@
 
     function renderRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="3">Sin resultados.</td></tr>';
+        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="4">Sin resultados.</td></tr>';
         return;
       }
 
       tableBody.innerHTML = items.map((item) => `
         <tr>
           <td>${item.name}</td>
+          <td>${item.duration_minutes}</td>
           <td>${item.active ? 'Si' : 'No'}</td>
           <td>
             <div class="admin-actions">
@@ -298,9 +306,15 @@
         serviceMessage.textContent = 'Ingresa un nombre.';
         return;
       }
+      const duration = parseInt(serviceDurationInput.value, 10);
+      if (!duration || Number.isNaN(duration)) {
+        serviceMessage.textContent = 'Ingresa una duracion valida.';
+        return;
+      }
       const payload = {
         name: name,
-        active: serviceActiveInput.value === 'true'
+        active: serviceActiveInput.value === 'true',
+        duration_minutes: duration
       };
       try {
         const serviceId = serviceIdInput.value;
@@ -355,9 +369,11 @@
       const row = button.closest('tr');
       if (!row) return;
       const name = row.children[0].textContent;
-      const active = row.children[1].textContent === 'Si';
+      const duration = row.children[1].textContent;
+      const active = row.children[2].textContent === 'Si';
       serviceIdInput.value = button.dataset.editId;
       serviceNameInput.value = name;
+      serviceDurationInput.value = duration || '60';
       serviceActiveInput.value = active ? 'true' : 'false';
       serviceSubmit.textContent = 'Actualizar';
       serviceModalTitle.textContent = `Editar servicio #${button.dataset.editId}`;
