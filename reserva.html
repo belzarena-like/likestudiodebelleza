@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva Online | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css" />
+  <style>
+    .booking-panel {
+      background: #121822;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: clamp(18px, 4vw, 30px);
+      box-shadow: var(--shadow);
+    }
+
+    .booking-steps {
+      display: grid;
+      gap: 16px;
+    }
+
+    .booking-info {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .booking-slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .booking-slots button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #171d28;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .booking-slots button.is-active {
+      background: linear-gradient(135deg, var(--brand), #be3535);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .booking-summary {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: #0f141d;
+      color: #d9e1ee;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Studio Academy</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html#services">Servicios</a>
+      <a href="gallery.html">Galeria</a>
+      <a href="index.html#academy">Academia</a>
+      <a href="index.html#contact">Contacto</a>
+      <a class="btn btn-sm" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
+    </nav>
+  </header>
+
+  <main class="section">
+    <p class="eyebrow">Reservas</p>
+    <h1>Reserva tu cita online</h1>
+    <p class="lead">Selecciona el servicio, profesional y horario disponible. La duracion se calcula automaticamente.</p>
+
+    <div class="booking-panel">
+      <form id="booking-form" class="form-grid">
+        <div>
+          <label for="service">Servicio</label>
+          <select id="service" required>
+            <option value="">Seleccionar...</option>
+          </select>
+          <p class="booking-info" id="service-duration"></p>
+        </div>
+        <div>
+          <label for="professional">Profesional</label>
+          <select id="professional" required>
+            <option value="">Seleccionar...</option>
+            <option>Josemi</option>
+            <option>Liege</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Fecha</label>
+          <input id="date" type="date" required />
+        </div>
+        <div>
+          <label>Horario disponible</label>
+          <div id="slots" class="booking-slots"></div>
+          <input type="hidden" id="start-time" required />
+          <p class="booking-info" id="slot-message">Selecciona servicio, profesional y fecha para ver horarios.</p>
+        </div>
+        <div>
+          <label for="full-name">Nombre y apellidos</label>
+          <input id="full-name" required />
+        </div>
+        <div>
+          <label for="phone">Telefono</label>
+          <input id="phone" required />
+        </div>
+        <div>
+          <label for="instagram">Instagram (opcional)</label>
+          <input id="instagram" />
+        </div>
+        <div class="form-grid-1">
+          <label for="notes">Notas</label>
+          <textarea id="notes" placeholder="Alguna observacion?"></textarea>
+        </div>
+        <div class="form-grid-1 booking-summary" id="summary">
+          Selecciona un horario para ver el resumen.
+        </div>
+        <div class="form-actions form-grid-1">
+          <button class="btn" type="submit">Confirmar reserva</button>
+        </div>
+        <p id="message" class="form-note form-grid-1"></p>
+      </form>
+    </div>
+  </main>
+
+  <script src="static/js/app-config.js"></script>
+  <script src="static/js/site.js"></script>
+  <script>
+    const API_BASE = window.APP_CONFIG.API_BASE_URL;
+    const servicesSelect = document.getElementById('service');
+    const professionalSelect = document.getElementById('professional');
+    const dateInput = document.getElementById('date');
+    const slotsContainer = document.getElementById('slots');
+    const startTimeInput = document.getElementById('start-time');
+    const serviceDuration = document.getElementById('service-duration');
+    const slotMessage = document.getElementById('slot-message');
+    const summary = document.getElementById('summary');
+    const message = document.getElementById('message');
+
+    const fullNameInput = document.getElementById('full-name');
+    const phoneInput = document.getElementById('phone');
+    const instagramInput = document.getElementById('instagram');
+    const notesInput = document.getElementById('notes');
+
+    let servicesById = {};
+    let currentDuration = 60;
+
+    function formatDuration(minutes) {
+      if (minutes >= 60) {
+        const hours = (minutes / 60).toFixed(minutes % 60 === 0 ? 0 : 1);
+        return `${hours} h`;
+      }
+      return `${minutes} min`;
+    }
+
+    function setSummary() {
+      const serviceText = servicesSelect.options[servicesSelect.selectedIndex]?.text || '-';
+      const professional = professionalSelect.value || '-';
+      const date = dateInput.value || '-';
+      const start = startTimeInput.value || '-';
+      if (!startTimeInput.value) {
+        summary.textContent = 'Selecciona un horario para ver el resumen.';
+        return;
+      }
+      summary.textContent = `${serviceText} con ${professional} el ${date} a las ${start} (duracion ${formatDuration(currentDuration)}).`;
+    }
+
+    function clearSlots(messageText) {
+      slotsContainer.innerHTML = '';
+      startTimeInput.value = '';
+      slotMessage.textContent = messageText || '';
+      serviceDuration.textContent = '';
+      setSummary();
+    }
+
+    async function loadServices() {
+      try {
+        const response = await fetch(`${API_BASE}/public/services?limit=200&offset=0`);
+        if (!response.ok) throw new Error('No se pudieron cargar los servicios.');
+        const payload = await response.json();
+        servicesById = {};
+        servicesSelect.innerHTML = '<option value="">Seleccionar...</option>' + payload.items.map((service) => {
+          servicesById[String(service.id)] = service;
+          return `<option value="${service.id}">${service.name}</option>`;
+        }).join('');
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    }
+
+    async function loadAvailability() {
+      const serviceId = servicesSelect.value;
+      const professional = professionalSelect.value;
+      const date = dateInput.value;
+      if (!serviceId || !professional || !date) {
+        if (!serviceId) {
+          serviceDuration.textContent = '';
+        }
+        clearSlots('Selecciona servicio, profesional y fecha para ver horarios.');
+        return;
+      }
+
+      const service = servicesById[serviceId];
+      currentDuration = service ? service.duration_minutes : 60;
+      serviceDuration.textContent = `Duracion estimada: ${formatDuration(currentDuration)}`;
+
+      slotMessage.textContent = 'Buscando horarios...';
+      slotsContainer.innerHTML = '';
+
+      try {
+        const response = await fetch(`${API_BASE}/public/availability?date=${date}&service_id=${serviceId}&professional_name=${encodeURIComponent(professional)}`);
+        if (!response.ok) throw new Error('No se pudieron cargar los horarios.');
+        const payload = await response.json();
+        if (!payload.start_times.length) {
+          clearSlots('No hay horarios disponibles para ese dia.');
+          return;
+        }
+        slotsContainer.innerHTML = payload.start_times.map((time) => `
+          <button type="button" data-time="${time}">${time}</button>
+        `).join('');
+        slotMessage.textContent = 'Selecciona un horario disponible.';
+      } catch (error) {
+        clearSlots(error.message);
+      }
+    }
+
+    slotsContainer.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-time]');
+      if (!button) return;
+      slotsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('is-active'));
+      button.classList.add('is-active');
+      startTimeInput.value = button.dataset.time;
+      setSummary();
+    });
+
+    servicesSelect.addEventListener('change', loadAvailability);
+    professionalSelect.addEventListener('change', loadAvailability);
+    dateInput.addEventListener('change', loadAvailability);
+
+    document.getElementById('booking-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      message.textContent = '';
+
+      const serviceId = servicesSelect.value;
+      const professional = professionalSelect.value;
+      const date = dateInput.value;
+      const startTime = startTimeInput.value;
+
+      if (!serviceId || !professional || !date || !startTime) {
+        message.textContent = 'Completa servicio, profesional, fecha y horario.';
+        return;
+      }
+      if (!fullNameInput.value.trim() || !phoneInput.value.trim()) {
+        message.textContent = 'Nombre y telefono son obligatorios.';
+        return;
+      }
+
+      const payload = {
+        full_name: fullNameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        instagram: instagramInput.value.trim() || null,
+        professional_name: professional,
+        service_id: parseInt(serviceId, 10),
+        appointment_date: date,
+        start_time: startTime,
+        notes: notesInput.value.trim() || null
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/public/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (response.status === 409) {
+          const data = await response.json();
+          message.textContent = data.detail || 'Ese horario ya no esta disponible.';
+          return;
+        }
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'No se pudo crear la reserva.');
+        }
+        message.textContent = 'Reserva confirmada. Te contactaremos pronto.';
+        document.getElementById('booking-form').reset();
+        clearSlots('Selecciona servicio, profesional y fecha para ver horarios.');
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+
+    loadServices();
+    const today = new Date().toISOString().slice(0, 10);
+    dateInput.value = today;
+    dateInput.min = today;
+  </script>
+</body>
+</html>

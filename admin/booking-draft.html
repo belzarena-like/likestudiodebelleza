@@ -1072,7 +1072,7 @@
           payload.items.forEach((client) => {
             clientsById[String(client.id)] = client;
           });
-          const options = ['<option value="__new__">+ Nuevo cliente</option>', '<option value="">Seleccionar...</option>']
+          const options = ['<option value="">Seleccionar...</option>', '<option value="__new__">+ Nuevo cliente</option>']
             .concat(payload.items.map((client) => `<option value="${client.id}">${escapeHtml(client.full_name)}</option>`))
             .join('');
           bookingClient.innerHTML = options;
