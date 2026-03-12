@@ -13,6 +13,46 @@
       color: #d9e1ee;
     }
 
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 18, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-overlay.is-open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(640px, 100%);
+      background: #0f141d;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
     .admin-table-wrap {
       overflow: auto;
       border: 1px solid var(--line);
@@ -76,8 +116,12 @@
 
   <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
     <p class="eyebrow">Panel Admin</p>
-    <h1>Clientes con consentimientos</h1>
-    <p class="form-note">Solo se muestran clientes que ya tienen al menos un consentimiento.</p>
+    <h1>Clientes</h1>
+    <p class="form-note">Listado completo de clientes. Puedes editar datos o crear nuevos.</p>
+
+    <div class="form-actions" style="margin: 0 0 16px;">
+      <button id="new-client" class="btn btn-sm" type="button">Nuevo cliente</button>
+    </div>
 
     <form id="search-form" class="form-grid" style="margin-bottom:14px">
       <div>
@@ -96,9 +140,9 @@
         <thead>
           <tr>
             <th>Cliente</th>
+            <th>DNI/NIE</th>
             <th>Telefono</th>
             <th>Email</th>
-            <th>Consentimientos</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -112,25 +156,73 @@
     </div>
   </main>
 
+  <div class="modal-overlay" id="client-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="client-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Cliente</p>
+          <h2 id="client-modal-title">Nuevo cliente</h2>
+        </div>
+        <button id="client-close" class="btn btn-ghost btn-sm" type="button">Cerrar</button>
+      </div>
+      <form id="client-form" class="form-grid">
+        <div>
+          <label for="client-full-name">Nombre completo</label>
+          <input id="client-full-name" required />
+        </div>
+        <div>
+          <label for="client-id-number">DNI/NIE</label>
+          <input id="client-id-number" required />
+        </div>
+        <div>
+          <label for="client-phone">Telefono</label>
+          <input id="client-phone" />
+        </div>
+        <div>
+          <label for="client-email">Email</label>
+          <input id="client-email" type="email" />
+        </div>
+        <div class="form-actions form-grid-1">
+          <button id="client-submit" class="btn" type="submit">Guardar</button>
+          <button id="client-reset" class="btn btn-ghost" type="reset">Limpiar</button>
+        </div>
+        <p id="client-message" class="form-note form-grid-1"></p>
+      </form>
+    </div>
+  </div>
+
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/clients`;
+    const CREATE_URL = `${window.APP_CONFIG.API_BASE_URL}/clients`;
     const limit = 25;
     let offset = 0;
     let lastTotal = 0;
+    let clientsById = {};
+    let editingId = null;
 
     const form = document.getElementById('search-form');
     const summary = document.getElementById('summary');
     const tableBody = document.getElementById('table-body');
+    const newClientButton = document.getElementById('new-client');
+    const clientModal = document.getElementById('client-modal');
+    const clientModalTitle = document.getElementById('client-modal-title');
+    const clientClose = document.getElementById('client-close');
+    const clientForm = document.getElementById('client-form');
+    const clientFullName = document.getElementById('client-full-name');
+    const clientIdNumber = document.getElementById('client-id-number');
+    const clientPhone = document.getElementById('client-phone');
+    const clientEmail = document.getElementById('client-email');
+    const clientMessage = document.getElementById('client-message');
+    const clientSubmit = document.getElementById('client-submit');
 
     function collectParams() {
       const data = new FormData(form);
       const params = new URLSearchParams();
       const query = data.get('query');
       if (query) params.set('query', query);
-      params.set('with_consents', 'true');
       params.set('limit', String(limit));
       params.set('offset', String(offset));
       return params;
@@ -142,17 +234,19 @@
         return;
       }
 
+      clientsById = {};
       tableBody.innerHTML = items.map((item) => {
-        const consentCount = item.consent_count == null ? '-' : item.consent_count;
+        clientsById[String(item.id)] = item;
         const nameParam = encodeURIComponent(item.full_name || '');
         return `
           <tr>
             <td>${item.full_name}</td>
+            <td>${item.id_number}</td>
             <td>${item.phone || '-'}</td>
             <td>${item.email || '-'}</td>
-            <td>${consentCount}</td>
             <td>
               <div class="admin-actions">
+                <button class="btn btn-ghost btn-sm" type="button" data-edit-id="${item.id}">Editar</button>
                 <a class="btn btn-ghost btn-sm" href="index.html?full_name=${nameParam}">Ver consentimientos</a>
               </div>
             </td>
@@ -182,6 +276,42 @@
       }
     }
 
+    function openClientModal() {
+      clientModal.classList.add('is-open');
+      clientModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeClientModal() {
+      clientModal.classList.remove('is-open');
+      clientModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    function resetClientForm({ skipReset = false } = {}) {
+      editingId = null;
+      clientModalTitle.textContent = 'Nuevo cliente';
+      clientSubmit.textContent = 'Guardar';
+      clientMessage.textContent = '';
+      if (!skipReset) {
+        clientForm.reset();
+      }
+    }
+
+    function startEditClient(id) {
+      const client = clientsById[String(id)];
+      if (!client) return;
+      editingId = id;
+      clientModalTitle.textContent = `Editar cliente #${id}`;
+      clientSubmit.textContent = 'Actualizar';
+      clientMessage.textContent = '';
+      clientFullName.value = client.full_name || '';
+      clientIdNumber.value = client.id_number || '';
+      clientPhone.value = client.phone || '';
+      clientEmail.value = client.email || '';
+      openClientModal();
+    }
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       offset = 0;
@@ -203,6 +333,71 @@
       if (offset + limit < lastTotal) {
         offset += limit;
         loadClients();
+      }
+    });
+
+    tableBody.addEventListener('click', (event) => {
+      const editBtn = event.target.closest('[data-edit-id]');
+      if (!editBtn) return;
+      const id = parseInt(editBtn.dataset.editId, 10);
+      if (!Number.isNaN(id)) {
+        startEditClient(id);
+      }
+    });
+
+    newClientButton.addEventListener('click', () => {
+      resetClientForm();
+      openClientModal();
+    });
+
+    clientForm.addEventListener('reset', () => {
+      resetClientForm({ skipReset: true });
+    });
+
+    clientForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clientMessage.textContent = '';
+
+      const payload = {
+        full_name: clientFullName.value.trim(),
+        id_number: clientIdNumber.value.trim(),
+        phone: clientPhone.value.trim() || null,
+        email: clientEmail.value.trim() || null
+      };
+
+      if (!payload.full_name || !payload.id_number) {
+        clientMessage.textContent = 'Nombre y DNI/NIE son obligatorios.';
+        return;
+      }
+
+      try {
+        const response = await fetch(editingId ? `${API_URL}/${editingId}` : CREATE_URL, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'No se pudo guardar el cliente.');
+        }
+        clientMessage.textContent = editingId ? 'Cliente actualizado.' : 'Cliente creado.';
+        resetClientForm();
+        closeClientModal();
+        loadClients();
+      } catch (error) {
+        clientMessage.textContent = error.message;
+      }
+    });
+
+    clientClose.addEventListener('click', closeClientModal);
+    clientModal.addEventListener('click', (event) => {
+      if (event.target === clientModal) {
+        closeClientModal();
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && clientModal.classList.contains('is-open')) {
+        closeClientModal();
       }
     });
 

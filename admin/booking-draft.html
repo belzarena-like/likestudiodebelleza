@@ -95,6 +95,15 @@
       background: #171d28;
     }
 
+    .calendar-picker {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .view-toggle {
       display: inline-flex;
       gap: 8px;
@@ -171,6 +180,10 @@
       text-align: center;
     }
 
+    .day-header.is-clickable {
+      cursor: pointer;
+    }
+
     .day-body {
       position: relative;
       height: calc(var(--hour-height) * var(--hour-count));
@@ -188,7 +201,7 @@
       left: 6px;
       right: 6px;
       border-radius: 10px;
-      padding: 6px 8px;
+      padding: 24px 8px 6px;
       color: #f6f7fb;
       font-size: 0.78rem;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
@@ -221,14 +234,37 @@
     }
 
     .appointment-block .block-actions {
-      margin-top: 6px;
+      position: absolute;
+      top: 6px;
+      right: 6px;
       display: flex;
-      gap: 6px;
+      gap: 4px;
+      align-items: center;
     }
 
-    .appointment-block .block-actions .btn {
-      padding: 3px 8px;
-      font-size: 0.68rem;
+    .appointment-block .icon-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .appointment-block .icon-btn:hover {
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .appointment-block .icon-btn.danger {
+      border-color: rgba(255, 77, 109, 0.45);
+      color: #ffb1c0;
     }
 
     .current-line {
@@ -343,15 +379,15 @@
   <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
     <p class="eyebrow">Agenda</p>
     <h1>Booking / Agenda</h1>
-    <p class="form-note">Conectado al backend. Puedes crear y editar reservas o bloqueos.</p>
-
     <div class="scheduler-toolbar">
       <div class="toolbar-left">
         <button id="new-booking" class="btn btn-sm" type="button">Nueva reserva</button>
         <button id="today-btn" class="btn btn-ghost btn-sm" type="button">Hoy</button>
         <button id="prev-btn" class="btn btn-ghost btn-sm" type="button">&#9664;</button>
         <button id="next-btn" class="btn btn-ghost btn-sm" type="button">&#9654;</button>
-        <span id="range-label" class="toolbar-range"></span>
+        <button id="range-label" class="toolbar-range btn btn-ghost btn-sm" type="button"></button>
+        <button id="calendar-btn" class="btn btn-ghost btn-sm" type="button">Calendario</button>
+        <input id="calendar-picker" class="calendar-picker" type="date" aria-hidden="true" tabindex="-1" />
       </div>
       <div class="toolbar-right">
         <select id="resource-filter">
@@ -474,6 +510,8 @@
     const nextBtn = document.getElementById('next-btn');
     const resourceFilter = document.getElementById('resource-filter');
     const serviceFilter = document.getElementById('service-filter');
+    const calendarButton = document.getElementById('calendar-btn');
+    const calendarPicker = document.getElementById('calendar-picker');
 
     const API_BASE = window.APP_CONFIG.API_BASE_URL;
 
@@ -615,9 +653,9 @@
             ${professional ? `<div class="block-meta">${professional}</div>` : ''}
             ${notes ? `<div class="block-meta">${notes}</div>` : ''}
             <div class="block-actions">
-              <button class="btn btn-ghost" type="button" data-edit-id="${entry.id}">Editar</button>
-              <button class="btn btn-ghost" type="button" data-duplicate-id="${entry.id}">Duplicar</button>
-              <button class="btn btn-ghost btn-danger" type="button" data-delete-id="${entry.id}">Eliminar</button>
+              <button class="icon-btn" type="button" data-edit-id="${entry.id}" title="Editar" aria-label="Editar">E</button>
+              <button class="icon-btn" type="button" data-duplicate-id="${entry.id}" title="Duplicar" aria-label="Duplicar">D</button>
+              <button class="icon-btn danger" type="button" data-delete-id="${entry.id}" title="Eliminar" aria-label="Eliminar">X</button>
             </div>
           </div>
         `;
@@ -635,8 +673,8 @@
 
       return `
         <div class="day-column">
-          <div class="day-header">${formatDayLabel(day)}</div>
-          <div class="day-body">
+          <div class="day-header is-clickable" data-day-header="${toIsoDate(day)}" title="Cambiar dia">${formatDayLabel(day)}</div>
+          <div class="day-body" data-day="${toIsoDate(day)}">
             ${currentLine}
             ${blocks}
           </div>
@@ -923,6 +961,39 @@
       }
     }
 
+    function openCalendarPicker() {
+      calendarPicker.value = toIsoDate(selectedDate);
+      if (calendarPicker.showPicker) {
+        calendarPicker.showPicker();
+      } else {
+        calendarPicker.focus();
+        calendarPicker.click();
+      }
+    }
+
+    function minutesToTime(minutes) {
+      const total = Math.max(0, Math.min(HOURS_COUNT * 60, minutes));
+      const hour = START_HOUR + Math.floor(total / 60);
+      const minute = total % 60;
+      return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+
+    function openCreateAt(date, startMinutes) {
+      resetFormState();
+      const maxMinutes = HOURS_COUNT * 60;
+      let start = Math.max(0, Math.min(maxMinutes, startMinutes));
+      if (start > maxMinutes - 60) {
+        start = Math.max(0, maxMinutes - 60);
+      }
+      const end = Math.min(maxMinutes, start + 60);
+      bookingDate.value = toIsoDate(date);
+      bookingStart.value = minutesToTime(start);
+      bookingEnd.value = minutesToTime(end);
+      bookingModalTitle.textContent = 'Nueva reserva';
+      bookingMessage.textContent = 'Completa los datos para crear la reserva.';
+      openModal();
+    }
+
     bookingClient.addEventListener('change', () => {
       const client = clientsById[String(bookingClient.value)];
       bookingPhone.value = client ? (client.phone || '') : '';
@@ -1040,6 +1111,35 @@
     });
 
     agendaContainer.addEventListener('click', (event) => {
+      const header = event.target.closest('[data-day-header]');
+      if (header) {
+        const dayValue = header.dataset.dayHeader;
+        const dayDate = parseDate(dayValue);
+        if (dayDate) {
+          selectedDate = dayDate;
+          if (currentView !== 'day') {
+            setActiveView('day');
+          } else {
+            loadAgenda();
+          }
+        }
+        return;
+      }
+      if (event.target.closest('.appointment-block')) {
+        return;
+      }
+      const dayBody = event.target.closest('.day-body');
+      if (dayBody) {
+        const dayValue = dayBody.dataset.day;
+        const dayDate = parseDate(dayValue);
+        if (!dayDate) return;
+        const rect = dayBody.getBoundingClientRect();
+        const offsetY = event.clientY - rect.top;
+        const rawMinutes = offsetY / PIXELS_PER_MINUTE;
+        const snapped = Math.round(rawMinutes / 15) * 15;
+        openCreateAt(dayDate, snapped);
+        return;
+      }
       const button = event.target.closest('[data-edit-id]');
       if (button) {
         const id = parseInt(button.dataset.editId, 10);
@@ -1096,6 +1196,16 @@
       } else {
         selectedDate.setDate(selectedDate.getDate() + 1);
       }
+      loadAgenda();
+    });
+
+    rangeLabel.addEventListener('click', openCalendarPicker);
+    calendarButton.addEventListener('click', openCalendarPicker);
+    calendarPicker.addEventListener('change', () => {
+      if (!calendarPicker.value) return;
+      const date = parseDate(calendarPicker.value);
+      if (!date) return;
+      selectedDate = date;
       loadAgenda();
     });
 
