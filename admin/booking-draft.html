@@ -9,107 +9,252 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
   <style>
+    :root {
+      --hour-height: 72px;
+    }
+
     .booking-card {
       background: #0f141d;
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 14px;
     }
-    .booking-create {
-      margin-bottom: 16px;
+
+    body.modal-open {
+      overflow: hidden;
     }
-    .booking-create summary {
-      list-style: none;
-      cursor: pointer;
-      user-select: none;
-    }
-    .booking-create summary::-webkit-details-marker {
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 18, 0.8);
       display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
     }
-    .booking-toolbar {
+
+    .modal-overlay.is-open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(720px, 100%);
+      background: #0f141d;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .btn-danger {
+      border-color: rgba(255, 77, 109, 0.4);
+      color: #ff8aa0;
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 77, 109, 0.12);
+    }
+
+    .scheduler-toolbar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 16px 0;
+      margin: 12px 0 18px;
     }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-range {
+      font-weight: 700;
+      color: #dbe4f5;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #171d28;
+    }
+
     .view-toggle {
       display: inline-flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     .view-toggle .btn.is-active {
       background: linear-gradient(135deg, var(--brand), #be3535);
       color: #fff;
       border-color: transparent;
       box-shadow: 0 10px 24px rgba(190, 53, 53, 0.27);
     }
-    .agenda-grid {
+
+    .scheduler-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: 70px 1fr;
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f141d;
     }
-    .agenda-list {
-      display: grid;
-      gap: 10px;
-    }
-    .agenda-entry {
-      background: #202838;
-      border: 1px solid #2a354a;
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-    }
-    .agenda-entry.block {
-      background: #3b1f2a;
-      border-color: #5b2734;
-      color: #ffc3cf;
-    }
-    .agenda-entry strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 0.85rem;
-    }
-    .agenda-notes {
-      color: #c9d3e6;
-      font-size: 0.82rem;
-      margin-top: 4px;
-    }
-    .agenda-actions {
+
+    .time-column {
+      background: #151a25;
+      border-right: 1px solid #2a354a;
       display: flex;
-      gap: 8px;
-      margin-top: 6px;
+      flex-direction: column;
     }
-    .agenda-actions .btn {
-      padding: 4px 10px;
+
+    .time-header {
+      padding: 10px;
+      font-weight: 700;
+      color: #c4d0e4;
+      border-bottom: 1px solid #2a354a;
+      text-align: center;
+    }
+
+    .time-body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-label {
+      height: var(--hour-height);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
       font-size: 0.75rem;
+      color: #91a0b8;
+      padding-top: 6px;
+      border-bottom: 1px solid rgba(42, 53, 74, 0.45);
     }
-    .agenda-week {
+
+    .days-grid {
       display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 10px;
+      grid-auto-columns: minmax(160px, 1fr);
+      grid-auto-flow: column;
     }
-    .agenda-day-card {
-      border: 1px solid #2a354a;
-      border-radius: 10px;
-      padding: 8px;
-      background: #141922;
-      min-height: 120px;
+
+    .day-column {
+      border-right: 1px solid #2a354a;
+      position: relative;
+      background: #121822;
+      min-width: 160px;
     }
-    .agenda-day-card h4 {
-      margin: 0 0 6px;
-      font-size: 0.9rem;
+
+    .day-header {
+      padding: 10px;
+      font-weight: 700;
       color: #d9e1ee;
+      border-bottom: 1px solid #2a354a;
+      background: #1b2231;
+      text-align: center;
     }
-    .agenda-day-card .agenda-entry {
-      font-size: 0.78rem;
+
+    .day-body {
+      position: relative;
+      height: calc(var(--hour-height) * var(--hour-count));
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.05) 0,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent var(--hour-height)
+      );
+    }
+
+    .appointment-block {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      border-radius: 10px;
       padding: 6px 8px;
+      color: #f6f7fb;
+      font-size: 0.78rem;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
+
+    .appointment-block .block-time {
+      font-size: 0.72rem;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .appointment-block .block-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .appointment-block .block-meta {
+      font-size: 0.7rem;
+      opacity: 0.85;
+    }
+
+    .appointment-block.appointment {
+      background: #325a84;
+    }
+
+    .appointment-block.block {
+      background: #d5a153;
+      color: #1f1300;
+    }
+
+    .appointment-block .block-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .appointment-block .block-actions .btn {
+      padding: 3px 8px;
+      font-size: 0.68rem;
+    }
+
+    .current-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ff4d6d;
+    }
+
+    .current-dot {
+      position: absolute;
+      left: -4px;
+      top: -4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff4d6d;
+    }
+
     .agenda-month {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 8px;
     }
+
     .month-cell {
       border: 1px solid #2a354a;
       border-radius: 10px;
@@ -117,44 +262,67 @@
       background: #141922;
       min-height: 90px;
     }
+
     .month-cell.is-muted {
       opacity: 0.4;
     }
+
     .month-cell strong {
       display: block;
       font-size: 0.8rem;
     }
+
     .month-count {
       margin-top: 6px;
       font-size: 0.78rem;
       color: #c9d3e6;
     }
+
     .agenda-empty {
       color: var(--muted);
     }
+
     .booking-message {
       margin: 8px 0 0;
       color: #d9e1ee;
     }
+
+    @media (max-width: 900px) {
+      .scheduler-toolbar {
+        align-items: stretch;
+      }
+      .toolbar-left,
+      .toolbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
     @media (max-width: 1024px) {
-      .agenda-week {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      .scheduler-grid {
+        grid-template-columns: 60px 1fr;
+      }
+      .days-grid {
+        grid-auto-columns: minmax(150px, 1fr);
       }
     }
+
     @media (max-width: 720px) {
-      .agenda-week {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      .agenda-month {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-    @media (max-width: 520px) {
-      .agenda-week {
+      .scheduler-grid {
         grid-template-columns: 1fr;
       }
-      .agenda-month {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .time-column {
+        display: none;
+      }
+      .days-grid {
+        grid-auto-columns: minmax(220px, 1fr);
+        overflow-x: auto;
+      }
+      .modal-card {
+        padding: 14px;
+      }
+      .appointment-block {
+        font-size: 0.74rem;
       }
     }
   </style>
@@ -177,82 +345,102 @@
     <h1>Booking / Agenda</h1>
     <p class="form-note">Conectado al backend. Puedes crear y editar reservas o bloqueos.</p>
 
-    <details class="booking-create">
-      <summary class="btn">Nueva reserva</summary>
-      <div class="booking-card" style="margin-top:10px;">
-        <form id="booking-form" class="form-grid">
-          <div>
-            <label>Cliente</label>
-            <select id="booking-client">
-              <option value="">Seleccionar...</option>
-            </select>
-          </div>
-          <div>
-            <label>Telefono</label>
-            <input id="booking-phone" placeholder="Se carga del cliente" readonly />
-          </div>
-          <div>
-            <label>Tratamiento</label>
-            <input id="booking-service" list="booking-services" placeholder="Micropigmentacion capilar" required />
-            <datalist id="booking-services"></datalist>
-          </div>
-          <div>
-            <label>Profesional</label>
-            <select id="booking-professional" required>
-              <option value="">Seleccionar...</option>
-              <option>Josemi</option>
-              <option>Liege</option>
-            </select>
-          </div>
-          <div>
-            <label>Fecha</label>
-            <input type="date" id="booking-date" required />
-          </div>
-          <div>
-            <label>Hora inicio</label>
-            <input type="time" id="booking-start" value="11:00" required />
-          </div>
-          <div>
-            <label>Hora fin</label>
-            <input type="time" id="booking-end" value="12:00" required />
-          </div>
-          <div>
-            <label>Tipo</label>
-            <select id="booking-type">
-              <option value="appointment">Appointment</option>
-              <option value="block">Block</option>
-            </select>
-          </div>
-          <div class="form-grid-1">
-            <label>Notas</label>
-            <textarea id="booking-notes" placeholder="Notas internas"></textarea>
-          </div>
-          <div class="form-actions form-grid-1">
-            <button id="booking-submit" class="btn" type="submit">Guardar reserva</button>
-            <button id="booking-reset" class="btn btn-ghost" type="reset">Limpiar</button>
-          </div>
-          <p id="booking-message" class="form-note booking-message form-grid-1"></p>
-        </form>
+    <div class="scheduler-toolbar">
+      <div class="toolbar-left">
+        <button id="new-booking" class="btn btn-sm" type="button">Nueva reserva</button>
+        <button id="today-btn" class="btn btn-ghost btn-sm" type="button">Hoy</button>
+        <button id="prev-btn" class="btn btn-ghost btn-sm" type="button">&#9664;</button>
+        <button id="next-btn" class="btn btn-ghost btn-sm" type="button">&#9654;</button>
+        <span id="range-label" class="toolbar-range"></span>
       </div>
-    </details>
-
-    <div class="booking-toolbar">
-      <div class="view-toggle">
-        <button class="btn btn-ghost btn-sm is-active" type="button" data-view="day">Dia</button>
-        <button class="btn btn-ghost btn-sm" type="button" data-view="week">Semana</button>
-        <button class="btn btn-ghost btn-sm" type="button" data-view="month">Mes</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <label for="agenda-date">Fecha</label>
-        <input id="agenda-date" type="date" />
+      <div class="toolbar-right">
+        <select id="resource-filter">
+          <option value="">Todos los profesionales</option>
+        </select>
+        <select id="service-filter">
+          <option value="">Todos los servicios</option>
+        </select>
+        <div class="view-toggle">
+          <button class="btn btn-ghost btn-sm is-active" type="button" data-view="day">Dia</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-view="week">Semana</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-view="month">Mes</button>
+        </div>
       </div>
     </div>
 
     <section class="booking-card">
       <h3 id="agenda-title">Agenda</h3>
-      <div id="agenda-container" class="agenda-grid"></div>
+      <div id="agenda-container"></div>
     </section>
   </main>
+
+  <div class="modal-overlay" id="booking-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Reserva</p>
+          <h2 id="booking-modal-title">Nueva reserva</h2>
+        </div>
+        <button id="booking-close" class="btn btn-ghost btn-sm" type="button">Cerrar</button>
+      </div>
+      <form id="booking-form" class="form-grid">
+        <div>
+          <label>Cliente</label>
+          <select id="booking-client">
+            <option value="">Seleccionar...</option>
+          </select>
+        </div>
+        <div>
+          <label>Telefono</label>
+          <input id="booking-phone" placeholder="Se carga del cliente" readonly />
+        </div>
+        <div>
+          <label>Tratamiento</label>
+          <input id="booking-service" list="booking-services" placeholder="Seleccione servicio" />
+          <datalist id="booking-services"></datalist>
+        </div>
+        <div>
+          <label>Profesional</label>
+          <select id="booking-professional" required>
+            <option value="">Seleccionar...</option>
+            <option>Josemi</option>
+            <option>Liege</option>
+          </select>
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="booking-date" required />
+        </div>
+        <div>
+          <label>Hora inicio</label>
+          <input type="time" id="booking-start" value="11:00" required />
+        </div>
+        <div>
+          <label>Hora fin</label>
+          <input type="time" id="booking-end" value="12:00" required />
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="booking-type">
+            <option value="appointment">Appointment</option>
+            <option value="block">Block</option>
+          </select>
+        </div>
+        <div class="form-grid-1">
+          <label>Notas</label>
+          <textarea id="booking-notes" placeholder="Notas internas"></textarea>
+        </div>
+        <div class="form-actions form-grid-1" style="justify-content:space-between;align-items:center;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="booking-submit" class="btn" type="submit">Guardar reserva</button>
+            <button id="booking-reset" class="btn btn-ghost" type="reset">Limpiar</button>
+          </div>
+          <button id="booking-delete" class="btn btn-ghost btn-danger" type="button" hidden>Eliminar</button>
+        </div>
+        <p id="booking-message" class="form-note booking-message form-grid-1"></p>
+      </form>
+    </div>
+  </div>
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
@@ -260,8 +448,6 @@
   <script>
     const agendaContainer = document.getElementById('agenda-container');
     const agendaTitle = document.getElementById('agenda-title');
-    const agendaDate = document.getElementById('agenda-date');
-    const bookingDetails = document.querySelector('.booking-create');
     const bookingForm = document.getElementById('booking-form');
     const bookingClient = document.getElementById('booking-client');
     const bookingPhone = document.getElementById('booking-phone');
@@ -275,14 +461,37 @@
     const bookingNotes = document.getElementById('booking-notes');
     const bookingSubmit = document.getElementById('booking-submit');
     const bookingMessage = document.getElementById('booking-message');
+    const bookingModal = document.getElementById('booking-modal');
+    const bookingModalTitle = document.getElementById('booking-modal-title');
+    const bookingClose = document.getElementById('booking-close');
+    const bookingDelete = document.getElementById('booking-delete');
+    const newBookingButton = document.getElementById('new-booking');
+
     const viewButtons = document.querySelectorAll('[data-view]');
+    const rangeLabel = document.getElementById('range-label');
+    const todayBtn = document.getElementById('today-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const resourceFilter = document.getElementById('resource-filter');
+    const serviceFilter = document.getElementById('service-filter');
+
     const API_BASE = window.APP_CONFIG.API_BASE_URL;
 
+    const START_HOUR = 9;
+    const END_HOUR = 21;
+    const PIXELS_PER_MINUTE = 1.2;
+    const HOURS_COUNT = END_HOUR - START_HOUR;
+
     let currentView = 'day';
+    let selectedDate = new Date();
     let entries = [];
     let appointmentsById = {};
     let clientsById = {};
+    let servicesByName = {};
     let editingId = null;
+
+    document.documentElement.style.setProperty('--hour-height', `${PIXELS_PER_MINUTE * 60}px`);
+    document.documentElement.style.setProperty('--hour-count', HOURS_COUNT);
 
     function escapeHtml(value) {
       return String(value || '')
@@ -325,7 +534,7 @@
 
     function formatDayLabel(date) {
       const weekdays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-      return `${weekdays[(date.getDay() + 6) % 7]} ${String(date.getDate()).padStart(2, '0')}`;
+      return `${weekdays[(date.getDay() + 6) % 7]} ${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
     }
 
     function formatMonthLabel(date) {
@@ -353,62 +562,127 @@
       })).filter((entry) => entry.date);
     }
 
-    function renderEntry(entry) {
-      const service = escapeHtml(entry.service || '');
-      const customer = escapeHtml(entry.customer || '');
-      const professional = escapeHtml(entry.professional || '');
-      const notes = escapeHtml(entry.notes || '');
-      const time = `${escapeHtml(entry.start || '')} - ${escapeHtml(entry.end || '')}`;
-      const title = [service, customer].filter(Boolean).join(' &middot; ');
-      const subtitle = professional ? `<div class="agenda-notes">Profesional: ${professional}</div>` : '';
-      const notesHtml = notes ? `<div class="agenda-notes">${notes}</div>` : '';
+    function minutesFromStart(timeText) {
+      const parts = String(timeText || '').split(':');
+      if (parts.length !== 2) return null;
+      const hour = parseInt(parts[0], 10);
+      const minute = parseInt(parts[1], 10);
+      if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
+      return (hour - START_HOUR) * 60 + minute;
+    }
+
+    function filteredEntries() {
+      const resource = resourceFilter.value;
+      const service = serviceFilter.value;
+      return entries.filter((entry) => {
+        if (resource && entry.professional !== resource) return false;
+        if (service && entry.service !== service) return false;
+        return true;
+      });
+    }
+
+    function buildTimeColumn() {
+      const timeLabels = [];
+      for (let h = 0; h < HOURS_COUNT; h += 1) {
+        const hour = START_HOUR + h;
+        timeLabels.push(`<div class="time-label">${String(hour).padStart(2, '0')}:00</div>`);
+      }
       return `
-        <div class="agenda-entry ${entry.type === 'block' ? 'block' : ''}" data-id="${entry.id}">
-          <strong>${time}</strong>
-          <div>${title || 'Reserva'}</div>
-          ${subtitle}
-          ${notesHtml}
-          <div class="agenda-actions">
-            <button class="btn btn-ghost" type="button" data-edit-id="${entry.id}">Editar</button>
+        <div class="time-column">
+          <div class="time-header">Hora</div>
+          <div class="time-body">${timeLabels.join('')}</div>
+        </div>
+      `;
+    }
+
+    function buildDayColumn(day, dayEntries) {
+      const blocks = dayEntries.map((entry) => {
+        const startMinutes = minutesFromStart(entry.start);
+        const endMinutes = minutesFromStart(entry.end);
+        if (startMinutes === null || endMinutes === null) return '';
+        const top = Math.max(0, startMinutes * PIXELS_PER_MINUTE);
+        const height = Math.max(32, (endMinutes - startMinutes) * PIXELS_PER_MINUTE);
+        const title = escapeHtml(entry.service || 'Reserva');
+        const customer = escapeHtml(entry.customer || '');
+        const notes = escapeHtml(entry.notes || '');
+        const professional = escapeHtml(entry.professional || '');
+        const blockType = entry.type === 'block' ? 'block' : 'appointment';
+        return `
+          <div class="appointment-block ${blockType}" style="top:${top}px;height:${height}px;" data-id="${entry.id}">
+            <div class="block-time">${escapeHtml(entry.start)} - ${escapeHtml(entry.end)}</div>
+            <div class="block-title">${title}</div>
+            ${customer ? `<div class="block-meta">${customer}</div>` : ''}
+            ${professional ? `<div class="block-meta">${professional}</div>` : ''}
+            ${notes ? `<div class="block-meta">${notes}</div>` : ''}
+            <div class="block-actions">
+              <button class="btn btn-ghost" type="button" data-edit-id="${entry.id}">Editar</button>
+              <button class="btn btn-ghost" type="button" data-duplicate-id="${entry.id}">Duplicar</button>
+              <button class="btn btn-ghost btn-danger" type="button" data-delete-id="${entry.id}">Eliminar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const now = new Date();
+      let currentLine = '';
+      if (sameDay(day, now)) {
+        const minutes = (now.getHours() - START_HOUR) * 60 + now.getMinutes();
+        if (minutes >= 0 && minutes <= HOURS_COUNT * 60) {
+          const top = minutes * PIXELS_PER_MINUTE;
+          currentLine = `<div class="current-line" style="top:${top}px;"><span class="current-dot"></span></div>`;
+        }
+      }
+
+      return `
+        <div class="day-column">
+          <div class="day-header">${formatDayLabel(day)}</div>
+          <div class="day-body">
+            ${currentLine}
+            ${blocks}
           </div>
         </div>
       `;
     }
 
-    function renderDay(date) {
-      const dayEntries = entries.filter((entry) => sameDay(entry.date, date));
+    function renderDayView(date) {
+      const dayEntries = filteredEntries().filter((entry) => sameDay(entry.date, date));
       agendaTitle.textContent = `Agenda del dia (${formatDayLabel(date)})`;
-      if (!dayEntries.length) {
-        agendaContainer.innerHTML = '<p class="agenda-empty">No hay reservas en este dia.</p>';
-        return;
-      }
-      agendaContainer.innerHTML = `<div class="agenda-list">${dayEntries.map(renderEntry).join('')}</div>`;
+      rangeLabel.textContent = formatDayLabel(date);
+
+      const html = `
+        <div class="scheduler-grid">
+          ${buildTimeColumn()}
+          <div class="days-grid">
+            ${buildDayColumn(date, dayEntries)}
+          </div>
+        </div>
+      `;
+      agendaContainer.innerHTML = html;
     }
 
-    function renderWeek(date) {
+    function renderWeekView(date) {
       const start = startOfWeek(date);
       const days = Array.from({ length: 7 }, (_, i) => {
         const day = new Date(start);
         day.setDate(start.getDate() + i);
         return day;
       });
+      const filtered = filteredEntries();
       agendaTitle.textContent = `Agenda semanal (${formatDayLabel(days[0])} - ${formatDayLabel(days[6])})`;
-      agendaContainer.innerHTML = `
-        <div class="agenda-week">
-          ${days.map((day) => {
-            const dayEntries = entries.filter((entry) => sameDay(entry.date, day));
-            return `
-              <div class="agenda-day-card">
-                <h4>${formatDayLabel(day)}</h4>
-                ${dayEntries.length ? dayEntries.map(renderEntry).join('') : '<p class="agenda-empty">Sin reservas</p>'}
-              </div>
-            `;
-          }).join('')}
+      rangeLabel.textContent = `${formatDayLabel(days[0])} - ${formatDayLabel(days[6])}`;
+
+      const html = `
+        <div class="scheduler-grid">
+          ${buildTimeColumn()}
+          <div class="days-grid">
+            ${days.map((day) => buildDayColumn(day, filtered.filter((entry) => sameDay(entry.date, day)))).join('')}
+          </div>
         </div>
       `;
+      agendaContainer.innerHTML = html;
     }
 
-    function renderMonth(date) {
+    function renderMonthView(date) {
       const first = new Date(date.getFullYear(), date.getMonth(), 1);
       const last = new Date(date.getFullYear(), date.getMonth() + 1, 0);
       const offset = (first.getDay() + 6) % 7;
@@ -418,14 +692,17 @@
         const day = new Date(date.getFullYear(), date.getMonth(), index - offset + 1);
         return day;
       });
+      const filtered = filteredEntries();
       agendaTitle.textContent = `Agenda mensual (${formatMonthLabel(date)})`;
+      rangeLabel.textContent = formatMonthLabel(date);
+
       agendaContainer.innerHTML = `
         <div class="agenda-month">
           ${cells.map((day) => {
             if (!day) {
               return '<div class="month-cell is-muted"></div>';
             }
-            const dayEntries = entries.filter((entry) => sameDay(entry.date, day));
+            const dayEntries = filtered.filter((entry) => sameDay(entry.date, day));
             const appointmentCount = dayEntries.filter((entry) => entry.type !== 'block').length;
             const blockCount = dayEntries.filter((entry) => entry.type === 'block').length;
             const countLabel = dayEntries.length
@@ -443,16 +720,15 @@
     }
 
     function renderAgenda() {
-      const selected = agendaDate.value ? new Date(agendaDate.value) : new Date();
       if (currentView === 'week') {
-        renderWeek(selected);
+        renderWeekView(selectedDate);
         return;
       }
       if (currentView === 'month') {
-        renderMonth(selected);
+        renderMonthView(selectedDate);
         return;
       }
-      renderDay(selected);
+      renderDayView(selectedDate);
     }
 
     function setActiveView(view) {
@@ -478,15 +754,22 @@
       return { start: date, end: date };
     }
 
-    function populateServiceOptions(items) {
-      const services = new Set();
-      items.forEach((item) => {
-        if (item.service_name) services.add(item.service_name);
-      });
-      const options = Array.from(services).sort((a, b) => a.localeCompare(b, 'es'))
-        .map((name) => `<option value="${escapeHtml(name)}"></option>`)
-        .join('');
-      bookingServicesList.innerHTML = options;
+    function loadServices() {
+      return fetch(`${API_BASE}/admin/services?active_only=true&limit=1000&offset=0`)
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => {
+          if (!payload) return;
+          servicesByName = {};
+          const options = payload.items.map((service) => {
+            servicesByName[service.name.toLowerCase()] = service;
+            return `<option value="${escapeHtml(service.name)}"></option>`;
+          }).join('');
+          bookingServicesList.innerHTML = options;
+          serviceFilter.innerHTML = '<option value="">Todos los servicios</option>' + payload.items.map((service) => {
+            return `<option value="${escapeHtml(service.name)}">${escapeHtml(service.name)}</option>`;
+          }).join('') + '<option value="Bloqueo">Bloqueo</option>';
+        })
+        .catch(() => null);
     }
 
     function loadClients() {
@@ -512,6 +795,16 @@
       params.set('end_date', toIsoDate(end));
       params.set('limit', '1000');
       params.set('offset', '0');
+      if (resourceFilter.value) {
+        params.set('professional_name', resourceFilter.value);
+      }
+      if (serviceFilter.value) {
+        if (serviceFilter.value === 'Bloqueo') {
+          params.set('appointment_type', 'block');
+        } else {
+          params.set('service_name', serviceFilter.value);
+        }
+      }
       return fetch(`${API_BASE}/admin/appointments?${params.toString()}`)
         .then((response) => response.ok ? response.json() : null)
         .then((payload) => {
@@ -524,7 +817,7 @@
           appointmentsById = {};
           payload.items.forEach((item) => { appointmentsById[item.id] = item; });
           entries = normalizeAppointments(payload.items);
-          populateServiceOptions(payload.items);
+          updateResourceFilter(payload.items);
           renderAgenda();
         })
         .catch(() => {
@@ -534,30 +827,40 @@
         });
     }
 
+    function updateResourceFilter(items) {
+      const current = resourceFilter.value;
+      const professionals = Array.from(new Set(items.map((item) => item.professional_name).filter(Boolean)));
+      const options = ['<option value="">Todos los profesionales</option>']
+        .concat(professionals.sort((a, b) => a.localeCompare(b, 'es')).map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`));
+      resourceFilter.innerHTML = options.join('');
+      if (current && professionals.includes(current)) {
+        resourceFilter.value = current;
+      }
+    }
+
     function loadAgenda() {
-      const selected = agendaDate.value ? new Date(agendaDate.value) : new Date();
-      const range = rangeForView(selected);
+      const range = rangeForView(selectedDate);
       loadAppointments(range.start, range.end);
     }
 
-    function resetFormState() {
+    function resetFormState(options = {}) {
       editingId = null;
       bookingSubmit.textContent = 'Guardar reserva';
+      bookingModalTitle.textContent = 'Nueva reserva';
       bookingMessage.textContent = '';
-      bookingForm.reset();
-      bookingDate.valueAsDate = agendaDate.value ? new Date(agendaDate.value) : new Date();
+      if (!options.skipFormReset) {
+        bookingForm.reset();
+      }
+      bookingDate.valueAsDate = selectedDate;
       bookingStart.value = '11:00';
       bookingEnd.value = '12:00';
       bookingPhone.value = '';
+      bookingType.value = 'appointment';
+      bookingDelete.hidden = true;
+      applyTypeState();
     }
 
-    function startEdit(id) {
-      const item = appointmentsById[id];
-      if (!item) return;
-      editingId = id;
-      bookingDetails.setAttribute('open', 'open');
-      bookingSubmit.textContent = 'Actualizar reserva';
-      bookingMessage.textContent = `Editando reserva #${id}`;
+    function fillFormFromItem(item) {
       bookingClient.value = item.client_id ? String(item.client_id) : '';
       bookingPhone.value = item.client_phone || '';
       bookingService.value = item.service_name || '';
@@ -569,20 +872,68 @@
       bookingNotes.value = item.notes || '';
     }
 
+    function startEdit(id) {
+      const item = appointmentsById[id];
+      if (!item) return;
+      editingId = id;
+      bookingSubmit.textContent = 'Actualizar reserva';
+      bookingModalTitle.textContent = `Editar reserva #${id}`;
+      bookingMessage.textContent = `Editando reserva #${id}`;
+      fillFormFromItem(item);
+      bookingDelete.hidden = false;
+      applyTypeState();
+      openModal();
+    }
+
+    function startDuplicate(id) {
+      const item = appointmentsById[id];
+      if (!item) return;
+      editingId = null;
+      bookingSubmit.textContent = 'Guardar reserva';
+      bookingModalTitle.textContent = 'Duplicar reserva';
+      bookingMessage.textContent = 'Revisa los datos y guarda la nueva reserva.';
+      fillFormFromItem(item);
+      bookingDelete.hidden = true;
+      applyTypeState();
+      openModal();
+    }
+
+    function openModal() {
+      bookingModal.classList.add('is-open');
+      bookingModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeModal() {
+      bookingModal.classList.remove('is-open');
+      bookingModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    function applyTypeState() {
+      const isBlock = bookingType.value === 'block';
+      bookingService.disabled = isBlock;
+      bookingClient.disabled = isBlock;
+      if (isBlock) {
+        bookingClient.value = '';
+        bookingPhone.value = '';
+        bookingService.value = 'Bloqueo';
+      } else if (bookingService.value === 'Bloqueo') {
+        bookingService.value = '';
+      }
+    }
+
     bookingClient.addEventListener('change', () => {
       const client = clientsById[String(bookingClient.value)];
       bookingPhone.value = client ? (client.phone || '') : '';
     });
 
     bookingType.addEventListener('change', () => {
-      if (bookingType.value === 'block') {
-        bookingClient.value = '';
-        bookingPhone.value = '';
-      }
+      applyTypeState();
     });
 
     bookingForm.addEventListener('reset', () => {
-      resetFormState();
+      resetFormState({ skipFormReset: true });
     });
 
     bookingForm.addEventListener('submit', async (event) => {
@@ -590,7 +941,7 @@
       bookingMessage.textContent = '';
 
       const clientId = bookingClient.value ? parseInt(bookingClient.value, 10) : null;
-      const service = bookingService.value.trim();
+      const serviceName = bookingType.value === 'block' ? 'Bloqueo' : bookingService.value.trim();
       const professional = bookingProfessional.value.trim();
       const dateValue = bookingDate.value;
       const startTime = bookingStart.value;
@@ -598,8 +949,8 @@
       const typeValue = bookingType.value;
       const notes = bookingNotes.value.trim();
 
-      if (!service || !professional || !dateValue || !startTime || !endTime) {
-        bookingMessage.textContent = 'Completa tratamiento, profesional, fecha y horas.';
+      if (!professional || !dateValue || !startTime || !endTime) {
+        bookingMessage.textContent = 'Completa profesional, fecha y horas.';
         return;
       }
       if (endTime <= startTime) {
@@ -610,10 +961,16 @@
         bookingMessage.textContent = 'Selecciona un cliente para citas.';
         return;
       }
+      if (typeValue === 'appointment' && !serviceName) {
+        bookingMessage.textContent = 'Selecciona un tratamiento.';
+        return;
+      }
 
+      const matchedService = servicesByName[serviceName.toLowerCase()];
       const payload = {
         client_id: typeValue === 'appointment' ? clientId : null,
-        service_name: service,
+        service_id: matchedService ? matchedService.id : null,
+        service_name: serviceName || null,
         professional_name: professional,
         appointment_date: dateValue,
         start_time: startTime,
@@ -630,25 +987,81 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        if (response.status === 409) {
+          const data = await response.json();
+          bookingMessage.textContent = data.detail || 'Conflicto de horario.';
+          return;
+        }
         if (!response.ok) {
-          throw new Error('No se pudo guardar la reserva.');
+          const data = await response.json();
+          throw new Error(data.detail || 'No se pudo guardar la reserva.');
         }
         bookingMessage.textContent = editingId ? 'Reserva actualizada.' : 'Reserva creada.';
-        if (!editingId) {
-          resetFormState();
-        }
+        resetFormState();
+        closeModal();
         loadAgenda();
       } catch (error) {
         bookingMessage.textContent = error.message;
       }
     });
 
+    async function deleteAppointment(id, { fromModal = false } = {}) {
+      if (!id) return;
+      if (!confirm('Eliminar esta reserva?')) return;
+      if (fromModal) {
+        bookingMessage.textContent = '';
+      }
+      try {
+        const response = await fetch(`${API_BASE}/appointments/${id}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'No se pudo eliminar la reserva.');
+        }
+        if (fromModal) {
+          bookingMessage.textContent = 'Reserva eliminada.';
+          resetFormState();
+          closeModal();
+        }
+        loadAgenda();
+      } catch (error) {
+        if (fromModal) {
+          bookingMessage.textContent = error.message;
+        } else {
+          alert(error.message);
+        }
+      }
+    }
+
+    bookingDelete.addEventListener('click', async () => {
+      if (!editingId) return;
+      await deleteAppointment(editingId, { fromModal: true });
+    });
+
     agendaContainer.addEventListener('click', (event) => {
       const button = event.target.closest('[data-edit-id]');
-      if (!button) return;
-      const id = parseInt(button.dataset.editId, 10);
-      if (!Number.isNaN(id)) {
-        startEdit(id);
+      if (button) {
+        const id = parseInt(button.dataset.editId, 10);
+        if (!Number.isNaN(id)) {
+          startEdit(id);
+        }
+        return;
+      }
+      const duplicateBtn = event.target.closest('[data-duplicate-id]');
+      if (duplicateBtn) {
+        const id = parseInt(duplicateBtn.dataset.duplicateId, 10);
+        if (!Number.isNaN(id)) {
+          startDuplicate(id);
+        }
+        return;
+      }
+      const deleteBtn = event.target.closest('[data-delete-id]');
+      if (deleteBtn) {
+        const id = parseInt(deleteBtn.dataset.deleteId, 10);
+        if (!Number.isNaN(id)) {
+          deleteAppointment(id);
+        }
       }
     });
 
@@ -656,13 +1069,59 @@
       button.addEventListener('click', () => setActiveView(button.dataset.view));
     });
 
-    agendaDate.addEventListener('change', loadAgenda);
+    resourceFilter.addEventListener('change', loadAgenda);
+    serviceFilter.addEventListener('change', loadAgenda);
 
-    const today = new Date();
-    agendaDate.valueAsDate = today;
-    bookingDate.valueAsDate = today;
+    todayBtn.addEventListener('click', () => {
+      selectedDate = new Date();
+      loadAgenda();
+    });
 
-    loadClients().finally(loadAgenda);
+    prevBtn.addEventListener('click', () => {
+      if (currentView === 'week') {
+        selectedDate.setDate(selectedDate.getDate() - 7);
+      } else if (currentView === 'month') {
+        selectedDate.setMonth(selectedDate.getMonth() - 1);
+      } else {
+        selectedDate.setDate(selectedDate.getDate() - 1);
+      }
+      loadAgenda();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentView === 'week') {
+        selectedDate.setDate(selectedDate.getDate() + 7);
+      } else if (currentView === 'month') {
+        selectedDate.setMonth(selectedDate.getMonth() + 1);
+      } else {
+        selectedDate.setDate(selectedDate.getDate() + 1);
+      }
+      loadAgenda();
+    });
+
+    newBookingButton.addEventListener('click', () => {
+      resetFormState();
+      openModal();
+    });
+
+    bookingClose.addEventListener('click', closeModal);
+
+    bookingModal.addEventListener('click', (event) => {
+      if (event.target === bookingModal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && bookingModal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    selectedDate = new Date();
+    resetFormState();
+
+    Promise.all([loadServices(), loadClients()]).finally(loadAgenda);
   </script>
 </body>
 </html>
