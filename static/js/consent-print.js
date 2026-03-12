@@ -123,6 +123,7 @@
     setValue("observations", info.observations);
     setValue("treatment", c.treatment_areas);
     setValue("signed_at", c.signed_at);
+    setValue("therapist_name", c.therapist_name);
     setValue("signature_text", c.signature_text);
     var policy = document.getElementById("appointment_policy");
     if (policy) policy.checked = !!info.appointment_policy_accepted;
@@ -181,12 +182,17 @@
 
   async function init() {
     var consentId = getParam("consent_id");
+    var mode = getParam("mode");
     if (!consentId || !window.APP_CONFIG || !window.APP_CONFIG.API_BASE_URL) return;
 
     try {
       var res = await fetch(window.APP_CONFIG.API_BASE_URL + "/admin/consents/" + encodeURIComponent(consentId));
       if (!res.ok) return;
       var c = await res.json();
+      window.LIKESTUDIO_CONSENT_META = {
+        id: c.id,
+        client_id_number: c.client_id_number
+      };
       var formType = document.body.getAttribute("data-consent-form");
 
       if (formType === "micropigmentacion") fillMicropigmentacion(c);
@@ -195,7 +201,9 @@
       if (formType === "laser-eliminacion") fillLaserEliminacion(c);
       if (formType === "capilar-condiciones") fillCapilarCondiciones(c);
 
-      disableFormForPrint();
+      if (mode !== "edit") {
+        disableFormForPrint();
+      }
 
       if (getParam("autopdf") === "1") {
         setTimeout(function () {

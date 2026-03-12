@@ -133,19 +133,30 @@
   }
 
   function addResetControl() {
-    var menu = document.querySelector(".topbar .menu");
-    if (!menu) return;
+    var topbar = document.querySelector(".topbar");
+    if (!topbar) return;
+
+    var actions = topbar.querySelector(".topbar-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "topbar-actions";
+      var toggle = topbar.querySelector(".menu-toggle");
+      if (toggle && toggle.parentNode) {
+        toggle.parentNode.insertBefore(actions, toggle);
+      } else {
+        topbar.appendChild(actions);
+      }
+    }
 
     var button = document.createElement("button");
     button.type = "button";
     button.className = "btn btn-ghost";
     button.textContent = "Reset cliente";
-    button.style.marginLeft = "8px";
     button.addEventListener("click", function () {
       clearStored();
       clearIdentityFields();
     });
-    menu.appendChild(button);
+    actions.appendChild(button);
   }
 
   function init() {

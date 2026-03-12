@@ -43,6 +43,12 @@
       padding: 12px;
     }
 
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
     .quick-create {
       margin: 0 0 16px;
     }
@@ -125,6 +131,12 @@
       </details>
     </div>
 
+    <div class="form-actions" style="margin: 0 0 16px;">
+      <a class="btn btn-ghost" href="clients.html">Ver clientes</a>
+      <a class="btn btn-ghost" href="sessions.html">Ver sesiones</a>
+      <a class="btn btn-ghost" href="booking-draft.html">Booking / Agenda</a>
+    </div>
+
     <form id="search-form" class="form-grid" style="margin-bottom:14px">
       <div>
         <label for="full_name">Nombre cliente</label>
@@ -139,6 +151,7 @@
         <select id="consent_type" name="consent_type">
           <option value="">Todos</option>
           <option value="micropigmentation">Micropigmentacion</option>
+          <option value="micropigmentation_capilar">Micropigmentacion capilar</option>
           <option value="aesthetic_treatment">Tratamiento estetico</option>
           <option value="laser">Depilacion laser</option>
         </select>
@@ -215,10 +228,15 @@
       tableBody.innerHTML = items.map((item) => {
         const kindMap = {
           micropigmentation: 'Micropigmentacion',
+          micropigmentation_capilar: 'Micropigmentacion capilar',
           aesthetic_treatment: 'Tratamiento estetico',
           laser: 'Depilacion laser'
         };
         const kind = kindMap[item.consent_type] || item.consent_type;
+        const editPath = resolveEditPath(item);
+        const editLink = editPath
+          ? `<a class="btn btn-ghost btn-sm" href="${editPath}?consent_id=${item.id}&mode=edit" target="_blank" rel="noopener">Editar</a>`
+          : `<span class="btn btn-ghost btn-sm" aria-disabled="true">Editar</span>`;
         return `
           <tr>
             <td>${item.signed_at}</td>
@@ -227,10 +245,35 @@
             <td>${kind}</td>
             <td>${item.treatment_areas}</td>
             <td>${item.therapist_name}</td>
-            <td><a class="btn btn-ghost" href="consent-view.html?id=${item.id}" target="_blank" rel="noopener">Abrir</a></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn btn-ghost btn-sm" href="consent-view.html?id=${item.id}" target="_blank" rel="noopener">Ver</a>
+                ${editLink}
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    function resolveEditPath(item) {
+      if (item.consent_type === 'micropigmentation') {
+        return 'consent-micropigmentacion.html';
+      }
+      if (item.consent_type === 'micropigmentation_capilar') {
+        return 'consent-capilar-condiciones.html';
+      }
+      if (item.consent_type === 'aesthetic_treatment') {
+        return 'consent-estetico.html';
+      }
+      if (item.consent_type === 'laser') {
+        const area = String(item.treatment_areas || '').toLowerCase();
+        if (area.indexOf('eliminacion tatuaje/micropigmentacion') === 0) {
+          return 'consent-eliminacion-laser.html';
+        }
+        return 'consent-laser.html';
+      }
+      return null;
     }
 
     async function loadConsents() {
@@ -278,6 +321,17 @@
       }
     });
 
+    function applyQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      ['full_name', 'id_number', 'consent_type', 'signed_from', 'signed_to'].forEach((key) => {
+        const value = params.get(key);
+        if (value && form.elements[key]) {
+          form.elements[key].value = value;
+        }
+      });
+    }
+
+    applyQueryParams();
     loadConsents();
   </script>
 </body>

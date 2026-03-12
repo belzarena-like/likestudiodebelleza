@@ -78,6 +78,7 @@
       <div class="form-actions">
         <button id="view-original" class="btn btn-ghost" type="button">Ver original</button>
         <button id="download-original-pdf" class="btn btn-ghost" type="button">Descargar PDF original</button>
+        <button id="edit-original" class="btn btn-ghost" type="button">Editar consentimiento</button>
         <button id="download-summary-pdf" class="btn btn-ghost" type="button">Descargar PDF (resumen)</button>
         <a class="btn btn-ghost" href="index.html">Volver al listado</a>
       </div>
@@ -138,6 +139,7 @@
     function typeLabel(v) {
       return ({
         micropigmentation: 'Micropigmentacion',
+        micropigmentation_capilar: 'Micropigmentacion capilar',
         aesthetic_treatment: 'Tratamiento estetico',
         laser: 'Laser'
       })[v] || v;
@@ -149,6 +151,9 @@
           return 'consent-capilar-condiciones.html';
         }
         return 'consent-micropigmentacion.html';
+      }
+      if (consent.consent_type === 'micropigmentation_capilar') {
+        return 'consent-capilar-condiciones.html';
       }
       if (consent.consent_type === 'aesthetic_treatment') return 'consent-estetico.html';
       if (consent.consent_type === 'laser') {
@@ -200,6 +205,7 @@
         var path = printTemplatePath(c);
         var viewBtn = byId('view-original');
         var originalPdfBtn = byId('download-original-pdf');
+        var editBtn = byId('edit-original');
         var pdfBtn = byId('download-summary-pdf');
         if (path) {
           viewBtn.onclick = function () {
@@ -210,9 +216,14 @@
             var url = path + '?consent_id=' + encodeURIComponent(c.id) + '&autopdf=1';
             window.open(url, '_blank', 'noopener');
           };
+          editBtn.onclick = function () {
+            var url = path + '?consent_id=' + encodeURIComponent(c.id) + '&mode=edit';
+            window.open(url, '_blank', 'noopener');
+          };
         } else {
           viewBtn.disabled = true;
           originalPdfBtn.disabled = true;
+          editBtn.disabled = true;
         }
 
         pdfBtn.onclick = function () {

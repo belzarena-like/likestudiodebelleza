@@ -104,6 +104,10 @@
         <label for="treatment_area">Zona/s a tratar</label>
         <input id="treatment_area" name="treatment_area" placeholder="Ej: axilas, ingles, piernas..." required />
       </div>
+      <div>
+        <label for="estimated_sessions">Sesiones estimadas</label>
+        <input id="estimated_sessions" name="estimated_sessions" type="number" min="1" />
+      </div>
 
       <div class="form-grid-1">
         <label for="medical_conditions">Antecedentes, medicacion o contraindicaciones relevantes</label>
@@ -125,7 +129,11 @@
 
       <div>
         <label for="therapist_name">Profesional que informa</label>
-        <input id="therapist_name" name="therapist_name" required />
+        <select id="therapist_name" name="therapist_name" required>
+          <option value="">Seleccionar...</option>
+          <option value="Josemi">Josemi</option>
+          <option value="Liege">Liege</option>
+        </select>
       </div>
       <div class="form-grid-1">
         <label for="signature_text">Firma (texto de confirmacion)</label>
@@ -157,11 +165,16 @@
       var idNumber = String(formData.get('id_number') || '').trim();
       var phone = String(formData.get('phone') || '').trim();
       var signatureText = String(formData.get('signature_text') || '').trim();
+      var therapistName = String(formData.get('therapist_name') || '').trim();
       var points = formData.getAll('acceptance_points');
+      var estimatedSessions = parseInt(formData.get('estimated_sessions'), 10);
       var normalizedId = idNumber || ('NO-DOC-' + Date.now());
+      var consentId = new URLSearchParams(window.location.search).get('consent_id');
+      var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
+      var normalizedIdFinal = idNumber || existingId || normalizedId;
 
-      if (!fullName || !phone || !signatureText) {
-        message.textContent = 'Nombre, telefono y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText || !therapistName) {
+        message.textContent = 'Nombre, telefono, profesional y firma son obligatorios.';
         return;
       }
 
@@ -173,26 +186,28 @@
       var payload = {
         consent_type: 'laser',
         full_name: fullName,
-        id_number: normalizedId,
+        id_number: normalizedIdFinal,
         phone: phone,
         email: formData.get('email') || null,
         treatment_areas: 'Depilacion laser - ' + formData.get('treatment_area'),
         medical_conditions: JSON.stringify({
           birth_date: formData.get('birth_date'),
-          contraindications: formData.get('medical_conditions') || null
+          contraindications: formData.get('medical_conditions') || null,
+          estimated_sessions: Number.isNaN(estimatedSessions) ? null : estimatedSessions
         }),
         personalized_risks: 'Consentimiento depilacion laser',
         case_particularities: null,
         acceptance_points: points,
         photos_allowed: formData.get('photos_allowed') === 'on',
         signed_at: formData.get('signed_at'),
-        therapist_name: formData.get('therapist_name'),
+        therapist_name: therapistName,
         signature_text: signatureText
       };
 
       try {
-        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
-          method: 'POST',
+        var url = `${window.APP_CONFIG.API_BASE_URL}/consents` + (consentId ? `/${consentId}` : '');
+        var response = await fetch(url, {
+          method: consentId ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -201,13 +216,39 @@
           throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
         }
 
+        var saved = await response.json();
+        if (!Number.isNaN(estimatedSessions)) {
+          await fetch(`${window.APP_CONFIG.API_BASE_URL}/sessions/upsert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              client_id: saved.client_id,
+              treatment_name: payload.treatment_areas,
+              planned_sessions: estimatedSessions,
+              status: 'planned',
+              notes: null
+            })
+          });
+        }
         message.textContent = 'Consentimiento de depilacion laser guardado correctamente.';
-        form.reset();
-        document.getElementById('signed_at').valueAsDate = new Date();
+        setTimeout(function () { window.location.href = 'index.html'; }, 900);
       } catch (error) {
         message.textContent = error.message;
       }
     });
+
+    var requiredChecks = document.querySelectorAll('#laser-form input[type=\"checkbox\"][required]');
+    var submitBtn = document.querySelector('#laser-form button[type=\"submit\"]');
+    function toggleSubmit() {
+      if (!submitBtn) return;
+      if (!requiredChecks.length) {
+        submitBtn.disabled = false;
+        return;
+      }
+      submitBtn.disabled = Array.prototype.some.call(requiredChecks, function (el) { return !el.checked; });
+    }
+    document.querySelector('#laser-form').addEventListener('change', toggleSubmit);
+    toggleSubmit();
   </script>
 </body>
 </html>

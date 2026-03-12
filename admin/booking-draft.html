@@ -1,0 +1,668 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    .booking-card {
+      background: #0f141d;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .booking-create {
+      margin-bottom: 16px;
+    }
+    .booking-create summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+    .booking-create summary::-webkit-details-marker {
+      display: none;
+    }
+    .booking-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .view-toggle {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .view-toggle .btn.is-active {
+      background: linear-gradient(135deg, var(--brand), #be3535);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(190, 53, 53, 0.27);
+    }
+    .agenda-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .agenda-list {
+      display: grid;
+      gap: 10px;
+    }
+    .agenda-entry {
+      background: #202838;
+      border: 1px solid #2a354a;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+    .agenda-entry.block {
+      background: #3b1f2a;
+      border-color: #5b2734;
+      color: #ffc3cf;
+    }
+    .agenda-entry strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+    .agenda-notes {
+      color: #c9d3e6;
+      font-size: 0.82rem;
+      margin-top: 4px;
+    }
+    .agenda-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .agenda-actions .btn {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+    }
+    .agenda-week {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .agenda-day-card {
+      border: 1px solid #2a354a;
+      border-radius: 10px;
+      padding: 8px;
+      background: #141922;
+      min-height: 120px;
+    }
+    .agenda-day-card h4 {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      color: #d9e1ee;
+    }
+    .agenda-day-card .agenda-entry {
+      font-size: 0.78rem;
+      padding: 6px 8px;
+    }
+    .agenda-month {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .month-cell {
+      border: 1px solid #2a354a;
+      border-radius: 10px;
+      padding: 8px;
+      background: #141922;
+      min-height: 90px;
+    }
+    .month-cell.is-muted {
+      opacity: 0.4;
+    }
+    .month-cell strong {
+      display: block;
+      font-size: 0.8rem;
+    }
+    .month-count {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #c9d3e6;
+    }
+    .agenda-empty {
+      color: var(--muted);
+    }
+    .booking-message {
+      margin: 8px 0 0;
+      color: #d9e1ee;
+    }
+    @media (max-width: 1024px) {
+      .agenda-week {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 720px) {
+      .agenda-week {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .agenda-month {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 520px) {
+      .agenda-week {
+        grid-template-columns: 1fr;
+      }
+      .agenda-month {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <img class="brand-logo" src="../assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Admin Like Studio</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
+    <p class="eyebrow">Agenda</p>
+    <h1>Booking / Agenda</h1>
+    <p class="form-note">Conectado al backend. Puedes crear y editar reservas o bloqueos.</p>
+
+    <details class="booking-create">
+      <summary class="btn">Nueva reserva</summary>
+      <div class="booking-card" style="margin-top:10px;">
+        <form id="booking-form" class="form-grid">
+          <div>
+            <label>Cliente</label>
+            <select id="booking-client">
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+          <div>
+            <label>Telefono</label>
+            <input id="booking-phone" placeholder="Se carga del cliente" readonly />
+          </div>
+          <div>
+            <label>Tratamiento</label>
+            <input id="booking-service" list="booking-services" placeholder="Micropigmentacion capilar" required />
+            <datalist id="booking-services"></datalist>
+          </div>
+          <div>
+            <label>Profesional</label>
+            <select id="booking-professional" required>
+              <option value="">Seleccionar...</option>
+              <option>Josemi</option>
+              <option>Liege</option>
+            </select>
+          </div>
+          <div>
+            <label>Fecha</label>
+            <input type="date" id="booking-date" required />
+          </div>
+          <div>
+            <label>Hora inicio</label>
+            <input type="time" id="booking-start" value="11:00" required />
+          </div>
+          <div>
+            <label>Hora fin</label>
+            <input type="time" id="booking-end" value="12:00" required />
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="booking-type">
+              <option value="appointment">Appointment</option>
+              <option value="block">Block</option>
+            </select>
+          </div>
+          <div class="form-grid-1">
+            <label>Notas</label>
+            <textarea id="booking-notes" placeholder="Notas internas"></textarea>
+          </div>
+          <div class="form-actions form-grid-1">
+            <button id="booking-submit" class="btn" type="submit">Guardar reserva</button>
+            <button id="booking-reset" class="btn btn-ghost" type="reset">Limpiar</button>
+          </div>
+          <p id="booking-message" class="form-note booking-message form-grid-1"></p>
+        </form>
+      </div>
+    </details>
+
+    <div class="booking-toolbar">
+      <div class="view-toggle">
+        <button class="btn btn-ghost btn-sm is-active" type="button" data-view="day">Dia</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-view="week">Semana</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-view="month">Mes</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label for="agenda-date">Fecha</label>
+        <input id="agenda-date" type="date" />
+      </div>
+    </div>
+
+    <section class="booking-card">
+      <h3 id="agenda-title">Agenda</h3>
+      <div id="agenda-container" class="agenda-grid"></div>
+    </section>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script>
+    const agendaContainer = document.getElementById('agenda-container');
+    const agendaTitle = document.getElementById('agenda-title');
+    const agendaDate = document.getElementById('agenda-date');
+    const bookingDetails = document.querySelector('.booking-create');
+    const bookingForm = document.getElementById('booking-form');
+    const bookingClient = document.getElementById('booking-client');
+    const bookingPhone = document.getElementById('booking-phone');
+    const bookingService = document.getElementById('booking-service');
+    const bookingServicesList = document.getElementById('booking-services');
+    const bookingProfessional = document.getElementById('booking-professional');
+    const bookingDate = document.getElementById('booking-date');
+    const bookingStart = document.getElementById('booking-start');
+    const bookingEnd = document.getElementById('booking-end');
+    const bookingType = document.getElementById('booking-type');
+    const bookingNotes = document.getElementById('booking-notes');
+    const bookingSubmit = document.getElementById('booking-submit');
+    const bookingMessage = document.getElementById('booking-message');
+    const viewButtons = document.querySelectorAll('[data-view]');
+    const API_BASE = window.APP_CONFIG.API_BASE_URL;
+
+    let currentView = 'day';
+    let entries = [];
+    let appointmentsById = {};
+    let clientsById = {};
+    let editingId = null;
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function parseDate(value) {
+      if (!value) return null;
+      if (String(value).includes('/')) {
+        const parts = String(value).split('/');
+        if (parts.length !== 3) return null;
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        const date = new Date(year, month, day);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return null;
+      date.setHours(0, 0, 0, 0);
+      return date;
+    }
+
+    function sameDay(a, b) {
+      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function startOfWeek(date) {
+      const base = new Date(date);
+      const offset = (base.getDay() + 6) % 7;
+      base.setDate(base.getDate() - offset);
+      base.setHours(0, 0, 0, 0);
+      return base;
+    }
+
+    function formatDayLabel(date) {
+      const weekdays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+      return `${weekdays[(date.getDay() + 6) % 7]} ${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatMonthLabel(date) {
+      const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      return `${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function toIsoDate(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function normalizeAppointments(items) {
+      return items.map((item) => ({
+        id: item.id,
+        date: parseDate(item.appointment_date),
+        start: String(item.start_time || '').slice(0, 5),
+        end: String(item.end_time || '').slice(0, 5),
+        service: item.service_name,
+        customer: item.client_name || '',
+        notes: item.notes || '',
+        type: item.appointment_type,
+        professional: item.professional_name,
+        status: item.status,
+        raw: item
+      })).filter((entry) => entry.date);
+    }
+
+    function renderEntry(entry) {
+      const service = escapeHtml(entry.service || '');
+      const customer = escapeHtml(entry.customer || '');
+      const professional = escapeHtml(entry.professional || '');
+      const notes = escapeHtml(entry.notes || '');
+      const time = `${escapeHtml(entry.start || '')} - ${escapeHtml(entry.end || '')}`;
+      const title = [service, customer].filter(Boolean).join(' &middot; ');
+      const subtitle = professional ? `<div class="agenda-notes">Profesional: ${professional}</div>` : '';
+      const notesHtml = notes ? `<div class="agenda-notes">${notes}</div>` : '';
+      return `
+        <div class="agenda-entry ${entry.type === 'block' ? 'block' : ''}" data-id="${entry.id}">
+          <strong>${time}</strong>
+          <div>${title || 'Reserva'}</div>
+          ${subtitle}
+          ${notesHtml}
+          <div class="agenda-actions">
+            <button class="btn btn-ghost" type="button" data-edit-id="${entry.id}">Editar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDay(date) {
+      const dayEntries = entries.filter((entry) => sameDay(entry.date, date));
+      agendaTitle.textContent = `Agenda del dia (${formatDayLabel(date)})`;
+      if (!dayEntries.length) {
+        agendaContainer.innerHTML = '<p class="agenda-empty">No hay reservas en este dia.</p>';
+        return;
+      }
+      agendaContainer.innerHTML = `<div class="agenda-list">${dayEntries.map(renderEntry).join('')}</div>`;
+    }
+
+    function renderWeek(date) {
+      const start = startOfWeek(date);
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const day = new Date(start);
+        day.setDate(start.getDate() + i);
+        return day;
+      });
+      agendaTitle.textContent = `Agenda semanal (${formatDayLabel(days[0])} - ${formatDayLabel(days[6])})`;
+      agendaContainer.innerHTML = `
+        <div class="agenda-week">
+          ${days.map((day) => {
+            const dayEntries = entries.filter((entry) => sameDay(entry.date, day));
+            return `
+              <div class="agenda-day-card">
+                <h4>${formatDayLabel(day)}</h4>
+                ${dayEntries.length ? dayEntries.map(renderEntry).join('') : '<p class="agenda-empty">Sin reservas</p>'}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderMonth(date) {
+      const first = new Date(date.getFullYear(), date.getMonth(), 1);
+      const last = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const offset = (first.getDay() + 6) % 7;
+      const totalCells = offset + last.getDate();
+      const cells = Array.from({ length: totalCells }, (_, index) => {
+        if (index < offset) return null;
+        const day = new Date(date.getFullYear(), date.getMonth(), index - offset + 1);
+        return day;
+      });
+      agendaTitle.textContent = `Agenda mensual (${formatMonthLabel(date)})`;
+      agendaContainer.innerHTML = `
+        <div class="agenda-month">
+          ${cells.map((day) => {
+            if (!day) {
+              return '<div class="month-cell is-muted"></div>';
+            }
+            const dayEntries = entries.filter((entry) => sameDay(entry.date, day));
+            const appointmentCount = dayEntries.filter((entry) => entry.type !== 'block').length;
+            const blockCount = dayEntries.filter((entry) => entry.type === 'block').length;
+            const countLabel = dayEntries.length
+              ? `${appointmentCount} citas, ${blockCount} bloqueos`
+              : 'Sin reservas';
+            return `
+              <div class="month-cell">
+                <strong>${day.getDate()}</strong>
+                <div class="month-count">${countLabel}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderAgenda() {
+      const selected = agendaDate.value ? new Date(agendaDate.value) : new Date();
+      if (currentView === 'week') {
+        renderWeek(selected);
+        return;
+      }
+      if (currentView === 'month') {
+        renderMonth(selected);
+        return;
+      }
+      renderDay(selected);
+    }
+
+    function setActiveView(view) {
+      currentView = view;
+      viewButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.view === view);
+      });
+      loadAgenda();
+    }
+
+    function rangeForView(date) {
+      if (currentView === 'week') {
+        const start = startOfWeek(date);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return { start, end };
+      }
+      if (currentView === 'month') {
+        const start = new Date(date.getFullYear(), date.getMonth(), 1);
+        const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        return { start, end };
+      }
+      return { start: date, end: date };
+    }
+
+    function populateServiceOptions(items) {
+      const services = new Set();
+      items.forEach((item) => {
+        if (item.service_name) services.add(item.service_name);
+      });
+      const options = Array.from(services).sort((a, b) => a.localeCompare(b, 'es'))
+        .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+        .join('');
+      bookingServicesList.innerHTML = options;
+    }
+
+    function loadClients() {
+      return fetch(`${API_BASE}/admin/clients?limit=1000&offset=0`)
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => {
+          if (!payload) return;
+          clientsById = {};
+          payload.items.forEach((client) => {
+            clientsById[String(client.id)] = client;
+          });
+          const options = ['<option value="">Seleccionar...</option>']
+            .concat(payload.items.map((client) => `<option value="${client.id}">${escapeHtml(client.full_name)}</option>`))
+            .join('');
+          bookingClient.innerHTML = options;
+        })
+        .catch(() => null);
+    }
+
+    function loadAppointments(start, end) {
+      const params = new URLSearchParams();
+      params.set('start_date', toIsoDate(start));
+      params.set('end_date', toIsoDate(end));
+      params.set('limit', '1000');
+      params.set('offset', '0');
+      return fetch(`${API_BASE}/admin/appointments?${params.toString()}`)
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => {
+          if (!payload) {
+            entries = [];
+            appointmentsById = {};
+            agendaContainer.innerHTML = '<p class="agenda-empty">No se pudo cargar la agenda.</p>';
+            return;
+          }
+          appointmentsById = {};
+          payload.items.forEach((item) => { appointmentsById[item.id] = item; });
+          entries = normalizeAppointments(payload.items);
+          populateServiceOptions(payload.items);
+          renderAgenda();
+        })
+        .catch(() => {
+          entries = [];
+          appointmentsById = {};
+          agendaContainer.innerHTML = '<p class="agenda-empty">No se pudo cargar la agenda.</p>';
+        });
+    }
+
+    function loadAgenda() {
+      const selected = agendaDate.value ? new Date(agendaDate.value) : new Date();
+      const range = rangeForView(selected);
+      loadAppointments(range.start, range.end);
+    }
+
+    function resetFormState() {
+      editingId = null;
+      bookingSubmit.textContent = 'Guardar reserva';
+      bookingMessage.textContent = '';
+      bookingForm.reset();
+      bookingDate.valueAsDate = agendaDate.value ? new Date(agendaDate.value) : new Date();
+      bookingStart.value = '11:00';
+      bookingEnd.value = '12:00';
+      bookingPhone.value = '';
+    }
+
+    function startEdit(id) {
+      const item = appointmentsById[id];
+      if (!item) return;
+      editingId = id;
+      bookingDetails.setAttribute('open', 'open');
+      bookingSubmit.textContent = 'Actualizar reserva';
+      bookingMessage.textContent = `Editando reserva #${id}`;
+      bookingClient.value = item.client_id ? String(item.client_id) : '';
+      bookingPhone.value = item.client_phone || '';
+      bookingService.value = item.service_name || '';
+      bookingProfessional.value = item.professional_name || '';
+      bookingDate.value = item.appointment_date || '';
+      bookingStart.value = String(item.start_time || '').slice(0, 5);
+      bookingEnd.value = String(item.end_time || '').slice(0, 5);
+      bookingType.value = item.appointment_type || 'appointment';
+      bookingNotes.value = item.notes || '';
+    }
+
+    bookingClient.addEventListener('change', () => {
+      const client = clientsById[String(bookingClient.value)];
+      bookingPhone.value = client ? (client.phone || '') : '';
+    });
+
+    bookingType.addEventListener('change', () => {
+      if (bookingType.value === 'block') {
+        bookingClient.value = '';
+        bookingPhone.value = '';
+      }
+    });
+
+    bookingForm.addEventListener('reset', () => {
+      resetFormState();
+    });
+
+    bookingForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      bookingMessage.textContent = '';
+
+      const clientId = bookingClient.value ? parseInt(bookingClient.value, 10) : null;
+      const service = bookingService.value.trim();
+      const professional = bookingProfessional.value.trim();
+      const dateValue = bookingDate.value;
+      const startTime = bookingStart.value;
+      const endTime = bookingEnd.value;
+      const typeValue = bookingType.value;
+      const notes = bookingNotes.value.trim();
+
+      if (!service || !professional || !dateValue || !startTime || !endTime) {
+        bookingMessage.textContent = 'Completa tratamiento, profesional, fecha y horas.';
+        return;
+      }
+      if (endTime <= startTime) {
+        bookingMessage.textContent = 'La hora fin debe ser mayor que la hora inicio.';
+        return;
+      }
+      if (typeValue === 'appointment' && !clientId) {
+        bookingMessage.textContent = 'Selecciona un cliente para citas.';
+        return;
+      }
+
+      const payload = {
+        client_id: typeValue === 'appointment' ? clientId : null,
+        service_name: service,
+        professional_name: professional,
+        appointment_date: dateValue,
+        start_time: startTime,
+        end_time: endTime,
+        appointment_type: typeValue,
+        status: 'scheduled',
+        notes: notes || null
+      };
+
+      try {
+        const url = editingId ? `${API_BASE}/appointments/${editingId}` : `${API_BASE}/appointments`;
+        const response = await fetch(url, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          throw new Error('No se pudo guardar la reserva.');
+        }
+        bookingMessage.textContent = editingId ? 'Reserva actualizada.' : 'Reserva creada.';
+        if (!editingId) {
+          resetFormState();
+        }
+        loadAgenda();
+      } catch (error) {
+        bookingMessage.textContent = error.message;
+      }
+    });
+
+    agendaContainer.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-edit-id]');
+      if (!button) return;
+      const id = parseInt(button.dataset.editId, 10);
+      if (!Number.isNaN(id)) {
+        startEdit(id);
+      }
+    });
+
+    viewButtons.forEach((button) => {
+      button.addEventListener('click', () => setActiveView(button.dataset.view));
+    });
+
+    agendaDate.addEventListener('change', loadAgenda);
+
+    const today = new Date();
+    agendaDate.valueAsDate = today;
+    bookingDate.valueAsDate = today;
+
+    loadClients().finally(loadAgenda);
+  </script>
+</body>
+</html>

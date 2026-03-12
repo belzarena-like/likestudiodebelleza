@@ -1,0 +1,212 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    .admin-summary {
+      color: #d9e1ee;
+    }
+
+    .admin-table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0f141d;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+      color: #e7edf8;
+    }
+
+    .admin-table thead tr {
+      background: #222d3f;
+      text-align: left;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 10px;
+      border-top: 1px solid #2a354a;
+    }
+
+    .admin-empty {
+      color: #c8d2e3;
+      padding: 12px;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .admin-table {
+        min-width: 620px;
+        font-size: 0.88rem;
+      }
+      .admin-table th,
+      .admin-table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <img class="brand-logo" src="../assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Admin Like Studio</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Volver</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
+    </nav>
+  </header>
+
+  <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
+    <p class="eyebrow">Panel Admin</p>
+    <h1>Clientes con consentimientos</h1>
+    <p class="form-note">Solo se muestran clientes que ya tienen al menos un consentimiento.</p>
+
+    <form id="search-form" class="form-grid" style="margin-bottom:14px">
+      <div>
+        <label for="query">Nombre cliente</label>
+        <input id="query" name="query" />
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px;">
+        <button class="btn" type="submit">Buscar</button>
+        <button class="btn btn-ghost" type="button" id="reset">Limpiar</button>
+      </div>
+    </form>
+
+    <p id="summary" class="form-note admin-summary">Cargando...</p>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Telefono</th>
+            <th>Email</th>
+            <th>Consentimientos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="form-actions" style="justify-content:space-between;">
+      <button id="prev" class="btn btn-ghost" type="button">Anterior</button>
+      <button id="next" class="btn btn-ghost" type="button">Siguiente</button>
+    </div>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script>
+    const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/clients`;
+    const limit = 25;
+    let offset = 0;
+    let lastTotal = 0;
+
+    const form = document.getElementById('search-form');
+    const summary = document.getElementById('summary');
+    const tableBody = document.getElementById('table-body');
+
+    function collectParams() {
+      const data = new FormData(form);
+      const params = new URLSearchParams();
+      const query = data.get('query');
+      if (query) params.set('query', query);
+      params.set('with_consents', 'true');
+      params.set('limit', String(limit));
+      params.set('offset', String(offset));
+      return params;
+    }
+
+    function renderRows(items) {
+      if (!items.length) {
+        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="5">Sin resultados.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = items.map((item) => {
+        const consentCount = item.consent_count == null ? '-' : item.consent_count;
+        const nameParam = encodeURIComponent(item.full_name || '');
+        return `
+          <tr>
+            <td>${item.full_name}</td>
+            <td>${item.phone || '-'}</td>
+            <td>${item.email || '-'}</td>
+            <td>${consentCount}</td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn btn-ghost btn-sm" href="index.html?full_name=${nameParam}">Ver consentimientos</a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadClients() {
+      summary.textContent = 'Cargando...';
+      try {
+        const response = await fetch(`${API_URL}?${collectParams().toString()}`);
+        if (!response.ok) throw new Error('No se pudieron obtener los clientes.');
+        const payload = await response.json();
+        lastTotal = payload.total;
+        renderRows(payload.items);
+
+        const from = payload.total === 0 ? 0 : payload.offset + 1;
+        const to = Math.min(payload.offset + payload.limit, payload.total);
+        summary.textContent = `Mostrando ${from}-${to} de ${payload.total} clientes.`;
+
+        document.getElementById('prev').disabled = payload.offset <= 0;
+        document.getElementById('next').disabled = payload.offset + payload.limit >= payload.total;
+      } catch (error) {
+        summary.textContent = error.message;
+        tableBody.innerHTML = '';
+      }
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      offset = 0;
+      loadClients();
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      form.reset();
+      offset = 0;
+      loadClients();
+    });
+
+    document.getElementById('prev').addEventListener('click', () => {
+      offset = Math.max(0, offset - limit);
+      loadClients();
+    });
+
+    document.getElementById('next').addEventListener('click', () => {
+      if (offset + limit < lastTotal) {
+        offset += limit;
+        loadClients();
+      }
+    });
+
+    loadClients();
+  </script>
+</body>
+</html>

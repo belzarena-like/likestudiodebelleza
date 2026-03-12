@@ -1,0 +1,396 @@
+{
+  "account": "Liege",
+  "resource_id": "605f593771119211ac5f6a9c",
+  "resource_name": "Liege Liege",
+  "period": "2026-01-01 / 2026-08-31",
+  "bookings": [
+    {
+      "week": "CW1", "dates": "29/12/2025 - 04/01/2026",
+      "entries": [
+        {"date":"29/12/2025","day":"Mo","start":"11:00","end":"12:00","service":"Micropigmentación de Cejas","notes":"5509","type":"appointment"},
+        {"date":"29/12/2025","day":"Mo","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"lucia","type":"appointment"},
+        {"date":"29/12/2025","day":"Mo","start":"17:00","end":"18:00","service":"Laser de DIODO","notes":"8181 CONF","type":"appointment"},
+        {"date":"29/12/2025","day":"Mo","start":"18:00","end":"20:30","service":"ghcdhgc","notes":null,"type":"appointment"},
+        {"date":"29/12/2025","day":"Mo","start":"15:00","end":"17:00","service":"Micropigmentación de Cejas","notes":"3690 CONF","type":"appointment"},
+        {"date":"30/12/2025","day":"Tu","start":"11:00","end":"21:30","service":"f","notes":null,"type":"block"},
+        {"date":"31/12/2025","day":"We","start":"11:00","end":"21:30","service":"f","notes":null,"type":"block"},
+        {"date":"01/01/2026","day":"Th","start":"11:00","end":"21:30","service":"f","notes":null,"type":"block"},
+        {"date":"02/01/2026","day":"Fr","start":"11:00","end":"21:30","service":"f","notes":null,"type":"block"}
+      ]
+    },
+    {
+      "week": "CW2", "dates": "05/01 - 11/01/2026",
+      "entries": [
+        {"date":"05/01/2026","day":"Mo","start":"11:00","end":"00:00","service":"dgesg","notes":null,"type":"block"},
+        {"date":"06/01/2026","day":"Tu","start":"11:00","end":"20:30","service":"ds","notes":null,"type":"block"},
+        {"date":"07/01/2026","day":"We","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"},
+        {"date":"08/01/2026","day":"Th","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"},
+        {"date":"09/01/2026","day":"Fr","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"}
+      ]
+    },
+    {
+      "week": "CW3", "dates": "12/01 - 18/01/2026",
+      "entries": [
+        {"date":"13/01/2026","day":"Tu","start":"11:00","end":"21:30","service":"vv","notes":null,"type":"block"},
+        {"date":"14/01/2026","day":"We","start":"11:00","end":"00:00","service":"xc","notes":null,"type":"block"},
+        {"date":"15/01/2026","day":"Th","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"},
+        {"date":"16/01/2026","day":"Fr","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"},
+        {"date":"17/01/2026","day":"Sa","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"}
+      ]
+    },
+    {
+      "week": "CW4", "dates": "19/01 - 25/01/2026",
+      "entries": [
+        {"date":"19/01/2026","day":"Mo","start":"11:00","end":"21:30","service":"df","notes":null,"type":"block"},
+        {"date":"20/01/2026","day":"Tu","start":"11:00","end":"00:00","service":"xzs","notes":null,"type":"block"},
+        {"date":"21/01/2026","day":"We","start":"11:00","end":"00:00","service":"xd","notes":null,"type":"block"},
+        {"date":"22/01/2026","day":"Th","start":"11:00","end":"21:30","service":"ds","notes":null,"type":"block"},
+        {"date":"23/01/2026","day":"Fr","start":"11:00","end":"21:30","service":"d","notes":null,"type":"block"}
+      ]
+    },
+    {
+      "week": "CW5", "dates": "26/01 - 01/02/2026",
+      "entries": [
+        {"date":"26/01/2026","day":"Mo","start":"11:00","end":"00:00","service":"g","notes":null,"type":"block"},
+        {"date":"27/01/2026","day":"Tu","start":"11:00","end":"00:00","service":"f","notes":null,"type":"block"},
+        {"date":"28/01/2026","day":"We","start":"11:00","end":"23:30","service":"s","notes":null,"type":"block"},
+        {"date":"29/01/2026","day":"Th","start":"11:00","end":"23:30","service":"KUHJUYH","notes":null,"type":"block"},
+        {"date":"30/01/2026","day":"Fr","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"0402 CONF","type":"appointment"},
+        {"date":"30/01/2026","day":"Fr","start":"17:00","end":"18:00","service":"Micropigmentación de Cejas","notes":"1855 cconf","type":"appointment"},
+        {"date":"30/01/2026","day":"Fr","start":"18:00","end":"19:00","service":"Depilación Luz Pulsada","customer":"Emma Benites","notes":null,"type":"appointment"},
+        {"date":"30/01/2026","day":"Fr","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"CLIENT EJOSMEI","type":"appointment"},
+        {"date":"31/01/2026","day":"Sa","start":"11:00","end":"11:30","service":"Eliminación de tatuajes","notes":"YO","type":"appointment"},
+        {"date":"31/01/2026","day":"Sa","start":"11:30","end":"15:30","service":"Micropigmentación de Cejas","notes":"1ª SESION MODEO FRNAICSO EFECTO RAPADO","type":"appointment"}
+      ]
+    },
+    {
+      "week": "CW6", "dates": "02/02 - 08/02/2026",
+      "entries": [
+        {"date":"02/02/2026","day":"Mo","start":"11:00","end":"12:00","service":"Micropigmentación de Cejas","notes":"0160 comf","type":"appointment"},
+        {"date":"02/02/2026","day":"Mo","start":"13:00","end":"13:30","service":"Laser de DIODO","notes":"Nikki","type":"appointment"},
+        {"date":"02/02/2026","day":"Mo","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"1781","type":"appointment"},
+        {"date":"02/02/2026","day":"Mo","start":"17:00","end":"19:00","service":"Micropigmentación de Cejas","notes":"5280 CONF","type":"appointment"},
+        {"date":"02/02/2026","day":"Mo","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"1449 conf","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"11:00","end":"11:30","service":"Diseño y Depilación de Cejas","notes":"769","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"12:00","end":"14:00","service":"Micropigmentación de Cejas","notes":"9596 CONF","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"8181","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"15:00","end":"16:00","service":"Lipocavitacíon","notes":"Lola 100 conf","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"16:00","end":"17:00","service":"Laminado de Cejas","notes":"IRENE","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"17:00","end":"18:00","service":"Lipocavitacíon","customer":"gabriela gareato","notes":"6207","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"18:00","end":"19:00","service":"Laser de DIODO","notes":"0058","type":"appointment"},
+        {"date":"03/02/2026","day":"Tu","start":"19:00","end":"20:00","service":"Lifting de Pestañas","notes":"Claudia","type":"appointment"},
+        {"date":"04/02/2026","day":"We","start":"11:00","end":"12:00","service":"Radiofrecuencia Facial","notes":"YESENIA","type":"appointment"},
+        {"date":"04/02/2026","day":"We","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"0938 comf","type":"appointment"},
+        {"date":"04/02/2026","day":"We","start":"15:00","end":"16:00","service":"Laser de DIODO","customer":"carlos garcia burgos","notes":"7012","type":"appointment"},
+        {"date":"04/02/2026","day":"We","start":"16:00","end":"18:00","service":"Micropigmentación de Cejas","notes":"MAYRA CONFITMAR KUNCALII","type":"appointment"},
+        {"date":"04/02/2026","day":"We","start":"18:00","end":"19:00","service":"Laser de DIODO","notes":"8054","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"11:00","end":"12:00","service":"Masaje Relajante","notes":"8332 45MIN mariaq perez cerezo","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"hugo ferraz","notes":"1707","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"13:00","end":"14:00","service":"Laser de DIODO","notes":"4368","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"14:00","end":"15:00","service":"Lipocavitacíon","customer":"elena j","notes":"6199","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"15:00","end":"16:00","service":"Lipocavitacíon","notes":"Lola","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"8411","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"17:00","end":"18:00","service":"Masaje Relajante","notes":"0226","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"4723","type":"appointment"},
+        {"date":"05/02/2026","day":"Th","start":"19:00","end":"20:00","service":"Lipolaser","customer":"ANA HIDALGO","notes":"4433","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"12:00","end":"13:00","service":"Masaje Relajante","notes":"0950","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"13:00","end":"14:00","service":"Laser de DIODO","notes":"1900","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"DIEGO","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"15:00","end":"16:00","service":"Micropigmentación de Cejas","notes":"3690 conf","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"16:00","end":"17:00","service":"Masaje Relajante","notes":"2492","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"17:00","end":"18:00","service":"Laser de DIODO","notes":"3212","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"18:00","end":"19:00","service":"Laminado de Cejas","notes":"ELENA","type":"appointment"},
+        {"date":"06/02/2026","day":"Fr","start":"19:00","end":"20:00","service":"Laminado de Cejas","customer":"Tania Arenas","notes":null,"type":"appointment"},
+        {"date":"07/02/2026","day":"Sa","start":"11:00","end":"11:40","service":"Diseño y Depilación de Cejas","notes":"todo","type":"appointment"}
+      ]
+    },
+    {
+      "week": "CW7", "dates": "09/02 - 15/02/2026",
+      "entries": [
+        {"date":"09/02/2026","day":"Mo","start":"16:00","end":"17:00","service":"Masaje Relajante","notes":"8628","type":"appointment"},
+        {"date":"09/02/2026","day":"Mo","start":"17:00","end":"18:00","service":"Radiofrecuencia Facial","notes":"PERE","type":"appointment"},
+        {"date":"09/02/2026","day":"Mo","start":"18:00","end":"19:00","service":"Lipocavitacíon","customer":"beata drilena","notes":null,"type":"appointment"},
+        {"date":"09/02/2026","day":"Mo","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"Maite","type":"appointment"},
+        {"date":"10/02/2026","day":"Tu","start":"13:00","end":"14:00","service":"Lipocavitacíon","customer":"ana jose puig garcia","notes":"8976","type":"appointment"},
+        {"date":"11/02/2026","day":"We","start":"10:00","end":"10:30","service":"Diseño y Depilación de Cejas","notes":null,"type":"appointment"},
+        {"date":"11/02/2026","day":"We","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"pinet","type":"appointment"},
+        {"date":"11/02/2026","day":"We","start":"14:00","end":"16:00","service":"Micropigmentación de Cejas","notes":"5567","type":"appointment"},
+        {"date":"11/02/2026","day":"We","start":"16:00","end":"20:30","service":"Manu","notes":null,"type":"block"},
+        {"date":"12/02/2026","day":"Th","start":"11:00","end":"12:00","service":"Masaje Relajante","notes":"6947","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"12:00","end":"13:00","service":"Laser de DIODO","notes":"5101 conf","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"13:00","end":"14:00","service":"Laser de DIODO","notes":"7997","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"14:00","end":"15:00","service":"Lipocavitacíon","customer":"DANIELA VARGAS RUIZ","notes":"9626","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"hugo ferraz","notes":null,"type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"16:00","end":"17:00","service":"Masaje Relajante","notes":"5355","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"17:00","end":"18:00","service":"Radiofrecuencia Facial","notes":"4433","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","customer":"ANA HIDALGO","notes":"4433","type":"appointment"},
+        {"date":"12/02/2026","day":"Th","start":"19:00","end":"20:00","service":"Lipolaser","customer":"lola mora","notes":"1042","type":"appointment"},
+        {"date":"13/02/2026","day":"Fr","start":"10:00","end":"15:00","service":"Micropigmentación de Cejas","notes":"FRANCISCO CAPILAR","type":"appointment"},
+        {"date":"13/02/2026","day":"Fr","start":"15:00","end":"16:00","service":"Lipocavitacíon","notes":null,"type":"appointment"},
+        {"date":"13/02/2026","day":"Fr","start":"16:00","end":"20:30","service":"Manu","notes":null,"type":"block"},
+        {"date":"14/02/2026","day":"Sa","start":"11:00","end":"12:00","service":"LIPOLASER","customer":"Ana Belén Garcia Asensio","notes":null,"type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"paula baleani","notes":"2910","type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"13:00","end":"14:00","service":"Laser de DIODO","notes":"MEDEA","type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"9308","type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"15:30","end":"16:00","service":"Diseño y Depilación de Cejas","customer":"Hanna Shauchenka","notes":null,"type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"Cate","type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"18:00","end":"19:00","service":"Laser de DIODO","notes":"Aionia","type":"appointment"},
+        {"date":"14/02/2026","day":"Sa","start":"19:00","end":"20:00","service":"Masaje Deportivo","notes":"patricia","type":"appointment"}
+      ]
+    },
+    {
+      "week": "CW8", "dates": "16/02 - 22/02/2026",
+      "entries": [
+        {"date":"16/02/2026","day":"Mo","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"beatriz garcia argudo","notes":"8727","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"MONICA ALAPUNT","notes":"6336","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"13:00","end":"14:00","service":"Eliminación de tatuajes","notes":"634613821 salud reyes","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"lola mora","notes":"1042","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"16:00","end":"17:00","service":"Lipocavitacíon","customer":"MARIBEL BERLOSO ZAFA","notes":"8788","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"17:00","end":"18:00","service":"Lipolaser","notes":"1042","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"18:00","end":"19:00","service":"Masaje Relajante","notes":"5433","type":"appointment"},
+        {"date":"16/02/2026","day":"Mo","start":"19:00","end":"20:00","service":"Lipocavitacíon","customer":"ANA HIDALGO","notes":"4433","type":"appointment"},
+        {"date":"18/02/2026","day":"We","start":"11:00","end":"12:00","service":"Masaje Relajante","customer":"sol medina","notes":"6683","type":"appointment"},
+        {"date":"18/02/2026","day":"We","start":"12:00","end":"13:00","service":"Masaje Relajante","notes":"2990","type":"appointment"},
+        {"date":"18/02/2026","day":"We","start":"16:00","end":"17:00","service":"Masaje Relajante","notes":"5248","type":"appointment"},
+        {"date":"18/02/2026","day":"We","start":"18:00","end":"19:00","service":"Laser de DIODO","customer":"leidy moana quintero","notes":"5362","type":"appointment"},
+        {"date":"18/02/2026","day":"We","start":"19:00","end":"20:00","service":"Laser de DIODO","customer":"Maria Villalba","notes":null,"type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"11:00","end":"12:00","service":"Lipocavitacíon","notes":"DANIELA VASRGAD","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"12:00","end":"13:00","service":"Lipocavitacíon","notes":"beata","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"13:00","end":"14:00","service":"Masaje Relajante","notes":"7598","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"16:00","end":"17:00","service":"Laser de DIODO","customer":"MARIA TARDELAS 5514","notes":"5514","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"17:00","end":"18:00","service":"Laser de DIODO","customer":"IRENE ALCAL","notes":"Irene","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"10:00","end":"10:30","service":"DENTISTA","notes":null,"type":"block"},
+        {"date":"19/02/2026","day":"Th","start":"14:00","end":"16:00","service":"Lipocavitacíon","notes":"ISAB","type":"appointment"},
+        {"date":"19/02/2026","day":"Th","start":"18:30","end":"20:30","service":"Micropigmentación de Cejas","notes":"Ciman","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"13:00","end":"14:00","service":"Masaje Relajante","notes":"9067","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"16:00","end":"17:00","service":"Lipolaser","customer":"elena j","notes":"6199","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"18:00","end":"19:00","service":"Lipocavitacíon","customer":"carla azcoiti simo","notes":"6015","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"19:00","end":"20:00","service":"Lipocavitacíon","customer":"marta souto","notes":"3408","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"11:00","end":"11:30","service":"Diseño y Depilación de Cejas","notes":"flores","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"15:00","end":"15:30","service":"Laser de DIODO","notes":"cliebnte josemi","type":"appointment"},
+        {"date":"20/02/2026","day":"Fr","start":"17:00","end":"17:30","service":"Diseño y Depilación de Cejas","notes":"9807","type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"13:00","end":"14:00","service":"Lipocavitacíon","customer":"sara pallordo","notes":"4293","type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"14:30","end":"16:00","service":"Lipocavitacíon","notes":"643035700 KARELIS CON FIEMAR RADIOFACIAL","type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"16:00","end":"17:00","service":"Laser de DIODO","customer":"eduardo lopez","notes":"7012","type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"17:00","end":"19:00","service":"Lipocavitacíon","notes":"4723","type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"19:00","end":"20:00","service":"LIPOLASER","customer":"Ana Belén Garcia Asensio","notes":null,"type":"appointment"},
+        {"date":"21/02/2026","day":"Sa","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"MICRO DE DEJAS pIEDAD EDITA (CLIENTE JOSEMI CRISTIAN","type":"appointment"},
+        {"date":"22/02/2026","day":"Su","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"1307","type":"appointment"}
+      ]
+    },
+{
+  "week": "CW9", "dates": "23/02 - 01/03/2026",
+  "entries": [
+    {"date":"24/02/2026","day":"Tu","start":"11:00","end":"12:00","service":"Lipolaser","customer":"karla patricia maldonado","notes":"7835","type":"appointment"},
+    {"date":"24/02/2026","day":"Tu","start":"12:00","end":"13:00","service":"Laser de DIODO","notes":"4385","type":"appointment"},
+    {"date":"24/02/2026","day":"Tu","start":"13:00","end":"16:00","service":"Micropigmentación de Cejas","notes":"ZAYRA CONF","type":"appointment"},
+    {"date":"24/02/2026","day":"Tu","start":"16:00","end":"16:30","service":"Diseño y Depilación de Cejas","notes":"7180","type":"appointment"},
+    {"date":"24/02/2026","day":"Tu","start":"18:00","end":"19:00","service":"Lipolaser","notes":"lola","type":"appointment"},
+    {"date":"24/02/2026","day":"Tu","start":"19:00","end":"20:00","service":"Masaje Deportivo","notes":"9564","type":"appointment"},
+    {"date":"25/02/2026","day":"We","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"noelia santos","notes":"1885","type":"appointment"},
+    {"date":"25/02/2026","day":"We","start":"12:00","end":"12:30","service":"cavitacoin en la maquina","notes":null,"type":"appointment"},
+    {"date":"25/02/2026","day":"We","start":"13:00","end":"14:00","service":"Lipocavitacíon","customer":"beata drilena","notes":null,"type":"appointment"},
+    {"date":"25/02/2026","day":"We","start":"14:30","end":"15:00","service":"Radiofrecuencia Facial","notes":"5700 confirmar","type":"appointment"},
+    {"date":"25/02/2026","day":"We","start":"16:00","end":"20:30","service":"Manu","notes":null,"type":"block"},
+    {"date":"26/02/2026","day":"Th","start":"13:00","end":"14:00","service":"Lipocavitacíon","customer":"MONICA ALAPUNT","notes":"6336","type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"ELIOT","type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"16:00","end":"17:00","service":"Lipocavitacíon","customer":"miguel algel roig","notes":"6484","type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"17:00","end":"18:00","service":"Lipocavitacíon","customer":"gabriela gareato","notes":"6207","type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"lola","type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"19:00","end":"20:00","service":"LIPOLASER","customer":"Ana Belén Garcia Asensio","notes":null,"type":"appointment"},
+    {"date":"26/02/2026","day":"Th","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"PINET","type":"appointment"},
+    {"date":"27/02/2026","day":"Fr","start":"11:00","end":"12:00","service":"Lifting de Pestañas","customer":"Sofía Sánchez Veral","notes":null,"type":"appointment"},
+    {"date":"27/02/2026","day":"Fr","start":"13:00","end":"14:00","service":"Masaje Relajante","notes":"7294","type":"appointment"},
+    {"date":"27/02/2026","day":"Fr","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"carla azcoiti simo","notes":null,"type":"appointment"},
+    {"date":"27/02/2026","day":"Fr","start":"16:00","end":"20:30","service":"Manu","notes":null,"type":"block"},
+    {"date":"28/02/2026","day":"Sa","start":"11:00","end":"12:00","service":"Lipolaser","customer":"beatriz garcia argudo","notes":"8727","type":"appointment"},
+    {"date":"28/02/2026","day":"Sa","start":"13:00","end":"14:00","service":"Lipocavitacíon","notes":"HUGO","type":"appointment"},
+    {"date":"28/02/2026","day":"Sa","start":"14:00","end":"15:00","service":"Lipocavitacíon","customer":"martina lucchese","notes":"1196","type":"appointment"},
+    {"date":"28/02/2026","day":"Sa","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"elena j","notes":null,"type":"appointment"},
+    {"date":"28/02/2026","day":"Sa","start":"16:00","end":"19:00","service":"Micropigmentación de Cejas","notes":"4514 CONFIRMAR TRAER PIGMENTO ROJO","type":"appointment"},
+    {"date":"28/02/2026","day":"Sa","start":"19:00","end":"20:00","service":"LIPOLASER","customer":"Ana Belén Garcia Asensio","notes":null,"type":"appointment"}
+  ]
+},
+{
+  "week": "CW10", "dates": "02/03 - 08/03/2026",
+  "entries": [
+    {"date":"02/03/2026","day":"Mo","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"yo cjica da elinimacion 180","type":"appointment"},
+    {"date":"02/03/2026","day":"Mo","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"lorena bai","notes":"9799","type":"appointment"},
+    {"date":"02/03/2026","day":"Mo","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"HIJA CLIENTE JOSMEI 0402 CONF","type":"appointment"},
+    {"date":"02/03/2026","day":"Mo","start":"17:00","end":"18:00","service":"Micropigmentación de Cejas","notes":"7997 comfr","type":"appointment"},
+    {"date":"02/03/2026","day":"Mo","start":"18:00","end":"19:00","service":"Masaje Relajante","customer":"jose vicente andreu","notes":"4814","type":"appointment"},
+    {"date":"02/03/2026","day":"Mo","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"1449 CONF 50E","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"10:00","end":"11:00","service":"Lipocavitacíon","customer":"ESTHER BRAVO GOMEZ","notes":"2629","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"13:00","end":"14:00","service":"Eliminación de tatuajes","notes":"reies confirmar","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"14:00","end":"15:00","service":"Laser de DIODO","customer":"Soraya Potosi","notes":null,"type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"15:00","end":"16:00","service":"Masaje Relajante","notes":"4675","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"16:00","end":"17:00","service":"Lipocavitacíon","customer":"MARIBEL BERLOSO ZAFA","notes":"8788","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"17:00","end":"18:00","service":"Lipocavitacíon","customer":"lola mora","notes":"lipo lola","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"18:00","end":"19:00","service":"Laser de DIODO","customer":"borja 0058","notes":"0058","type":"appointment"},
+    {"date":"03/03/2026","day":"Tu","start":"19:00","end":"20:00","service":"Lifting de Pestañas","notes":"654942113 lina confirmar","type":"appointment"},
+    {"date":"04/03/2026","day":"We","start":"09:00","end":"09:30","service":"dentiara 8.30","notes":null,"type":"block"},
+    {"date":"04/03/2026","day":"We","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"pinet","type":"appointment"},
+    {"date":"05/03/2026","day":"Th","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"martina lucchese","notes":"1196","type":"appointment"},
+    {"date":"05/03/2026","day":"Th","start":"16:00","end":"17:00","service":"Radiofrecuencia Facial","notes":"4433 depilar elisa","type":"appointment"},
+    {"date":"05/03/2026","day":"Th","start":"18:00","end":"19:00","service":"Laser de DIODO","notes":"7084","type":"appointment"},
+    {"date":"05/03/2026","day":"Th","start":"19:00","end":"20:00","service":"Lipocavitacíon","customer":"miguel algel roig","notes":"6484","type":"appointment"},
+    {"date":"05/03/2026","day":"Th","start":"20:00","end":"21:00","service":"Lipocavitacíon","customer":"ana belen garcia asensio","notes":"9992","type":"appointment"},
+    {"date":"06/03/2026","day":"Fr","start":"11:00","end":"14:00","service":"Micropigmentación de Cejas","notes":"yesenia","type":"appointment"},
+    {"date":"07/03/2026","day":"Sa","start":"11:00","end":"20:00","service":"Micropigmentación de Cejas","notes":"FRANCISCO CAPILAR","type":"appointment"},
+    {"date":"07/03/2026","day":"Sa","start":"13:00","end":"23:30","service":"YFYJGLJG","notes":null,"type":"block"},
+    {"date":"08/03/2026","day":"Su","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"7863 CONF","type":"appointment"}
+  ]
+},
+{
+  "week": "CW11", "dates": "09/03 - 15/03/2026",
+  "entries": [
+    {"date":"09/03/2026","day":"Mo","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"MIGUEL MARTINEZ RODRIGUEZ","notes":"0250","type":"appointment"},
+    {"date":"09/03/2026","day":"Mo","start":"12:00","end":"13:00","service":"Lipocavitacíon","notes":"luca","type":"appointment"},
+    {"date":"09/03/2026","day":"Mo","start":"15:00","end":"16:00","service":"Laminado de Cejas","notes":"irene","type":"appointment"},
+    {"date":"09/03/2026","day":"Mo","start":"16:00","end":"17:00","service":"Lipocavitacíon","notes":"lola","type":"appointment"},
+    {"date":"09/03/2026","day":"Mo","start":"17:00","end":"18:00","service":"Masaje Relajante","notes":"5099","type":"appointment"},
+    {"date":"10/03/2026","day":"Tu","start":"10:00","end":"10:30","service":"ALQUILER","notes":null,"type":"block"},
+    {"date":"10/03/2026","day":"Tu","start":"13:00","end":"15:00","service":"Micropigmentación de Cejas","notes":"9493 confirmatr'","type":"appointment"},
+    {"date":"10/03/2026","day":"Tu","start":"18:00","end":"20:00","service":"Micropigmentación de Cejas","notes":"micro de cejas mujer de cliente joemi luis tratamiento 200€ mas 50 repaso ya hizo 50€ de resreva","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"olga martin clavero","notes":"2867","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"12:00","end":"13:00","service":"Masaje Relajante","notes":"1003 45MIN","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"13:00","end":"14:00","service":"Micropigmentación de Cejas","notes":"5567 CONF","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"14:00","end":"15:00","service":"Lipocavitacíon","notes":"LUCA","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"15:00","end":"16:00","service":"Laser de DIODO","customer":"Soraya Potosi","notes":"8181","type":"appointment"},
+    {"date":"11/03/2026","day":"We","start":"16:00","end":"21:30","service":"jkbhlb","notes":null,"type":"block"},
+    {"date":"12/03/2026","day":"Th","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"pinet","type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"14:00","end":"15:00","service":"Lipocavitacíon","customer":"elena j","notes":null,"type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"15:00","end":"16:00","service":"Laser de DIODO","customer":"carlos garcia burgos","notes":null,"type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"16:00","end":"17:00","service":"Masaje Relajante","notes":"7179","type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"17:00","end":"18:00","service":"Lipocavitacíon","customer":"sara pallordo","notes":"4293","type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"lola","type":"appointment"},
+    {"date":"12/03/2026","day":"Th","start":"19:00","end":"21:00","service":"Micropigmentación de Cejas","notes":"reapase anual madre maite 80e","type":"appointment"},
+    {"date":"13/03/2026","day":"Fr","start":"11:00","end":"16:00","service":"DENTIDTA","notes":null,"type":"block"},
+    {"date":"13/03/2026","day":"Fr","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"14/03/2026","day":"Sa","start":"12:00","end":"13:00","service":"Lipolaser","notes":"0409","type":"appointment"},
+    {"date":"14/03/2026","day":"Sa","start":"13:00","end":"14:00","service":"Lipocavitacíon","customer":"DANIELA VARGAS RUIZ","notes":null,"type":"appointment"},
+    {"date":"14/03/2026","day":"Sa","start":"15:00","end":"16:00","service":"Lipocavitacíon","customer":"carla azcoiti simo","notes":null,"type":"appointment"},
+    {"date":"14/03/2026","day":"Sa","start":"16:00","end":"17:00","service":"Lipocavitacíon","notes":"9799","type":"appointment"},
+    {"date":"14/03/2026","day":"Sa","start":"18:00","end":"19:00","service":"Depilación Luz Pulsada","customer":"Emma Benites","notes":null,"type":"appointment"},
+    {"date":"14/03/2026","day":"Sa","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"7084","type":"appointment"}
+  ]
+},
+{
+  "week": "CW12", "dates": "16/03 - 22/03/2026",
+  "entries": [
+    {"date":"16/03/2026","day":"Mo","start":"11:00","end":"12:00","service":"Radiofrecuencia Facial","notes":"3112","type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"miguel algel roig","notes":null,"type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"14:00","end":"15:00","service":"Laser de DIODO","notes":"nikkki","type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"16:00","end":"17:00","service":"Lipocavitacíon","notes":"9799","type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"17:00","end":"18:00","service":"Laser de DIODO","customer":"maria sala 1781","notes":"1781","type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"6711","type":"appointment"},
+    {"date":"16/03/2026","day":"Mo","start":"19:00","end":"21:00","service":"Micropigmentación de Cejas","notes":"8973 conf","type":"appointment"},
+    {"date":"17/03/2026","day":"Tu","start":"11:00","end":"22:30","service":"KGJHK","notes":null,"type":"block"},
+    {"date":"18/03/2026","day":"We","start":"11:00","end":"21:30","service":"SEFADF","notes":null,"type":"block"},
+    {"date":"19/03/2026","day":"Th","start":"11:00","end":"21:30","service":"NO TRABAJO","notes":null,"type":"block"},
+    {"date":"20/03/2026","day":"Fr","start":"11:00","end":"12:00","service":"Micropigmentación de Cejas","notes":"7310 repaso no tiene que pagar","type":"appointment"},
+    {"date":"20/03/2026","day":"Fr","start":"14:00","end":"16:00","service":"Lipocavitacíon","notes":"pinet","type":"appointment"},
+    {"date":"20/03/2026","day":"Fr","start":"16:00","end":"17:00","service":"Lipocavitacíon","notes":"6711","type":"appointment"},
+    {"date":"20/03/2026","day":"Fr","start":"17:00","end":"18:00","service":"Laser de DIODO","customer":"eduardo lopez","notes":null,"type":"appointment"},
+    {"date":"20/03/2026","day":"Fr","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"maite","type":"appointment"},
+    {"date":"22/03/2026","day":"Su","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"prima","type":"appointment"}
+  ]
+},
+{
+  "week": "CW13", "dates": "23/03 - 29/03/2026",
+  "entries": [
+    {"date":"24/03/2026","day":"Tu","start":"11:00","end":"12:00","service":"Radiofrecuencia Facial","notes":"3212","type":"appointment"},
+    {"date":"24/03/2026","day":"Tu","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"ESTHER BRAVO GOMEZ","notes":null,"type":"appointment"},
+    {"date":"24/03/2026","day":"Tu","start":"13:00","end":"14:00","service":"Lipocavitacíon","notes":"4669","type":"appointment"},
+    {"date":"24/03/2026","day":"Tu","start":"14:00","end":"15:00","service":"Lipocavitacíon","notes":"6508","type":"appointment"},
+    {"date":"24/03/2026","day":"Tu","start":"18:00","end":"19:00","service":"Masaje Relajante","notes":"5433 CONFIRMAQR","type":"appointment"},
+    {"date":"24/03/2026","day":"Tu","start":"19:00","end":"20:00","service":"Laser de DIODO","notes":"irena","type":"appointment"},
+    {"date":"25/03/2026","day":"We","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"karla patricia maldonado","notes":null,"type":"appointment"},
+    {"date":"25/03/2026","day":"We","start":"12:00","end":"14:00","service":"Lipocavitacíon","notes":"pin et","type":"appointment"},
+    {"date":"25/03/2026","day":"We","start":"14:00","end":"15:00","service":"Lipocavitacíon","customer":"sara pallordo","notes":null,"type":"appointment"},
+    {"date":"25/03/2026","day":"We","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"26/03/2026","day":"Th","start":"11:00","end":"12:00","service":"Eliminación de tatuajes","notes":"1409","type":"appointment"},
+    {"date":"26/03/2026","day":"Th","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"ESTHER BRAVO GOMEZ","notes":"2629","type":"appointment"},
+    {"date":"26/03/2026","day":"Th","start":"17:00","end":"18:00","service":"Laser de DIODO","notes":"4385 conf","type":"appointment"},
+    {"date":"26/03/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"6711","type":"appointment"},
+    {"date":"27/03/2026","day":"Fr","start":"11:00","end":"16:00","service":"ghfhgf","notes":"dentista 13:30","type":"block"},
+    {"date":"27/03/2026","day":"Fr","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"28/03/2026","day":"Sa","start":"11:00","end":"21:30","service":"dfgdfgd","notes":null,"type":"block"}
+  ]
+},
+{
+  "week": "CW14", "dates": "30/03 - 05/04/2026",
+  "entries": [
+    {"date":"30/03/2026","day":"Mo","start":"11:00","end":"20:30","service":"dgfdsfsd","notes":null,"type":"block"},
+    {"date":"31/03/2026","day":"Tu","start":"11:00","end":"20:30","service":"dvdsfd","notes":null,"type":"block"},
+    {"date":"02/04/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"0463","type":"appointment"},
+    {"date":"02/04/2026","day":"Th","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"pinet","type":"appointment"},
+    {"date":"03/04/2026","day":"Fr","start":"11:00","end":"12:00","service":"Lipocavitacíon","notes":"4669","type":"appointment"},
+    {"date":"03/04/2026","day":"Fr","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"0281","type":"appointment"},
+    {"date":"03/04/2026","day":"Fr","start":"19:00","end":"20:00","service":"Lipocavitacíon","notes":"3408","type":"appointment"},
+    {"date":"04/04/2026","day":"Sa","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"noelia santos","notes":null,"type":"appointment"},
+    {"date":"04/04/2026","day":"Sa","start":"12:00","end":"13:00","service":"Lipocavitacíon","customer":"MIGUEL MARTINEZ RODRIGUEZ","notes":null,"type":"appointment"},
+    {"date":"05/04/2026","day":"Su","start":"11:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"cliente josmei","type":"appointment"}
+  ]
+},
+{
+  "week": "CW15", "dates": "06/04 - 12/04/2026",
+  "entries": [
+    {"date":"06/04/2026","day":"Mo","start":"11:00","end":"12:00","service":"Lipocavitacíon","notes":"4669","type":"appointment"},
+    {"date":"06/04/2026","day":"Mo","start":"12:00","end":"13:00","service":"Micropigmentación de Cejas","notes":"REPASO MONTESERR9493","type":"appointment"},
+    {"date":"06/04/2026","day":"Mo","start":"14:00","end":"15:00","service":"Masaje Relajante","notes":"7294","type":"appointment"},
+    {"date":"06/04/2026","day":"Mo","start":"16:00","end":"20:30","service":"MBJ","notes":null,"type":"block"},
+    {"date":"07/04/2026","day":"Tu","start":"11:00","end":"16:00","service":"JFJOLYG","notes":null,"type":"block"},
+    {"date":"07/04/2026","day":"Tu","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"08/04/2026","day":"We","start":"11:00","end":"20:00","service":"KLJKL","notes":null,"type":"block"},
+    {"date":"08/04/2026","day":"We","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"09/04/2026","day":"Th","start":"11:00","end":"16:00","service":"GUU","notes":null,"type":"block"},
+    {"date":"10/04/2026","day":"Fr","start":"11:00","end":"20:30","service":"JGFYJGJUG","notes":null,"type":"block"},
+    {"date":"11/04/2026","day":"Sa","start":"10:00","end":"12:30","service":"competicion","notes":null,"type":"block"}
+  ]
+},
+{
+  "week": "CW16", "dates": "13/04 - 19/04/2026",
+  "entries": [
+    {"date":"14/04/2026","day":"Tu","start":"11:00","end":"12:00","service":"Lipocavitacíon","customer":"MIGUEL MARTINEZ RODRIGUEZ","notes":null,"type":"appointment"},
+    {"date":"14/04/2026","day":"Tu","start":"16:00","end":"17:00","service":"Laser de DIODO","notes":"8788","type":"appointment"},
+    {"date":"14/04/2026","day":"Tu","start":"17:00","end":"18:00","service":"Laser de DIODO","notes":"hija decliente","type":"appointment"},
+    {"date":"15/04/2026","day":"We","start":"11:00","end":"20:00","service":"Micropigmentación de Cejas","notes":"FRANCISCO","type":"appointment"},
+    {"date":"16/04/2026","day":"Th","start":"11:00","end":"13:00","service":"Lipocavitacíon","notes":"PINET","type":"appointment"},
+    {"date":"16/04/2026","day":"Th","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"0463","type":"appointment"},
+    {"date":"16/04/2026","day":"Th","start":"19:00","end":"21:00","service":"Micropigmentación de Cejas","notes":"0402 confir","type":"appointment"},
+    {"date":"17/04/2026","day":"Fr","start":"17:00","end":"19:00","service":"Micropigmentación de Cejas","notes":"REPARSO CLIENTE JOSEMI","type":"appointment"}
+  ]
+},
+{
+  "week": "CW17", "dates": "20/04 - 26/04/2026",
+  "entries": [
+    {"date":"21/04/2026","day":"Tu","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"},
+    {"date":"22/04/2026","day":"We","start":"18:00","end":"19:00","service":"Lipocavitacíon","notes":"0463","type":"appointment"},
+    {"date":"23/04/2026","day":"Th","start":"16:00","end":"00:00","service":"manu","notes":null,"type":"block"}
+  ]
+},
+{
+  "week": "CW18", "dates": "27/04 - 03/05/2026",
+  "entries": [
+    {"date":"28/04/2026","day":"Tu","start":"15:00","end":"16:00","service":"Lipocavitacíon","notes":"8788","type":"appointment"},
+    {"date":"02/05/2026","day":"Sa","start":"10:00","end":"12:30","service":"competicion","notes":"sa bado o domingo","type":"block"}
+  ]
+},
+{
+  "week": "CW19", "dates": "04/05 - 10/05/2026",
+  "entries": [
+    {"date":"05/05/2026","day":"Tu","start":"11:00","end":"20:30","service":"joemi","notes":null,"type":"block"},
+    {"date":"06/05/2026","day":"We","start":"11:00","end":"20:30","service":"josemki","notes":null,"type":"block"}
+  ]
+}
+]}
+
+
+
+
+
+
+
+
+

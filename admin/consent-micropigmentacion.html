@@ -113,7 +113,11 @@
       </div>
       <div>
         <label for="therapist_name">Profesional que informa</label>
-        <input id="therapist_name" name="therapist_name" required />
+        <select id="therapist_name" name="therapist_name" required>
+          <option value="">Seleccionar...</option>
+          <option value="Josemi">Josemi</option>
+          <option value="Liege">Liege</option>
+        </select>
       </div>
 
       <div class="form-grid-1">
@@ -146,10 +150,14 @@
       var idNumber = String(formData.get('id_number') || '').trim();
       var phone = String(formData.get('phone') || '').trim();
       var signatureText = String(formData.get('signature_text') || '').trim();
+      var therapistName = String(formData.get('therapist_name') || '').trim();
       var normalizedId = idNumber || ('NO-DOC-' + Date.now());
+      var consentId = new URLSearchParams(window.location.search).get('consent_id');
+      var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
+      var normalizedIdFinal = idNumber || existingId || normalizedId;
 
-      if (!fullName || !phone || !signatureText) {
-        message.textContent = 'Nombre, telefono y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText || !therapistName) {
+        message.textContent = 'Nombre, telefono, profesional y firma son obligatorios.';
         return;
       }
 
@@ -162,7 +170,7 @@
       var payload = {
         consent_type: 'micropigmentation',
         full_name: fullName,
-        id_number: normalizedId,
+        id_number: normalizedIdFinal,
         phone: phone,
         email: formData.get('email') || null,
         treatment_areas: formData.get('areas'),
@@ -172,13 +180,14 @@
         acceptance_points: points,
         photos_allowed: formData.get('photos_allowed') === 'on',
         signed_at: formData.get('signed_at'),
-        therapist_name: formData.get('therapist_name'),
+        therapist_name: therapistName,
         signature_text: signatureText
       };
 
       try {
-        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents`, {
-          method: 'POST',
+        var url = `${window.APP_CONFIG.API_BASE_URL}/consents` + (consentId ? `/${consentId}` : '');
+        var response = await fetch(url, {
+          method: consentId ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -187,13 +196,26 @@
           throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
         }
 
+        await response.json();
         message.textContent = 'Consentimiento guardado correctamente.';
-        form.reset();
-        document.getElementById('signed_at').valueAsDate = new Date();
+        setTimeout(function () { window.location.href = 'index.html'; }, 900);
       } catch (error) {
         message.textContent = error.message;
       }
     });
+
+    var requiredChecks = document.querySelectorAll('#micropigmentacion-form input[type=\"checkbox\"][required]');
+    var submitBtn = document.querySelector('#micropigmentacion-form button[type=\"submit\"]');
+    function toggleSubmit() {
+      if (!submitBtn) return;
+      if (!requiredChecks.length) {
+        submitBtn.disabled = false;
+        return;
+      }
+      submitBtn.disabled = Array.prototype.some.call(requiredChecks, function (el) { return !el.checked; });
+    }
+    document.querySelector('#micropigmentacion-form').addEventListener('change', toggleSubmit);
+    toggleSubmit();
   </script>
 </body>
 </html>
