@@ -91,6 +91,55 @@
       min-height: 1.1rem;
     }
 
+    .history-row td {
+      padding: 0;
+      border-top: none;
+    }
+
+    .history-panel {
+      border-top: 1px solid #2a354a;
+      background: #10151f;
+      padding: 12px;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .history-item {
+      border: 1px solid #2a354a;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #121822;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #d9e1ee;
+    }
+
+    .history-item strong {
+      font-size: 0.9rem;
+    }
+
+    .history-meta {
+      font-size: 0.82rem;
+      color: #c7d0df;
+    }
+
+    .history-status {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
     @media (max-width: 900px) {
       .admin-table {
         min-width: 760px;
@@ -176,6 +225,7 @@
             <th>Estado</th>
             <th>Notas</th>
             <th>Creado</th>
+            <th>Historial</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -205,6 +255,7 @@
     const agendaDate = document.getElementById('agenda-date');
     const agendaList = document.getElementById('agenda-list');
     const agendaRefresh = document.getElementById('agenda-refresh');
+    const historyCache = {};
 
     function collectParams() {
       const data = new FormData(form);
@@ -285,12 +336,12 @@
 
     function renderRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="8">Sin resultados.</td></tr>';
+        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="9">Sin resultados.</td></tr>';
         return;
       }
 
       tableBody.innerHTML = items.map((item) => `
-        <tr>
+        <tr data-session-row="${item.id}">
           <td>${item.client_name}</td>
           <td>${item.client_phone || '-'}</td>
           <td>${item.treatment_name}</td>
@@ -299,6 +350,14 @@
           <td>${item.status}</td>
           <td>${item.notes || '-'}</td>
           <td>${item.created_at}</td>
+          <td><button class="btn btn-ghost btn-sm" type="button" data-history-toggle="${item.id}">Ver historial</button></td>
+        </tr>
+        <tr class="history-row" data-history-row="${item.id}" hidden>
+          <td colspan="9">
+            <div class="history-panel" data-history-panel="${item.id}">
+              <p class="form-note">Cargando historial...</p>
+            </div>
+          </td>
         </tr>
       `).join('');
     }
@@ -377,6 +436,61 @@
         } catch (error) {
           message.textContent = error.message;
         }
+      }
+    });
+
+    tableBody.addEventListener('click', async (event) => {
+      const toggle = event.target.closest('[data-history-toggle]');
+      if (!toggle) return;
+      const sessionId = toggle.dataset.historyToggle;
+      const row = tableBody.querySelector(`[data-history-row="${sessionId}"]`);
+      const panel = tableBody.querySelector(`[data-history-panel="${sessionId}"]`);
+      if (!row || !panel) return;
+
+      const isHidden = row.hasAttribute('hidden');
+      if (!isHidden) {
+        row.setAttribute('hidden', '');
+        toggle.textContent = 'Ver historial';
+        return;
+      }
+
+      row.removeAttribute('hidden');
+      toggle.textContent = 'Ocultar historial';
+
+      if (historyCache[sessionId]) {
+        panel.innerHTML = historyCache[sessionId];
+        return;
+      }
+
+      panel.innerHTML = '<p class="form-note">Cargando historial...</p>';
+      try {
+        const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/sessions/${sessionId}/appointments?limit=50&offset=0`);
+        if (!response.ok) throw new Error('No se pudo cargar el historial.');
+        const payload = await response.json();
+        if (!payload.items.length) {
+          panel.innerHTML = '<p class="form-note">Sin citas historicas para esta sesion.</p>';
+          historyCache[sessionId] = panel.innerHTML;
+          return;
+        }
+        const html = `
+          <div class="history-list">
+            ${payload.items.map((item) => `
+              <div class="history-item">
+                <div>
+                  <strong>${item.service_name}</strong>
+                  <div class="history-meta">${item.appointment_date} · ${item.start_time} - ${item.end_time}</div>
+                  ${item.notes ? `<div class="history-meta">${item.notes}</div>` : ''}
+                </div>
+                <div class="history-meta">${item.professional_name}</div>
+                <div class="history-status">${item.status}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        panel.innerHTML = html;
+        historyCache[sessionId] = html;
+      } catch (error) {
+        panel.innerHTML = `<p class="form-note">${error.message}</p>`;
       }
     });
 
