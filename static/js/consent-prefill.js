@@ -335,7 +335,9 @@
     applyData(readStored());
     wireEvents();
     addResetControl();
-    wireDayList();
+    if (document.body && document.body.hasAttribute("data-consent-daylist")) {
+      wireDayList();
+    }
   }
 
   if (document.readyState === "loading") {

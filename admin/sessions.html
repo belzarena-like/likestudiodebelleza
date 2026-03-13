@@ -301,9 +301,15 @@
       return 'consent-micropigmentacion.html';
     }
 
-    function openConsent(prefill, treatmentName) {
+    function openConsent(prefill, treatmentName, professionalName) {
       storeConsentPrefill(prefill);
-      const path = resolveConsentPath(treatmentName);
+      const params = new URLSearchParams();
+      if (prefill && prefill.full_name) params.set('client_name', prefill.full_name);
+      if (prefill && prefill.id_number) params.set('client_id_number', prefill.id_number);
+      if (prefill && prefill.phone) params.set('client_phone', prefill.phone);
+      if (treatmentName) params.set('service_name', treatmentName);
+      if (professionalName) params.set('professional_name', professionalName);
+      const path = `consent-selector.html?${params.toString()}`;
       window.open(path, '_blank', 'noopener');
     }
 
@@ -347,7 +353,8 @@
           id_number: '',
           phone: item.client_phone || '',
           email: '',
-          treatment: item.service_name
+          treatment: item.service_name,
+          professional_name: item.professional_name
         };
       });
 
@@ -412,7 +419,8 @@
           id_number: item.client_id_number || '',
           phone: item.client_phone || '',
           email: '',
-          treatment: item.treatment_name
+          treatment: item.treatment_name,
+          professional_name: item.professional_name
         };
       });
 
@@ -472,7 +480,7 @@
         const id = parseInt(consentBtn.dataset.consentAppointment, 10);
         const data = consentPrefillByAppointment[id];
         if (data) {
-          openConsent(data, data.treatment);
+          openConsent(data, data.treatment, data.professional_name);
         }
         return;
       }
@@ -532,7 +540,7 @@
         const id = parseInt(consentBtn.dataset.consentSession, 10);
         const data = consentPrefillBySession[id];
         if (data) {
-          openConsent(data, data.treatment);
+          openConsent(data, data.treatment, data.professional_name);
         }
         return;
       }
