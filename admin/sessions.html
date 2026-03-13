@@ -70,6 +70,20 @@
       background: #0f141d;
     }
 
+    .agenda-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      color: #c8d2e3;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .agenda-summary strong {
+      color: #eef3fb;
+    }
+
     .session-list {
       display: grid;
       gap: 12px;
@@ -212,6 +226,12 @@
       min-height: 1.1rem;
     }
 
+    .agenda-selection-empty {
+      color: #c8d2e3;
+      font-size: 0.9rem;
+    }
+
+
     .session-client {
       font-weight: 700;
       font-size: 1rem;
@@ -260,6 +280,7 @@
       flex-wrap: wrap;
       gap: 6px;
     }
+
 
     .btn-danger {
       border-color: rgba(255, 77, 109, 0.4);
@@ -410,54 +431,65 @@
     <p class="eyebrow">Panel Admin</p>
     <h1>Sesiones de tratamiento</h1>
 
-    <section class="session-agenda">
-      <div class="section-head" style="margin-bottom:10px;">
-        <p class="eyebrow">Agenda de sesiones</p>
-        <h2 style="font-size:1.4rem;margin-bottom:6px;">Citas de hoy con sesiones</h2>
-      </div>
-      <div class="form-grid">
+    <form id="search-form" style="margin-bottom:14px">
+      <section class="session-agenda">
+        <div class="section-head" style="margin-bottom:10px;">
+          <p class="eyebrow">Agenda de sesiones</p>
+          <h2 style="font-size:1.4rem;margin-bottom:6px;">Citas de hoy con sesiones</h2>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="agenda-date">Fecha</label>
+            <input id="agenda-date" type="date" />
+          </div>
+          <div>
+            <label for="agenda-professional">Profesional</label>
+            <select id="agenda-professional">
+              <option value="">Todos</option>
+              <option value="Josemi">Josemi</option>
+              <option value="Liege">Liege</option>
+            </select>
+          </div>
+          <div>
+            <label for="agenda-client-search">Cliente con cita</label>
+            <input id="agenda-client-search" list="agenda-clients" placeholder="Busca por nombre" />
+            <datalist id="agenda-clients"></datalist>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-grid" style="margin-bottom:14px">
         <div>
-          <label for="agenda-date">Fecha</label>
-          <input id="agenda-date" type="date" />
+          <label for="query">Cliente</label>
+          <input id="query" name="query" placeholder="Nombre o telefono" />
         </div>
         <div>
-          <label for="agenda-professional">Profesional</label>
-          <select id="agenda-professional">
+          <label for="treatment_name">Tratamiento</label>
+          <input id="treatment_name" name="treatment_name" />
+        </div>
+        <div>
+          <label for="status">Estado</label>
+          <select id="status" name="status">
             <option value="">Todos</option>
-            <option value="Josemi">Josemi</option>
-            <option value="Liege">Liege</option>
+            <option value="planned">Planificado</option>
+            <option value="in_progress">En progreso</option>
+            <option value="completed">Completado</option>
           </select>
         </div>
         <div style="display:flex;align-items:flex-end;gap:8px;">
-          <button id="agenda-refresh" class="btn btn-ghost" type="button">Actualizar</button>
+          <button class="btn" type="submit">Buscar</button>
+          <button class="btn btn-ghost" type="button" id="reset">Limpiar</button>
         </div>
       </div>
-      <div id="agenda-list" class="session-list"></div>
-    </section>
-
-    <form id="search-form" class="form-grid" style="margin-bottom:14px">
-      <div>
-        <label for="query">Cliente</label>
-        <input id="query" name="query" placeholder="Nombre o telefono" />
-      </div>
-      <div>
-        <label for="treatment_name">Tratamiento</label>
-        <input id="treatment_name" name="treatment_name" />
-      </div>
-      <div>
-        <label for="status">Estado</label>
-        <select id="status" name="status">
-          <option value="">Todos</option>
-          <option value="planned">Planificado</option>
-          <option value="in_progress">En progreso</option>
-          <option value="completed">Completado</option>
-        </select>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:8px;">
-        <button class="btn" type="submit">Buscar</button>
-        <button class="btn btn-ghost" type="button" id="reset">Limpiar</button>
-      </div>
     </form>
+
+    <section class="session-agenda" style="margin-bottom:14px;">
+        <div class="agenda-summary">
+          <span id="agenda-count">Citas: 0</span>
+          <span>Selecciona un cliente para ver los detalles.</span>
+          <span id="agenda-message" class="form-note"></span>
+        </div>
+      </section>
 
     <p id="summary" class="form-note admin-summary">Cargando...</p>
     <div class="admin-table-wrap">
@@ -500,11 +532,16 @@
     const clientQueryInput = document.getElementById('query');
     const agendaDate = document.getElementById('agenda-date');
     const agendaProfessional = document.getElementById('agenda-professional');
-    const agendaList = document.getElementById('agenda-list');
-    const agendaRefresh = document.getElementById('agenda-refresh');
+    const agendaClientInput = document.getElementById('agenda-client-search');
+    const agendaClientsDatalist = document.getElementById('agenda-clients');
+    const agendaCount = document.getElementById('agenda-count');
+    const agendaMessage = document.getElementById('agenda-message');
     const historyCache = {};
     const consentPrefillByAppointment = {};
     const consentPrefillBySession = {};
+    let agendaItems = [];
+    let agendaLookup = {};
+    let selectedAgendaItem = null;
 
     function storeConsentPrefill(data) {
       if (!data) return;
@@ -554,72 +591,80 @@
       return params;
     }
 
-    function renderAgenda(items) {
-      if (!items.length) {
-        agendaList.innerHTML = '<p class="form-note">No hay sesiones programadas para este dia.</p>';
-        return;
-      }
+    function buildAgendaLabel(item) {
+      const name = item.client_name || 'Cliente';
+      const time = `${item.start_time}-${item.end_time}`;
+      const service = item.service_name || 'Sesion';
+      const phone = item.client_phone ? ` - ${item.client_phone}` : '';
+      return `${name} - ${time} - ${service}${phone}`;
+    }
 
-      items.forEach((item) => {
-        consentPrefillByAppointment[item.appointment_id] = {
-          full_name: item.client_name,
-          id_number: '',
-          phone: item.client_phone || '',
-          email: '',
-          treatment: item.service_name,
-          professional_name: item.professional_name
-        };
-      });
-
+    function buildAgendaRow(item) {
+      if (!item) return '';
       const statusLabels = {
         planned: 'Planificado',
         in_progress: 'En progreso',
         completed: 'Completado'
       };
-
-      agendaList.innerHTML = items.map((item) => `
-        <article class="session-card" data-session-id="${item.session_id}" data-appointment-id="${item.appointment_id}">
-          <div class="session-header">
-            <div>
-              <div class="session-title">${item.client_name}</div>
-              <div class="session-submeta">
-                <span class="session-chip">${item.professional_name}</span>
-                <span class="session-chip">Sesiones ${item.completed_sessions}/${item.planned_sessions}</span>
-                <span class="session-chip status-${String(item.status || 'planned').replace('_', '-')}">
-                  ${statusLabels[item.status] || statusLabels.planned}
-                </span>
+      const statusLabel = statusLabels[item.status] || statusLabels.planned;
+      const dateLabel = item.appointment_date || agendaDate.value;
+      return `
+        <tr class="agenda-row" data-appointment-row data-session-id="${item.session_id}" data-appointment-id="${item.appointment_id}">
+          <td>
+            <div class="session-client">${item.client_name}</div>
+            <div class="session-sub">${item.client_phone || '-'} - ${item.professional_name}</div>
+            <div class="session-badges">
+              <span class="session-badge">${item.service_name}</span>
+              <span class="session-badge">Cita ${item.start_time} - ${item.end_time}</span>
+            </div>
+          </td>
+          <td>
+            <div class="session-badges">
+              <span class="session-badge">Sesiones ${item.completed_sessions}/${item.planned_sessions}</span>
+            </div>
+            <div class="session-sub">${dateLabel}</div>
+          </td>
+          <td>
+            <span class="session-badge">${statusLabel}</span>
+          </td>
+          <td>
+            <input class="session-note-input" type="text" placeholder="Escribe una nota" value="${item.notes || ''}" data-field="notes" />
+          </td>
+          <td>
+            <div class="session-actions-row">
+              <div class="session-field">
+                <label>Completadas</label>
+                <input type="number" min="0" max="${item.planned_sessions}" value="${item.completed_sessions}" data-field="completed" />
               </div>
-            </div>
-            <div class="session-time">
-              <div>${item.start_time} - ${item.end_time}</div>
-              <div class="session-service">${item.service_name}</div>
-            </div>
-          </div>
-          <div class="session-controls">
-            <div class="session-field">
-              <label>Completadas</label>
-              <input type="number" min="0" max="${item.planned_sessions}" value="${item.completed_sessions}" data-field="completed" />
-            </div>
-            <div class="session-field session-note-field">
-              <label>Nota</label>
-              <input class="session-note-input" type="text" placeholder="Escribe una nota" value="${item.notes || ''}" data-field="notes" />
-            </div>
-            <div class="session-actions">
               <button class="btn btn-sm" type="button" data-attend="yes">Asistio</button>
               <button class="btn btn-ghost btn-sm" type="button" data-attend="no">No asistio</button>
-              <button class="btn btn-ghost btn-sm" type="button" data-save-session>Guardar detalles</button>
+              <button class="btn btn-ghost btn-sm" type="button" data-save-session>Guardar</button>
               <button class="btn btn-ghost btn-sm" type="button" data-consent-appointment="${item.appointment_id}">Consentimiento</button>
             </div>
-          </div>
-          <p class="session-message" data-message></p>
-        </article>
-      `).join('');
+            <div class="session-message" data-message></div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderAgendaOptions(items) {
+      agendaLookup = {};
+      agendaClientsDatalist.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+      items.forEach((item) => {
+        const label = buildAgendaLabel(item);
+        agendaLookup[label] = item;
+        const option = document.createElement('option');
+        option.value = label;
+        fragment.appendChild(option);
+      });
+      agendaClientsDatalist.appendChild(fragment);
     }
 
     async function loadAgenda() {
       const dateValue = agendaDate.value;
       if (!dateValue) return;
-      agendaList.innerHTML = '<p class="form-note">Cargando...</p>';
+      agendaMessage.textContent = 'Cargando...';
       try {
         const response = await fetch(`${AGENDA_URL}?date=${dateValue}`);
         if (!response.ok) throw new Error('No se pudo cargar la agenda de sesiones.');
@@ -629,10 +674,66 @@
           const filter = agendaProfessional.value.toLowerCase();
           items = items.filter((item) => String(item.professional_name || '').toLowerCase() === filter);
         }
-        renderAgenda(items);
+        agendaItems = items;
+        agendaCount.textContent = `Citas: ${items.length}`;
+        agendaMessage.textContent = items.length ? '' : 'No hay sesiones programadas para este dia.';
+
+        items.forEach((item) => {
+          consentPrefillByAppointment[item.appointment_id] = {
+            full_name: item.client_name,
+            id_number: '',
+            phone: item.client_phone || '',
+            email: '',
+            treatment: item.service_name,
+            professional_name: item.professional_name
+          };
+        });
+
+        renderAgendaOptions(items);
+
+        updateAgendaSelectionFromInput(false);
       } catch (error) {
-        agendaList.innerHTML = `<p class="form-note">${error.message}</p>`;
+        agendaMessage.textContent = error.message;
+        agendaItems = [];
+        agendaLookup = {};
+        selectedAgendaItem = null;
       }
+    }
+
+    function updateAgendaSelectionFromInput(triggerLoad = true) {
+      const label = String(agendaClientInput.value || '').trim();
+      if (!label) {
+        selectedAgendaItem = null;
+        if (triggerLoad && clientQueryInput) clientQueryInput.value = '';
+        if (triggerLoad) {
+          offset = 0;
+          loadSessions();
+        }
+        return;
+      }
+      const item = agendaLookup[label];
+      if (!item) {
+        selectedAgendaItem = null;
+        if (triggerLoad && clientQueryInput) clientQueryInput.value = '';
+        if (triggerLoad) {
+          offset = 0;
+          loadSessions();
+        }
+        return;
+      }
+      selectedAgendaItem = item;
+      if (clientQueryInput) clientQueryInput.value = item.client_name || '';
+      if (triggerLoad) {
+        offset = 0;
+        loadSessions();
+      }
+    }
+
+    function clearAgendaSelection() {
+      if (agendaClientInput) agendaClientInput.value = '';
+      selectedAgendaItem = null;
+      if (clientQueryInput) clientQueryInput.value = '';
+      if (agendaMessage) agendaMessage.textContent = '';
     }
 
     function renderRows(items) {
@@ -664,15 +765,24 @@
       });
 
       const rows = [];
+      let agendaInserted = false;
+      const agendaKey = selectedAgendaItem ? (selectedAgendaItem.client_phone || 'Sin telefono') : null;
       groups.forEach((groupItems, phone) => {
         const names = Array.from(new Set(groupItems.map((item) => item.client_name).filter(Boolean)));
-        const nameLabel = names.length ? ` · ${names.join(', ')}` : '';
+        const nameLabel = names.length ? ` - ${names.join(', ')}` : '';
         rows.push(`
           <tr class="session-group-row">
-            <td colspan="5">Telefono: ${phone}${nameLabel} · ${groupItems.length} sesiones</td>
+            <td colspan="5">Telefono: ${phone}${nameLabel} - ${groupItems.length} sesiones</td>
           </tr>
         `);
+        if (selectedAgendaItem && agendaKey === phone && !agendaInserted) {
+          rows.push(buildAgendaRow(selectedAgendaItem));
+          agendaInserted = true;
+        }
         groupItems.forEach((item) => {
+          if (selectedAgendaItem && String(item.id) === String(selectedAgendaItem.session_id)) {
+            return;
+          }
           rows.push(`
             <tr data-session-row="${item.id}">
               <td>
@@ -715,7 +825,21 @@
         });
       });
 
+      if (selectedAgendaItem && !agendaInserted) {
+        const headerLabel = `Telefono: ${agendaKey} - ${selectedAgendaItem.client_name} - cita de hoy`;
+        rows.unshift(`
+          <tr class="session-group-row">
+            <td colspan="5">${headerLabel}</td>
+          </tr>
+        `);
+        rows.splice(1, 0, buildAgendaRow(selectedAgendaItem));
+      }
+
       tableBody.innerHTML = rows.join('');
+
+      if (selectedAgendaItem && selectedAgendaItem.session_id) {
+        openHistoryPanel(String(selectedAgendaItem.session_id));
+      }
     }
 
     async function loadSessions() {
@@ -739,72 +863,6 @@
       }
     }
 
-    agendaList.addEventListener('click', async (event) => {
-      const card = event.target.closest('.session-card');
-      if (!card) return;
-      const message = card.querySelector('[data-message]');
-      const sessionId = card.dataset.sessionId;
-      const appointmentId = card.dataset.appointmentId;
-
-      const consentBtn = event.target.closest('[data-consent-appointment]');
-      if (consentBtn) {
-        const id = parseInt(consentBtn.dataset.consentAppointment, 10);
-        const data = consentPrefillByAppointment[id];
-        if (data) {
-          openConsent(data, data.treatment, data.professional_name);
-        }
-        return;
-      }
-
-      if (event.target.closest('[data-attend]')) {
-        const attended = event.target.closest('[data-attend]').dataset.attend === 'yes';
-        message.textContent = 'Guardando...';
-        try {
-          const response = await fetch(ATTENDANCE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appointment_id: parseInt(appointmentId, 10), attended: attended })
-          });
-          if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.detail || 'No se pudo actualizar la asistencia.');
-          }
-          message.textContent = attended ? 'Asistencia marcada.' : 'No asistencia marcada.';
-          loadAgenda();
-          loadSessions();
-        } catch (error) {
-          message.textContent = error.message;
-        }
-        return;
-      }
-
-      if (event.target.closest('[data-save-session]')) {
-        const completedInput = card.querySelector('[data-field=\"completed\"]');
-        const notesInput = card.querySelector('[data-field=\"notes\"]');
-        const completedValue = parseInt(completedInput.value, 10);
-        message.textContent = 'Guardando detalles...';
-        try {
-          const response = await fetch(`${API_URL}/${sessionId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              completed_sessions: Number.isNaN(completedValue) ? 0 : completedValue,
-              notes: notesInput.value || null
-            })
-          });
-          if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.detail || 'No se pudo guardar la sesion.');
-          }
-          message.textContent = 'Sesion actualizada.';
-          loadAgenda();
-          loadSessions();
-        } catch (error) {
-          message.textContent = error.message;
-        }
-      }
-    });
-
     function buildHistoryHtml(sessionId, items, plannedSessions, completedSessions, statusValue) {
       const last = items[0];
       const lastDate = last ? last.appointment_date : '';
@@ -822,7 +880,7 @@
               <div class="history-item">
                 <div>
                   <strong>${item.service_name}</strong>
-                  <div class="history-meta">${item.appointment_date} · ${item.start_time} - ${item.end_time}</div>
+                  <div class="history-meta">${item.appointment_date} - ${item.start_time} - ${item.end_time}</div>
                   ${item.notes ? `<div class="history-meta">${item.notes}</div>` : ''}
                 </div>
                 <div class="history-meta">${item.professional_name}</div>
@@ -906,7 +964,90 @@
       historyCache[sessionId] = html;
     }
 
+    async function openHistoryPanel(sessionId) {
+      const row = tableBody.querySelector(`[data-history-row="${sessionId}"]`);
+      const panel = tableBody.querySelector(`[data-history-panel="${sessionId}"]`);
+      const toggle = tableBody.querySelector(`[data-history-toggle="${sessionId}"]`);
+      if (!row || !panel) return;
+      row.removeAttribute('hidden');
+      if (toggle) toggle.textContent = 'Ocultar historial';
+      if (historyCache[sessionId]) {
+        panel.innerHTML = historyCache[sessionId];
+        return;
+      }
+      try {
+        await loadHistory(sessionId, panel);
+      } catch (error) {
+        panel.innerHTML = `<p class="form-note">${error.message}</p>`;
+      }
+    }
+
     tableBody.addEventListener('click', async (event) => {
+      const appointmentRow = event.target.closest('[data-appointment-row]');
+      if (appointmentRow) {
+        const message = appointmentRow.querySelector('[data-message]');
+        const sessionId = appointmentRow.dataset.sessionId;
+        const appointmentId = appointmentRow.dataset.appointmentId;
+
+        const consentBtn = event.target.closest('[data-consent-appointment]');
+        if (consentBtn) {
+          const id = parseInt(consentBtn.dataset.consentAppointment, 10);
+          const data = consentPrefillByAppointment[id];
+          if (data) {
+            openConsent(data, data.treatment, data.professional_name);
+          }
+          return;
+        }
+
+        if (event.target.closest('[data-attend]')) {
+          const attended = event.target.closest('[data-attend]').dataset.attend === 'yes';
+          if (message) message.textContent = 'Guardando...';
+          try {
+            const response = await fetch(ATTENDANCE_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ appointment_id: parseInt(appointmentId, 10), attended: attended })
+            });
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.detail || 'No se pudo actualizar la asistencia.');
+            }
+            if (message) message.textContent = attended ? 'Asistencia marcada.' : 'No asistencia marcada.';
+            loadAgenda();
+            loadSessions();
+          } catch (error) {
+            if (message) message.textContent = error.message;
+          }
+          return;
+        }
+
+        if (event.target.closest('[data-save-session]')) {
+          const completedInput = appointmentRow.querySelector('[data-field="completed"]');
+          const notesInput = appointmentRow.querySelector('[data-field="notes"]');
+          const completedValue = parseInt(completedInput.value, 10);
+          if (message) message.textContent = 'Guardando detalles...';
+          try {
+            const response = await fetch(`${API_URL}/${sessionId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                completed_sessions: Number.isNaN(completedValue) ? 0 : completedValue,
+                notes: notesInput.value || null
+              })
+            });
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.detail || 'No se pudo guardar la sesion.');
+            }
+            if (message) message.textContent = 'Sesion actualizada.';
+            loadAgenda();
+            loadSessions();
+          } catch (error) {
+            if (message) message.textContent = error.message;
+          }
+          return;
+        }
+      }
       const consentBtn = event.target.closest('[data-consent-session]');
       if (consentBtn) {
         const id = parseInt(consentBtn.dataset.consentSession, 10);
@@ -1111,16 +1252,30 @@
       }
     });
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       offset = 0;
-      loadSessions();
+      await loadAgenda();
+      await loadSessions();
     });
 
-    document.getElementById('reset').addEventListener('click', () => {
+    document.getElementById('reset').addEventListener('click', async () => {
       form.reset();
+      agendaDate.valueAsDate = new Date();
+      if (agendaProfessional) agendaProfessional.value = '';
+      clearAgendaSelection();
+      agendaClientsDatalist.innerHTML = '';
+      agendaLookup = {};
+      agendaItems = [];
+      agendaCount.textContent = 'Citas: 0';
       offset = 0;
-      loadSessions();
+      const treatmentInput = document.getElementById('treatment_name');
+      if (treatmentInput) treatmentInput.value = '';
+      const statusInput = document.getElementById('status');
+      if (statusInput) statusInput.value = '';
+      await loadAgenda();
+      clearAgendaSelection();
+      await loadSessions();
     });
 
     document.getElementById('prev').addEventListener('click', () => {
@@ -1136,11 +1291,7 @@
     });
 
     agendaDate.valueAsDate = new Date();
-    agendaRefresh.addEventListener('click', loadAgenda);
-    agendaDate.addEventListener('change', loadAgenda);
-    if (agendaProfessional) {
-      agendaProfessional.addEventListener('change', loadAgenda);
-    }
+    agendaClientInput.addEventListener('change', () => updateAgendaSelectionFromInput(true));
 
     if (window.LikeStudioWidgets && clientQueryInput) {
       window.LikeStudioWidgets.attachClientAutocomplete(clientQueryInput, { minChars: 2 });
@@ -1160,4 +1311,5 @@
 
  
  
+
 
