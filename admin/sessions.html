@@ -240,6 +240,7 @@
             <th>Estado</th>
             <th>Notas</th>
             <th>Creado</th>
+            <th>Consentimiento</th>
             <th>Historial</th>
           </tr>
         </thead>
@@ -260,6 +261,7 @@
     const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/sessions`;
     const AGENDA_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/session-agenda`;
     const ATTENDANCE_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/session-attendance`;
+    const CONSENT_STORAGE_KEY = 'likestudio_client_prefill_v1';
     const limit = 20;
     let offset = 0;
     let lastTotal = 0;
@@ -272,6 +274,38 @@
     const agendaList = document.getElementById('agenda-list');
     const agendaRefresh = document.getElementById('agenda-refresh');
     const historyCache = {};
+    const consentPrefillByAppointment = {};
+    const consentPrefillBySession = {};
+
+    function storeConsentPrefill(data) {
+      if (!data) return;
+      const payload = {
+        full_name: data.full_name || '',
+        id_number: data.id_number || '',
+        phone: data.phone || '',
+        email: data.email || ''
+      };
+      try {
+        localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(payload));
+      } catch (error) {
+        // Ignore storage failures.
+      }
+    }
+
+    function resolveConsentPath(treatmentName) {
+      const value = String(treatmentName || '').toLowerCase();
+      if (value.includes('capilar')) return 'consent-capilar-condiciones.html';
+      if (value.includes('eliminacion') || value.includes('tatuaje')) return 'consent-eliminacion-laser.html';
+      if (value.includes('laser') || value.includes('depil')) return 'consent-laser.html';
+      if (value.includes('estet')) return 'consent-estetico.html';
+      return 'consent-micropigmentacion.html';
+    }
+
+    function openConsent(prefill, treatmentName) {
+      storeConsentPrefill(prefill);
+      const path = resolveConsentPath(treatmentName);
+      window.open(path, '_blank', 'noopener');
+    }
 
     function collectParams() {
       const data = new FormData(form);
@@ -307,6 +341,16 @@
         return;
       }
 
+      items.forEach((item) => {
+        consentPrefillByAppointment[item.appointment_id] = {
+          full_name: item.client_name,
+          id_number: '',
+          phone: item.client_phone || '',
+          email: '',
+          treatment: item.service_name
+        };
+      });
+
       agendaList.innerHTML = items.map((item) => `
         <article class="session-card" data-session-id="${item.session_id}" data-appointment-id="${item.appointment_id}">
           <div class="session-row">
@@ -330,6 +374,7 @@
             <button class="btn btn-sm" type="button" data-attend="yes">Asistio</button>
             <button class="btn btn-ghost btn-sm" type="button" data-attend="no">No asistio</button>
             <button class="btn btn-ghost btn-sm" type="button" data-save-session>Guardar detalles</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-consent-appointment="${item.appointment_id}">Consentimiento</button>
           </div>
           <p class="session-message" data-message></p>
         </article>
@@ -357,9 +402,19 @@
 
     function renderRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="9">Sin resultados.</td></tr>';
+        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="10">Sin resultados.</td></tr>';
         return;
       }
+
+      items.forEach((item) => {
+        consentPrefillBySession[item.id] = {
+          full_name: item.client_name,
+          id_number: item.client_id_number || '',
+          phone: item.client_phone || '',
+          email: '',
+          treatment: item.treatment_name
+        };
+      });
 
       tableBody.innerHTML = items.map((item) => `
         <tr data-session-row="${item.id}">
@@ -371,10 +426,11 @@
           <td>${item.status}</td>
           <td>${item.notes || '-'}</td>
           <td>${item.created_at}</td>
+          <td><button class="btn btn-ghost btn-sm" type="button" data-consent-session="${item.id}">Consentimiento</button></td>
           <td><button class="btn btn-ghost btn-sm" type="button" data-history-toggle="${item.id}">Ver historial</button></td>
         </tr>
         <tr class="history-row" data-history-row="${item.id}" hidden>
-          <td colspan="9">
+          <td colspan="10">
             <div class="history-panel" data-history-panel="${item.id}">
               <p class="form-note">Cargando historial...</p>
             </div>
@@ -410,6 +466,16 @@
       const message = card.querySelector('[data-message]');
       const sessionId = card.dataset.sessionId;
       const appointmentId = card.dataset.appointmentId;
+
+      const consentBtn = event.target.closest('[data-consent-appointment]');
+      if (consentBtn) {
+        const id = parseInt(consentBtn.dataset.consentAppointment, 10);
+        const data = consentPrefillByAppointment[id];
+        if (data) {
+          openConsent(data, data.treatment);
+        }
+        return;
+      }
 
       if (event.target.closest('[data-attend]')) {
         const attended = event.target.closest('[data-attend]').dataset.attend === 'yes';
@@ -461,6 +527,15 @@
     });
 
     tableBody.addEventListener('click', async (event) => {
+      const consentBtn = event.target.closest('[data-consent-session]');
+      if (consentBtn) {
+        const id = parseInt(consentBtn.dataset.consentSession, 10);
+        const data = consentPrefillBySession[id];
+        if (data) {
+          openConsent(data, data.treatment);
+        }
+        return;
+      }
       const toggle = event.target.closest('[data-history-toggle]');
       if (!toggle) return;
       const sessionId = toggle.dataset.historyToggle;

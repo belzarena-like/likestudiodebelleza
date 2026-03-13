@@ -96,6 +96,178 @@
     });
   }
 
+  function getLocalDateString(date) {
+    var base = date || new Date();
+    var year = base.getFullYear();
+    var month = String(base.getMonth() + 1).padStart(2, "0");
+    var day = String(base.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+  }
+
+  function safeText(value) {
+    return String(value || "").trim();
+  }
+
+  function formatTime(value) {
+    return String(value || "").slice(0, 5);
+  }
+
+  function buildDayListPanel() {
+    var body = document.body;
+    if (!body || !body.getAttribute("data-consent-form")) return null;
+    var form = document.querySelector("form");
+    if (!form || !form.parentNode) return null;
+
+    var panel = document.createElement("section");
+    panel.className = "legal-box consent-daylist";
+    panel.innerHTML =
+      '<div class="consent-daylist-head">' +
+      '  <div>' +
+      '    <h3>Citas del dia</h3>' +
+      '    <p class="form-note">Selecciona una cita para rellenar datos si el formulario esta vacio.</p>' +
+      "  </div>" +
+      '  <div class="consent-daylist-controls">' +
+      '    <div>' +
+      '      <label for="consent-daylist-date">Fecha</label>' +
+      '      <input id="consent-daylist-date" type="date" />' +
+      "    </div>" +
+      '    <div>' +
+      '      <label for="consent-daylist-professional">Profesional</label>' +
+      '      <select id="consent-daylist-professional">' +
+      '        <option value="">Todos</option>' +
+      '        <option value="Josemi">Josemi</option>' +
+      '        <option value="Liege">Liege</option>' +
+      "      </select>" +
+      "    </div>" +
+      '    <button class="btn btn-ghost btn-sm" type="button" id="consent-daylist-refresh">Actualizar</button>' +
+      "  </div>" +
+      "</div>" +
+      '<div id="consent-daylist-items" class="consent-daylist-items"></div>' +
+      '<p id="consent-daylist-message" class="form-note"></p>';
+
+    form.parentNode.insertBefore(panel, form);
+    return panel;
+  }
+
+  function shouldAutofill() {
+    var fields = [
+      getField("full_name"),
+      getField("last_name"),
+      getField("id_number"),
+      getField("dni"),
+      getField("phone"),
+      getField("email")
+    ].filter(Boolean);
+
+    return fields.every(function (el) {
+      return !safeText(el.value);
+    });
+  }
+
+  function applyAppointmentPrefill(data) {
+    if (!data) return;
+    if (!shouldAutofill()) return;
+
+    var payload = {
+      full_name: safeText(data.client_name),
+      id_number: "",
+      phone: safeText(data.client_phone),
+      email: ""
+    };
+    applyData(payload);
+    saveStored(payload);
+
+    var therapistField = getField("therapist_name");
+    if (therapistField && !safeText(therapistField.value) && data.professional_name) {
+      therapistField.value = data.professional_name;
+    }
+  }
+
+  function wireDayList() {
+    var panel = buildDayListPanel();
+    if (!panel || !window.APP_CONFIG || !window.APP_CONFIG.API_BASE_URL) return;
+
+    var dateInput = panel.querySelector("#consent-daylist-date");
+    var professionalSelect = panel.querySelector("#consent-daylist-professional");
+    var refreshBtn = panel.querySelector("#consent-daylist-refresh");
+    var list = panel.querySelector("#consent-daylist-items");
+    var message = panel.querySelector("#consent-daylist-message");
+    if (!dateInput || !professionalSelect || !refreshBtn || !list || !message) return;
+
+    dateInput.value = getLocalDateString(new Date());
+
+    function renderItems(items) {
+      list.innerHTML = "";
+      if (!items.length) {
+        message.textContent = "No hay citas para este dia.";
+        return;
+      }
+      message.textContent = "";
+      list.innerHTML = items.map(function (item) {
+        var time = formatTime(item.start_time);
+        var name = safeText(item.client_name) || "Cliente";
+        var service = safeText(item.service_name);
+        var professional = safeText(item.professional_name);
+        var label = (time ? time + " · " : "") + name + (service ? " · " + service : "");
+        var payload = {
+          client_name: name,
+          client_phone: safeText(item.client_phone),
+          professional_name: professional
+        };
+        return (
+          '<button class="btn btn-ghost btn-sm" type="button" ' +
+          'data-payload=\'' + JSON.stringify(payload).replace(/'/g, "&#39;") + "'>" +
+          label +
+          "</button>"
+        );
+      }).join("");
+    }
+
+    async function loadDayList() {
+      var dateValue = dateInput.value || getLocalDateString(new Date());
+      var professional = professionalSelect.value;
+      message.textContent = "Cargando citas...";
+      list.innerHTML = "";
+      try {
+        var params = new URLSearchParams();
+        params.set("start_date", dateValue);
+        params.set("end_date", dateValue);
+        params.set("appointment_type", "appointment");
+        params.set("limit", "200");
+        params.set("offset", "0");
+        var response = await fetch(window.APP_CONFIG.API_BASE_URL + "/admin/appointments?" + params.toString());
+        if (!response.ok) throw new Error("No se pudieron cargar las citas.");
+        var payload = await response.json();
+        var items = Array.isArray(payload.items) ? payload.items : [];
+        if (professional) {
+          items = items.filter(function (item) {
+            return safeText(item.professional_name).toLowerCase() === professional.toLowerCase();
+          });
+        }
+        renderItems(items);
+      } catch (e) {
+        message.textContent = e.message || "No se pudieron cargar las citas.";
+      }
+    }
+
+    list.addEventListener("click", function (event) {
+      var button = event.target.closest("button[data-payload]");
+      if (!button) return;
+      try {
+        var raw = button.getAttribute("data-payload");
+        var data = raw ? JSON.parse(raw.replace(/&#39;/g, "'")) : null;
+        applyAppointmentPrefill(data);
+      } catch (e) {
+        // Ignore parse errors.
+      }
+    });
+
+    refreshBtn.addEventListener("click", loadDayList);
+    dateInput.addEventListener("change", loadDayList);
+    professionalSelect.addEventListener("change", loadDayList);
+    loadDayList();
+  }
+
   async function fetchClientPrefill(idNumber) {
     if (!idNumber || !window.APP_CONFIG || !window.APP_CONFIG.API_BASE_URL) return;
     try {
@@ -163,6 +335,7 @@
     applyData(readStored());
     wireEvents();
     addResetControl();
+    wireDayList();
   }
 
   if (document.readyState === "loading") {

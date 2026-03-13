@@ -584,6 +584,41 @@ textarea {
   gap: 8px;
 }
 
+.consent-daylist {
+  display: grid;
+  gap: 12px;
+}
+
+.consent-daylist-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.consent-daylist-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.consent-daylist-controls label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.consent-daylist-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.consent-daylist-items .btn {
+  white-space: nowrap;
+}
+
 @media (max-width: 1024px) {
   .topbar {
     padding: 12px 16px;
