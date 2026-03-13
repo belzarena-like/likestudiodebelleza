@@ -860,7 +860,7 @@
         if (startMinutes === null || endMinutes === null) return '';
         const baseHeight = (endMinutes - startMinutes) * PIXELS_PER_MINUTE;
         const top = Math.max(0, startMinutes * PIXELS_PER_MINUTE + 3);
-        const height = Math.min(200, Math.max(102, baseHeight - 6));
+        const height = Math.max(96, baseHeight - 6);
         const title = escapeHtml(entry.service || 'Reserva');
         const customer = escapeHtml(entry.customer || '');
         const notes = escapeHtml(entry.notes || '');

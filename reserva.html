@@ -110,6 +110,8 @@
           <div id="slots" class="booking-slots"></div>
           <input type="hidden" id="start-time" required />
           <p class="booking-info" id="slot-message">Selecciona servicio, profesional y fecha para ver horarios.</p>
+          <p class="booking-info" id="suggestion-message"></p>
+          <div id="suggestions" class="booking-slots"></div>
         </div>
         <div>
           <label for="full-name">Nombre y apellidos</label>
@@ -149,6 +151,8 @@
     const startTimeInput = document.getElementById('start-time');
     const serviceDuration = document.getElementById('service-duration');
     const slotMessage = document.getElementById('slot-message');
+    const suggestionsContainer = document.getElementById('suggestions');
+    const suggestionMessage = document.getElementById('suggestion-message');
     const summary = document.getElementById('summary');
     const message = document.getElementById('message');
 
@@ -159,6 +163,11 @@
 
     let servicesById = {};
     let currentDuration = 60;
+    let availabilityRequestId = 0;
+    let pendingSuggestedSlot = null;
+
+    const SUGGESTION_LOOKAHEAD_DAYS = 10;
+    const SUGGESTION_MAX_SLOTS = 6;
 
     function getLocalDateString(date = new Date()) {
       const year = date.getFullYear();
@@ -189,6 +198,14 @@
       return `${minutes} min`;
     }
 
+    function formatShortDate(dateText) {
+      const date = new Date(`${dateText}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return dateText;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}`;
+    }
+
     function setSummary() {
       const serviceText = servicesSelect.options[servicesSelect.selectedIndex]?.text || '-';
       const professional = professionalSelect.value || '-';
@@ -201,12 +218,86 @@
       summary.textContent = `${serviceText} con ${professional} el ${date} a las ${start} (duracion ${formatDuration(currentDuration)}).`;
     }
 
-    function clearSlots(messageText) {
+    function clearSuggestions() {
+      suggestionMessage.textContent = '';
+      suggestionsContainer.innerHTML = '';
+    }
+
+    function clearSlots(messageText, options = {}) {
+      const keepDuration = options.keepDuration === true;
       slotsContainer.innerHTML = '';
       startTimeInput.value = '';
       slotMessage.textContent = messageText || '';
-      serviceDuration.textContent = '';
+      if (!keepDuration) {
+        serviceDuration.textContent = '';
+      }
+      clearSuggestions();
       setSummary();
+    }
+
+    function selectSlot(timeValue) {
+      if (!timeValue) return;
+      const target = slotsContainer.querySelector(`button[data-time="${timeValue}"]`);
+      if (!target) return;
+      slotsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('is-active'));
+      target.classList.add('is-active');
+      startTimeInput.value = timeValue;
+      setSummary();
+    }
+
+    function renderSlots(validSlots) {
+      slotsContainer.innerHTML = validSlots.map((time) => `
+        <button type="button" data-time="${time}">${time}</button>
+      `).join('');
+      slotMessage.textContent = 'Selecciona un horario disponible.';
+      if (pendingSuggestedSlot && pendingSuggestedSlot.date === dateInput.value) {
+        const timeValue = pendingSuggestedSlot.time;
+        pendingSuggestedSlot = null;
+        selectSlot(timeValue);
+      }
+    }
+
+    async function fetchAvailabilitySlots(date, serviceId, professional) {
+      const response = await fetch(`${API_BASE}/public/availability?date=${date}&service_id=${serviceId}&professional_name=${encodeURIComponent(professional)}`);
+      if (!response.ok) throw new Error('No se pudieron cargar los horarios.');
+      const payload = await response.json();
+      const hourSlots = payload.start_times.filter((time) => time.endsWith(':00'));
+      return hourSlots.filter((time) => !isPastTimeSlot(date, time));
+    }
+
+    async function findNextAvailableSlots(serviceId, professional, dateText) {
+      const baseDate = new Date(`${dateText}T00:00:00`);
+      if (Number.isNaN(baseDate.getTime())) return null;
+      for (let i = 1; i <= SUGGESTION_LOOKAHEAD_DAYS; i += 1) {
+        const next = new Date(baseDate);
+        next.setDate(next.getDate() + i);
+        const nextText = getLocalDateString(next);
+        const slots = await fetchAvailabilitySlots(nextText, serviceId, professional);
+        if (slots.length) {
+          return { date: nextText, slots };
+        }
+      }
+      return null;
+    }
+
+    async function loadSuggestions(serviceId, professional, dateText, requestId) {
+      suggestionMessage.textContent = 'Buscando proximos horarios disponibles...';
+      suggestionsContainer.innerHTML = '';
+      try {
+        const suggestion = await findNextAvailableSlots(serviceId, professional, dateText);
+        if (requestId !== availabilityRequestId) return;
+        if (!suggestion) {
+          suggestionMessage.textContent = 'No hay horarios disponibles en los proximos dias.';
+          return;
+        }
+        suggestionMessage.textContent = `Proxima disponibilidad: ${formatShortDate(suggestion.date)}.`;
+        suggestionsContainer.innerHTML = suggestion.slots.slice(0, SUGGESTION_MAX_SLOTS).map((time) => {
+          return `<button type="button" data-date="${suggestion.date}" data-time="${time}">${formatShortDate(suggestion.date)} ${time}</button>`;
+        }).join('');
+      } catch (error) {
+        if (requestId !== availabilityRequestId) return;
+        suggestionMessage.textContent = error.message;
+      }
     }
 
     async function loadServices() {
@@ -247,21 +338,18 @@
 
       slotMessage.textContent = 'Buscando horarios...';
       slotsContainer.innerHTML = '';
+      clearSuggestions();
+      const requestId = ++availabilityRequestId;
 
       try {
-        const response = await fetch(`${API_BASE}/public/availability?date=${date}&service_id=${serviceId}&professional_name=${encodeURIComponent(professional)}`);
-        if (!response.ok) throw new Error('No se pudieron cargar los horarios.');
-        const payload = await response.json();
-        const hourSlots = payload.start_times.filter((time) => time.endsWith(':00'));
-        const validSlots = hourSlots.filter((time) => !isPastTimeSlot(date, time));
+        const validSlots = await fetchAvailabilitySlots(date, serviceId, professional);
+        if (requestId !== availabilityRequestId) return;
         if (!validSlots.length) {
-          clearSlots('No hay horarios disponibles para ese dia.');
+          clearSlots('No hay horarios disponibles para ese dia.', { keepDuration: true });
+          await loadSuggestions(serviceId, professional, date, requestId);
           return;
         }
-        slotsContainer.innerHTML = validSlots.map((time) => `
-          <button type="button" data-time="${time}">${time}</button>
-        `).join('');
-        slotMessage.textContent = 'Selecciona un horario disponible.';
+        renderSlots(validSlots);
       } catch (error) {
         clearSlots(error.message);
       }
@@ -270,10 +358,17 @@
     slotsContainer.addEventListener('click', (event) => {
       const button = event.target.closest('button[data-time]');
       if (!button) return;
-      slotsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('is-active'));
-      button.classList.add('is-active');
-      startTimeInput.value = button.dataset.time;
-      setSummary();
+      selectSlot(button.dataset.time);
+    });
+
+    suggestionsContainer.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-time][data-date]');
+      if (!button) return;
+      const dateValue = button.dataset.date;
+      const timeValue = button.dataset.time;
+      pendingSuggestedSlot = { date: dateValue, time: timeValue };
+      dateInput.value = dateValue;
+      loadAvailability();
     });
 
     servicesSelect.addEventListener('change', loadAvailability);
