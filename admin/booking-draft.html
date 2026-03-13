@@ -657,6 +657,7 @@
     const calendarPicker = document.getElementById('calendar-picker');
 
     const API_BASE = window.APP_CONFIG.API_BASE_URL;
+    const WORKING_HOURS_URL = `${API_BASE}/admin/working-hours`;
 
     const START_HOUR = 9;
     const END_HOUR = 21;
@@ -670,6 +671,8 @@
     let clientsById = {};
     let servicesByName = {};
     let editingId = null;
+    let workingHoursByWeekday = {};
+    let workingHoursLoaded = false;
 
     document.documentElement.style.setProperty('--hour-height', `${PIXELS_PER_MINUTE * 60}px`);
     document.documentElement.style.setProperty('--hour-count', HOURS_COUNT);
@@ -735,6 +738,46 @@
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    }
+
+    function weekdayIndex(date) {
+      return (date.getDay() + 6) % 7;
+    }
+
+    function timeToMinutes(value) {
+      if (!value) return null;
+      const parts = String(value).split(':');
+      if (parts.length < 2) return null;
+      const hour = parseInt(parts[0], 10);
+      const minute = parseInt(parts[1], 10);
+      if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
+      return hour * 60 + minute;
+    }
+
+    function getWorkingHoursForDate(date) {
+      if (!date) return null;
+      return workingHoursByWeekday[weekdayIndex(date)] || null;
+    }
+
+    function validateWorkingHours(date, startTime, endTime) {
+      const rule = getWorkingHoursForDate(date);
+      if (!rule || !rule.is_open) {
+        return 'El estudio esta cerrado en esa fecha.';
+      }
+      if (!rule.start_time || !rule.end_time) {
+        return 'Horario no configurado para ese dia.';
+      }
+      const openStart = timeToMinutes(rule.start_time);
+      const openEnd = timeToMinutes(rule.end_time);
+      const startMinutes = timeToMinutes(startTime);
+      const endMinutes = timeToMinutes(endTime);
+      if (openStart === null || openEnd === null || startMinutes === null || endMinutes === null) {
+        return 'Horario no valido.';
+      }
+      if (startMinutes < openStart || endMinutes > openEnd) {
+        return 'La reserva esta fuera del horario de trabajo.';
+      }
+      return '';
     }
 
     function syncRangeLabel(date) {
@@ -1118,6 +1161,31 @@
         });
     }
 
+    function loadWorkingHours() {
+      return fetch(WORKING_HOURS_URL)
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => {
+          if (!payload) {
+            workingHoursLoaded = false;
+            return;
+          }
+          workingHoursByWeekday = {};
+          (payload.items || []).forEach((item) => {
+            workingHoursByWeekday[item.weekday] = item;
+          });
+          workingHoursLoaded = true;
+        })
+        .catch(() => {
+          workingHoursLoaded = false;
+        });
+    }
+
+    async function ensureWorkingHoursLoaded() {
+      if (workingHoursLoaded) return true;
+      await loadWorkingHours();
+      return workingHoursLoaded;
+    }
+
     function updateResourceFilter(items) {
       const current = resourceFilter.value;
       const professionals = Array.from(new Set(items.map((item) => item.professional_name).filter(Boolean)));
@@ -1298,6 +1366,18 @@
       }
       if (typeValue === 'appointment' && !serviceName) {
         bookingMessage.textContent = 'Selecciona un tratamiento.';
+        return;
+      }
+
+      const dateObj = parseDate(dateValue);
+      const workingHoursOk = await ensureWorkingHoursLoaded();
+      if (!workingHoursOk) {
+        bookingMessage.textContent = 'No se pudo validar el horario de trabajo.';
+        return;
+      }
+      const workingHoursError = validateWorkingHours(dateObj, startTime, endTime);
+      if (workingHoursError) {
+        bookingMessage.textContent = workingHoursError;
         return;
       }
 
@@ -1577,7 +1657,7 @@
     selectedDate = new Date();
     resetFormState();
 
-    Promise.all([loadServices(), loadClients()]).finally(loadAgenda);
+    Promise.all([loadServices(), loadClients(), loadWorkingHours()]).finally(loadAgenda);
   </script>
 </body>
 </html>
