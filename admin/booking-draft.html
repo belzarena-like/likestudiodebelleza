@@ -529,6 +529,10 @@
         <button id="booking-close" class="btn btn-ghost btn-sm" type="button">Cerrar</button>
       </div>
       <form id="booking-form" class="form-grid">
+        <div class="form-grid-1">
+          <label for="booking-client-search">Buscar cliente</label>
+          <input id="booking-client-search" placeholder="Nombre o telefono" />
+        </div>
         <div>
           <label>Cliente</label>
           <select id="booking-client">
@@ -541,8 +545,9 @@
         </div>
         <div>
           <label>Tratamiento</label>
-          <input id="booking-service" list="booking-services" placeholder="Seleccione servicio" />
-          <datalist id="booking-services"></datalist>
+          <select id="booking-service">
+            <option value="">Seleccionar...</option>
+          </select>
         </div>
         <div>
           <label>Profesional</label>
@@ -623,15 +628,16 @@
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     const agendaContainer = document.getElementById('agenda-container');
     const agendaTitle = document.getElementById('agenda-title');
     const bookingForm = document.getElementById('booking-form');
+    const bookingClientSearch = document.getElementById('booking-client-search');
     const bookingClient = document.getElementById('booking-client');
     const bookingPhone = document.getElementById('booking-phone');
     const bookingService = document.getElementById('booking-service');
-    const bookingServicesList = document.getElementById('booking-services');
     const bookingProfessional = document.getElementById('booking-professional');
     const bookingDate = document.getElementById('booking-date');
     const bookingStart = document.getElementById('booking-start');
@@ -664,6 +670,7 @@
     const calendarPicker = document.getElementById('calendar-picker');
 
     const API_BASE = window.APP_CONFIG.API_BASE_URL;
+    const Widgets = window.LikeStudioWidgets || {};
     const WORKING_HOURS_URL = `${API_BASE}/admin/working-hours`;
 
     const START_HOUR = 9;
@@ -676,7 +683,9 @@
     let entries = [];
     let appointmentsById = {};
     let clientsById = {};
+    let clientsList = [];
     let servicesByName = {};
+    let servicesList = [];
     let editingId = null;
     let workingHoursByWeekday = {};
     let workingHoursLoaded = false;
@@ -691,6 +700,107 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    }
+
+    const SERVICE_BLOCK_VALUE = '__block__';
+
+    function normalizeText(value) {
+      if (Widgets.normalizeText) {
+        return Widgets.normalizeText(value);
+      }
+      return String(value || '').toLowerCase().trim();
+    }
+
+    function normalizeDigits(value) {
+      if (Widgets.normalizePhone) {
+        return Widgets.normalizePhone(value);
+      }
+      return String(value || '').replace(/[^0-9]/g, '');
+    }
+
+    function filterClientsList(list, query) {
+      if (Widgets.filterClients) {
+        return Widgets.filterClients(list, query);
+      }
+      const textQuery = normalizeText(query);
+      if (!textQuery) return list.slice();
+      const digitsQuery = normalizeDigits(query);
+      return list.filter((client) => {
+        const name = normalizeText(client.full_name);
+        const phoneRaw = String(client.phone || '');
+        const phoneDigits = normalizeDigits(phoneRaw);
+        if (name && name.includes(textQuery)) return true;
+        if (digitsQuery && phoneDigits && phoneDigits.includes(digitsQuery)) return true;
+        if (!digitsQuery && normalizeText(phoneRaw).includes(textQuery)) return true;
+        return false;
+      });
+    }
+
+    function buildClientOptions(list) {
+      if (Widgets.buildClientOptions) {
+        return Widgets.buildClientOptions(list, { includeNew: true });
+      }
+      const items = ['<option value="">Seleccionar...</option>', '<option value="__new__">+ Nuevo cliente</option>'];
+      list.forEach((client) => {
+        const name = escapeHtml(client.full_name || '');
+        const phone = escapeHtml(client.phone || '');
+        const label = phone ? `${name} - ${phone}` : name;
+        items.push(`<option value="${client.id}">${label}</option>`);
+      });
+      return items.join('');
+    }
+
+    function renderClientOptions(query) {
+      const selected = bookingClient.value;
+      const filtered = filterClientsList(clientsList, query);
+      bookingClient.innerHTML = buildClientOptions(filtered);
+      if (selected && filtered.some((client) => String(client.id) === String(selected))) {
+        bookingClient.value = selected;
+      } else {
+        bookingClient.value = '';
+      }
+    }
+
+    function buildServiceOptions(list) {
+      if (Widgets.buildServiceOptions) {
+        return Widgets.buildServiceOptions(list, { includeBlock: true });
+      }
+      const items = ['<option value="">Seleccionar...</option>', `<option value="${SERVICE_BLOCK_VALUE}">Bloqueo</option>`];
+      list.forEach((service) => {
+        const name = escapeHtml(service.name || '');
+        items.push(`<option value="${name}">${name}</option>`);
+      });
+      return items.join('');
+    }
+
+    function renderServiceOptions() {
+      bookingService.innerHTML = buildServiceOptions(servicesList);
+    }
+
+    function ensureServiceOption(name) {
+      if (!name) return;
+      const existing = Array.from(bookingService.options).some((option) => option.value === name);
+      if (existing) return;
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      bookingService.appendChild(option);
+    }
+
+    function getSelectedService() {
+      const raw = bookingService.value || '';
+      if (!raw || raw === SERVICE_BLOCK_VALUE) return null;
+      return servicesByName[raw.toLowerCase()] || null;
+    }
+
+    function syncEndTimeFromService() {
+      if (bookingType.value === 'block') return;
+      const service = getSelectedService();
+      if (!service || !service.duration_minutes) return;
+      const startOffset = minutesFromStart(bookingStart.value);
+      if (startOffset === null) return;
+      const endOffset = startOffset + service.duration_minutes;
+      bookingEnd.value = minutesToTime(endOffset);
     }
 
     function shortTagFromName(value) {
@@ -1101,12 +1211,13 @@
         .then((payload) => {
           if (!payload) return;
           servicesByName = {};
-          const options = payload.items.map((service) => {
+          servicesList = payload.items || [];
+          servicesList.forEach((service) => {
+            if (!service || !service.name) return;
             servicesByName[service.name.toLowerCase()] = service;
-            return `<option value="${escapeHtml(service.name)}"></option>`;
-          }).join('');
-          bookingServicesList.innerHTML = options;
-          serviceFilter.innerHTML = '<option value="">Todos los servicios</option>' + payload.items.map((service) => {
+          });
+          renderServiceOptions();
+          serviceFilter.innerHTML = '<option value="">Todos los servicios</option>' + servicesList.map((service) => {
             return `<option value="${escapeHtml(service.name)}">${escapeHtml(service.name)}</option>`;
           }).join('') + '<option value="Bloqueo">Bloqueo</option>';
         })
@@ -1119,13 +1230,11 @@
         .then((payload) => {
           if (!payload) return;
           clientsById = {};
-          payload.items.forEach((client) => {
+          clientsList = payload.items || [];
+          clientsList.forEach((client) => {
             clientsById[String(client.id)] = client;
           });
-          const options = ['<option value="">Seleccionar...</option>', '<option value="__new__">+ Nuevo cliente</option>']
-            .concat(payload.items.map((client) => `<option value="${client.id}">${escapeHtml(client.full_name)}</option>`))
-            .join('');
-          bookingClient.innerHTML = options;
+          renderClientOptions(bookingClientSearch.value);
         })
         .catch(() => null);
     }
@@ -1223,6 +1332,12 @@
       bookingStart.value = '11:00';
       bookingEnd.value = '12:00';
       bookingPhone.value = '';
+      if (bookingClientSearch) {
+        bookingClientSearch.value = '';
+        if (clientsList.length) {
+          renderClientOptions('');
+        }
+      }
       bookingType.value = 'appointment';
       bookingDelete.hidden = true;
       applyTypeState();
@@ -1231,7 +1346,13 @@
     function fillFormFromItem(item) {
       bookingClient.value = item.client_id ? String(item.client_id) : '';
       bookingPhone.value = item.client_phone || '';
-      bookingService.value = item.service_name || '';
+      if (item.appointment_type === 'block') {
+        bookingService.value = SERVICE_BLOCK_VALUE;
+      } else {
+        const serviceName = item.service_name || '';
+        ensureServiceOption(serviceName);
+        bookingService.value = serviceName;
+      }
       bookingProfessional.value = item.professional_name || '';
       bookingDate.value = item.appointment_date || '';
       bookingStart.value = String(item.start_time || '').slice(0, 5);
@@ -1287,8 +1408,8 @@
       if (isBlock) {
         bookingClient.value = '';
         bookingPhone.value = '';
-        bookingService.value = 'Bloqueo';
-      } else if (bookingService.value === 'Bloqueo') {
+        bookingService.value = SERVICE_BLOCK_VALUE;
+      } else if (bookingService.value === SERVICE_BLOCK_VALUE) {
         bookingService.value = '';
       }
     }
@@ -1338,8 +1459,22 @@
       bookingPhone.value = client ? (client.phone || '') : '';
     });
 
+    if (bookingClientSearch) {
+      bookingClientSearch.addEventListener('input', () => {
+        renderClientOptions(bookingClientSearch.value);
+      });
+    }
+
     bookingType.addEventListener('change', () => {
       applyTypeState();
+    });
+
+    bookingService.addEventListener('change', () => {
+      syncEndTimeFromService();
+    });
+
+    bookingStart.addEventListener('change', () => {
+      syncEndTimeFromService();
     });
 
     bookingForm.addEventListener('reset', () => {
@@ -1351,7 +1486,9 @@
       bookingMessage.textContent = '';
 
       const clientId = bookingClient.value ? parseInt(bookingClient.value, 10) : null;
-      const serviceName = bookingType.value === 'block' ? 'Bloqueo' : bookingService.value.trim();
+      const rawServiceValue = bookingService.value || '';
+      const selectedServiceName = rawServiceValue === SERVICE_BLOCK_VALUE ? '' : rawServiceValue.trim();
+      const serviceName = bookingType.value === 'block' ? 'Bloqueo' : selectedServiceName;
       const professional = bookingProfessional.value.trim();
       const dateValue = bookingDate.value;
       const startTime = bookingStart.value;
@@ -1388,7 +1525,7 @@
         return;
       }
 
-      const matchedService = servicesByName[serviceName.toLowerCase()];
+      const matchedService = serviceName ? servicesByName[serviceName.toLowerCase()] : null;
       const payload = {
         client_id: typeValue === 'appointment' ? clientId : null,
         service_id: matchedService ? matchedService.id : null,
@@ -1649,10 +1786,11 @@
         }
         const created = await response.json();
         clientsById[String(created.id)] = created;
-        const option = document.createElement('option');
-        option.value = String(created.id);
-        option.textContent = created.full_name;
-        bookingClient.appendChild(option);
+        clientsList.push(created);
+        if (bookingClientSearch) {
+          bookingClientSearch.value = '';
+        }
+        renderClientOptions('');
         bookingClient.value = String(created.id);
         bookingPhone.value = created.phone || '';
         closeNewClientModal();

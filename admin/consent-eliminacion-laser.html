@@ -85,6 +85,12 @@
       </div>
 
       <div class="form-grid-1">
+        <label for="treatment_service">Tratamiento</label>
+        <select id="treatment_service" name="treatment_service" required>
+          <option value="">Seleccionar...</option>
+        </select>
+      </div>
+      <div class="form-grid-1">
         <label for="treatment_area">Zona a tratar</label>
         <input id="treatment_area" name="treatment_area" placeholder="Ej: ceja derecha, antebrazo..." required />
       </div>
@@ -132,11 +138,28 @@
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/consent-print.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     document.getElementById('signed_at').valueAsDate = new Date();
+    var treatmentServiceSelect = document.getElementById('treatment_service');
+
+    function loadServices() {
+      if (!window.LikeStudioWidgets || !window.LikeStudioWidgets.fetchServices) return;
+      window.LikeStudioWidgets.fetchServices().then(function (services) {
+        window.LikeStudioWidgets.renderServiceSelect(treatmentServiceSelect, services, { placeholder: 'Seleccionar...' });
+        var preferred = services.find(function (service) {
+          var name = String(service.name || '').toLowerCase();
+          return name.includes('elimin') || name.includes('tatuaje') || name.includes('micro');
+        });
+        if (preferred && !treatmentServiceSelect.value) {
+          treatmentServiceSelect.value = preferred.name;
+        }
+      });
+    }
+    loadServices();
 
     document.getElementById('eliminacion-laser-form').addEventListener('submit', async function (event) {
       event.preventDefault();
@@ -146,6 +169,7 @@
       var fullName = String(formData.get('full_name') || '').trim();
       var idNumber = String(formData.get('id_number') || '').trim();
       var phone = String(formData.get('phone') || '').trim();
+      var treatmentService = String(formData.get('treatment_service') || '').trim();
       var signatureText = String(formData.get('signature_text') || '').trim();
       var therapistName = String(formData.get('therapist_name') || '').trim();
       var points = formData.getAll('acceptance_points');
@@ -155,8 +179,8 @@
       var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
       var normalizedIdFinal = idNumber || existingId || normalizedId;
 
-      if (!fullName || !phone || !signatureText || !therapistName) {
-        message.textContent = 'Nombre, telefono, profesional y firma son obligatorios.';
+      if (!fullName || !phone || !signatureText || !therapistName || !treatmentService) {
+        message.textContent = 'Nombre, telefono, profesional, tratamiento y firma son obligatorios.';
         return;
       }
 
@@ -171,7 +195,7 @@
         id_number: normalizedIdFinal,
         phone: phone,
         email: formData.get('email') || null,
-        treatment_areas: 'Eliminacion tatuaje/micropigmentacion - ' + formData.get('treatment_area'),
+        treatment_areas: treatmentService + ' - ' + formData.get('treatment_area'),
         medical_conditions: JSON.stringify({
           age: formData.get('age') || null,
           laser_type: formData.get('laser_type') || null,
@@ -206,7 +230,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               client_id: saved.client_id,
-              treatment_name: payload.treatment_areas,
+              treatment_name: treatmentService,
               planned_sessions: estimatedSessions,
               status: 'planned',
               notes: null

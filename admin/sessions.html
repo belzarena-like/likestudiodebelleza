@@ -82,6 +82,17 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 10px;
+      align-items: center;
+    }
+
+    .session-note-input {
+      flex: 1 1 220px;
+      min-width: 160px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0f141d;
+      color: #e7edf8;
     }
 
     .session-message {
@@ -138,6 +149,18 @@
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.06);
+    }
+
+    .session-group-row td {
+      background: #161d2a;
+      font-weight: 700;
+      color: #e4ecf7;
+      border-top: 1px solid #2a354a;
+    }
+
+    .session-group-row small {
+      font-weight: 500;
+      color: #b6c2d8;
     }
 
     @media (max-width: 900px) {
@@ -207,6 +230,10 @@
         <select id="full_name" name="full_name">
           <option value="">Todos</option>
         </select>
+      </div>
+      <div>
+        <label for="phone">Telefono</label>
+        <input id="phone" name="phone" placeholder="Telefono" />
       </div>
       <div>
         <label for="treatment_name">Tratamiento</label>
@@ -316,7 +343,7 @@
     function collectParams() {
       const data = new FormData(form);
       const params = new URLSearchParams();
-      ['full_name', 'treatment_name', 'status'].forEach((key) => {
+      ['full_name', 'phone', 'treatment_name', 'status'].forEach((key) => {
         const value = data.get(key);
         if (value) params.set(key, value);
       });
@@ -372,12 +399,9 @@
               <label>Completadas</label>
               <input type="number" min="0" max="${item.planned_sessions}" value="${item.completed_sessions}" data-field="completed" />
             </div>
-            <div class="form-grid-1">
-              <label>Notas</label>
-              <input type="text" value="${item.notes || ''}" data-field="notes" />
-            </div>
           </div>
           <div class="session-actions">
+            <input class="session-note-input" type="text" placeholder="Nota" aria-label="Nota" value="${item.notes || ''}" data-field="notes" />
             <button class="btn btn-sm" type="button" data-attend="yes">Asistio</button>
             <button class="btn btn-ghost btn-sm" type="button" data-attend="no">No asistio</button>
             <button class="btn btn-ghost btn-sm" type="button" data-save-session>Guardar detalles</button>
@@ -424,27 +448,48 @@
         };
       });
 
-      tableBody.innerHTML = items.map((item) => `
-        <tr data-session-row="${item.id}">
-          <td>${item.client_name}</td>
-          <td>${item.client_phone || '-'}</td>
-          <td>${item.treatment_name}</td>
-          <td>${item.planned_sessions}</td>
-          <td>${item.completed_sessions}</td>
-          <td>${item.status}</td>
-          <td>${item.notes || '-'}</td>
-          <td>${item.created_at}</td>
-          <td><button class="btn btn-ghost btn-sm" type="button" data-consent-session="${item.id}">Consentimiento</button></td>
-          <td><button class="btn btn-ghost btn-sm" type="button" data-history-toggle="${item.id}">Ver historial</button></td>
-        </tr>
-        <tr class="history-row" data-history-row="${item.id}" hidden>
-          <td colspan="10">
-            <div class="history-panel" data-history-panel="${item.id}">
-              <p class="form-note">Cargando historial...</p>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      const groups = new Map();
+      items.forEach((item) => {
+        const key = item.client_phone || 'Sin telefono';
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      });
+
+      const rows = [];
+      groups.forEach((groupItems, phone) => {
+        const names = Array.from(new Set(groupItems.map((item) => item.client_name).filter(Boolean)));
+        const nameLabel = names.length ? ` · ${names.join(', ')}` : '';
+        rows.push(`
+          <tr class="session-group-row">
+            <td colspan="10">Telefono: ${phone}${nameLabel} · ${groupItems.length} sesiones</td>
+          </tr>
+        `);
+        groupItems.forEach((item) => {
+          rows.push(`
+            <tr data-session-row="${item.id}">
+              <td>${item.client_name}</td>
+              <td>${item.client_phone || '-'}</td>
+              <td>${item.treatment_name}</td>
+              <td>${item.planned_sessions}</td>
+              <td>${item.completed_sessions}</td>
+              <td>${item.status}</td>
+              <td>${item.notes || '-'}</td>
+              <td>${item.created_at}</td>
+              <td><button class="btn btn-ghost btn-sm" type="button" data-consent-session="${item.id}">Consentimiento</button></td>
+              <td><button class="btn btn-ghost btn-sm" type="button" data-history-toggle="${item.id}">Ver historial</button></td>
+            </tr>
+            <tr class="history-row" data-history-row="${item.id}" hidden>
+              <td colspan="10">
+                <div class="history-panel" data-history-panel="${item.id}">
+                  <p class="form-note">Cargando historial...</p>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+      });
+
+      tableBody.innerHTML = rows.join('');
     }
 
     async function loadSessions() {
