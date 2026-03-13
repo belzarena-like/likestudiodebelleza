@@ -160,7 +160,14 @@
     </a>
     <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
     <nav class="menu" data-menu>
-      <a href="index.html">Volver</a>
+      <a href="index.html">Consentimientos</a>
+      <a href="clients.html">Clientes</a>
+      <a href="client-profiles.html">Perfiles CRM</a>
+      <a href="sessions.html">Sesiones</a>
+      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="services.html">Servicios</a>
+      <a href="working-hours.html">Horario</a>
+      <a href="../index.html">Web publica</a>
       <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
     </nav>
   </header>
@@ -178,6 +185,14 @@
         <div>
           <label for="agenda-date">Fecha</label>
           <input id="agenda-date" type="date" />
+        </div>
+        <div>
+          <label for="agenda-professional">Profesional</label>
+          <select id="agenda-professional">
+            <option value="">Todos</option>
+            <option value="Josemi">Josemi</option>
+            <option value="Liege">Liege</option>
+          </select>
         </div>
         <div style="display:flex;align-items:flex-end;gap:8px;">
           <button id="agenda-refresh" class="btn btn-ghost" type="button">Actualizar</button>
@@ -253,6 +268,7 @@
     const summary = document.getElementById('summary');
     const tableBody = document.getElementById('table-body');
     const agendaDate = document.getElementById('agenda-date');
+    const agendaProfessional = document.getElementById('agenda-professional');
     const agendaList = document.getElementById('agenda-list');
     const agendaRefresh = document.getElementById('agenda-refresh');
     const historyCache = {};
@@ -328,7 +344,12 @@
         const response = await fetch(`${AGENDA_URL}?date=${dateValue}`);
         if (!response.ok) throw new Error('No se pudo cargar la agenda de sesiones.');
         const payload = await response.json();
-        renderAgenda(payload.items || []);
+        let items = payload.items || [];
+        if (agendaProfessional && agendaProfessional.value) {
+          const filter = agendaProfessional.value.toLowerCase();
+          items = items.filter((item) => String(item.professional_name || '').toLowerCase() === filter);
+        }
+        renderAgenda(items);
       } catch (error) {
         agendaList.innerHTML = `<p class="form-note">${error.message}</p>`;
       }
@@ -521,6 +542,9 @@
     agendaDate.valueAsDate = new Date();
     agendaRefresh.addEventListener('click', loadAgenda);
     agendaDate.addEventListener('change', loadAgenda);
+    if (agendaProfessional) {
+      agendaProfessional.addEventListener('change', loadAgenda);
+    }
 
     loadClients().finally(() => {
       loadSessions();

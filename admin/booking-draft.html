@@ -466,7 +466,14 @@
     </a>
     <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
     <nav class="menu" data-menu>
-      <a href="index.html">Volver</a>
+      <a href="index.html">Consentimientos</a>
+      <a href="clients.html">Clientes</a>
+      <a href="client-profiles.html">Perfiles CRM</a>
+      <a href="sessions.html">Sesiones</a>
+      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="services.html">Servicios</a>
+      <a href="working-hours.html">Horario</a>
+      <a href="../index.html">Web publica</a>
       <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
     </nav>
   </header>
@@ -498,8 +505,8 @@
         </div>
         <div class="toolbar-group toolbar-views">
           <div class="view-toggle">
-            <button class="btn btn-ghost btn-sm is-active" type="button" data-view="day">Dia</button>
-            <button class="btn btn-ghost btn-sm" type="button" data-view="week">Semana</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-view="day">Dia</button>
+            <button class="btn btn-ghost btn-sm is-active" type="button" data-view="week">Semana</button>
             <button class="btn btn-ghost btn-sm" type="button" data-view="month">Mes</button>
           </div>
         </div>
@@ -664,7 +671,7 @@
     const PIXELS_PER_MINUTE = 1.8;
     const HOURS_COUNT = END_HOUR - START_HOUR;
 
-    let currentView = 'day';
+    let currentView = 'week';
     let selectedDate = new Date();
     let entries = [];
     let appointmentsById = {};
@@ -1657,7 +1664,7 @@
     selectedDate = new Date();
     resetFormState();
 
-    Promise.all([loadServices(), loadClients(), loadWorkingHours()]).finally(loadAgenda);
+    Promise.all([loadServices(), loadClients(), loadWorkingHours()]).finally(() => setActiveView('week'));
   </script>
 </body>
 </html>
