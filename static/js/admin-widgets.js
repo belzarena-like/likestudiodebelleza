@@ -92,4 +92,92 @@ window.LikeStudioWidgets = window.LikeStudioWidgets || {};
     if (!select) return;
     select.innerHTML = widgets.buildServiceOptions(services, options);
   };
+
+  function detectQueryMode(query) {
+    const raw = String(query || '');
+    const digits = normalizePhone(raw);
+    const letters = raw.replace(/[^a-zA-Z]/g, '').length;
+    if (digits && digits.length >= 3 && digits.length >= letters) {
+      return 'phone';
+    }
+    return 'name';
+  }
+
+  function buildClientDatalistOptions(clients, mode) {
+    const items = [];
+    clients.forEach((client) => {
+      const name = String(client.full_name || '').trim();
+      const phoneRaw = String(client.phone || '').trim();
+      const phoneDigits = normalizePhone(phoneRaw);
+      if (mode === 'phone' && phoneDigits) {
+        items.push(`<option value="${escapeHtml(phoneDigits)}" label="${escapeHtml(name)}"></option>`);
+        return;
+      }
+      if (name) {
+        const label = phoneRaw ? `Tel: ${phoneRaw}` : '';
+        items.push(`<option value="${escapeHtml(name)}"${label ? ` label="${escapeHtml(label)}"` : ''}></option>`);
+        return;
+      }
+      if (phoneDigits) {
+        items.push(`<option value="${escapeHtml(phoneDigits)}"></option>`);
+      }
+    });
+    return items.join('');
+  }
+
+  widgets.attachClientAutocomplete = function (input, options) {
+    if (!input) return;
+    const opts = options || {};
+    const minChars = Number.isFinite(opts.minChars) ? opts.minChars : 2;
+    const limit = Number.isFinite(opts.limit) ? opts.limit : 12;
+    const debounceMs = Number.isFinite(opts.debounceMs) ? opts.debounceMs : 200;
+    const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || '';
+    if (!base) return;
+
+    const listId = opts.listId || `${input.id || 'client'}-list`;
+    let datalist = document.getElementById(listId);
+    if (!datalist) {
+      datalist = document.createElement('datalist');
+      datalist.id = listId;
+      document.body.appendChild(datalist);
+    }
+    input.setAttribute('list', listId);
+
+    let timer = null;
+    let requestId = 0;
+    let lastQuery = '';
+
+    function fetchSuggestions(query) {
+      const current = ++requestId;
+      const params = new URLSearchParams();
+      params.set('query', query);
+      params.set('limit', String(limit));
+      params.set('offset', '0');
+      fetch(`${base}/admin/clients?${params.toString()}`)
+        .then((response) => (response.ok ? response.json() : null))
+        .then((payload) => {
+          if (current !== requestId) return;
+          const items = payload && Array.isArray(payload.items) ? payload.items : [];
+          const mode = detectQueryMode(query);
+          datalist.innerHTML = buildClientDatalistOptions(items, mode);
+        })
+        .catch(() => {
+          if (current !== requestId) return;
+          datalist.innerHTML = '';
+        });
+    }
+
+    input.addEventListener('input', () => {
+      const query = String(input.value || '').trim();
+      if (query.length < minChars) {
+        datalist.innerHTML = '';
+        lastQuery = query;
+        return;
+      }
+      if (query === lastQuery) return;
+      lastQuery = query;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => fetchSuggestions(query), debounceMs);
+    });
+  };
 })(window.LikeStudioWidgets);

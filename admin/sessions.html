@@ -226,14 +226,8 @@
 
     <form id="search-form" class="form-grid" style="margin-bottom:14px">
       <div>
-        <label for="full_name">Cliente</label>
-        <select id="full_name" name="full_name">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <div>
-        <label for="phone">Telefono</label>
-        <input id="phone" name="phone" placeholder="Telefono" />
+        <label for="query">Cliente</label>
+        <input id="query" name="query" placeholder="Nombre o telefono" />
       </div>
       <div>
         <label for="treatment_name">Tratamiento</label>
@@ -283,6 +277,7 @@
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/sessions`;
@@ -296,6 +291,7 @@
     const form = document.getElementById('search-form');
     const summary = document.getElementById('summary');
     const tableBody = document.getElementById('table-body');
+    const clientQueryInput = document.getElementById('query');
     const agendaDate = document.getElementById('agenda-date');
     const agendaProfessional = document.getElementById('agenda-professional');
     const agendaList = document.getElementById('agenda-list');
@@ -343,29 +339,13 @@
     function collectParams() {
       const data = new FormData(form);
       const params = new URLSearchParams();
-      ['full_name', 'phone', 'treatment_name', 'status'].forEach((key) => {
+      ['query', 'treatment_name', 'status'].forEach((key) => {
         const value = data.get(key);
         if (value) params.set(key, value);
       });
       params.set('limit', String(limit));
       params.set('offset', String(offset));
       return params;
-    }
-
-    async function loadClients() {
-      try {
-        const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/consents?limit=2000&offset=0`);
-        if (!response.ok) return;
-        const payload = await response.json();
-        const names = Array.from(new Set(payload.items.map((item) => item.client_name).filter(Boolean)));
-        names.sort((a, b) => a.localeCompare(b, 'es'));
-        const options = ['<option value=\"\">Todos</option>']
-          .concat(names.map((name) => `<option value=\"${name}\">${name}</option>`))
-          .join('');
-        document.getElementById('full_name').innerHTML = options;
-      } catch (error) {
-        // Keep default options on failure.
-      }
     }
 
     function renderAgenda(items) {
@@ -674,10 +654,18 @@
       agendaProfessional.addEventListener('change', loadAgenda);
     }
 
-    loadClients().finally(() => {
-      loadSessions();
-      loadAgenda();
-    });
+    if (window.LikeStudioWidgets && clientQueryInput) {
+      window.LikeStudioWidgets.attachClientAutocomplete(clientQueryInput, { minChars: 2 });
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialQuery = urlParams.get('query');
+    if (initialQuery && clientQueryInput) {
+      clientQueryInput.value = initialQuery;
+    }
+
+    loadSessions();
+    loadAgenda();
   </script>
 </body>
 </html>

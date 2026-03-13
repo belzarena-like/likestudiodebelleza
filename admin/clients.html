@@ -200,6 +200,7 @@
 
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/site.js"></script>
   <script>
     const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/clients`;
@@ -224,6 +225,7 @@
     const clientEmail = document.getElementById('client-email');
     const clientMessage = document.getElementById('client-message');
     const clientSubmit = document.getElementById('client-submit');
+    const queryInput = document.getElementById('query');
 
     function collectParams() {
       const data = new FormData(form);
@@ -245,6 +247,7 @@
       tableBody.innerHTML = items.map((item) => {
         clientsById[String(item.id)] = item;
         const nameParam = encodeURIComponent(item.full_name || '');
+        const sessionQuery = encodeURIComponent(item.phone || item.full_name || '');
         return `
           <tr>
             <td>${item.full_name}</td>
@@ -255,6 +258,7 @@
               <div class="admin-actions">
                 <button class="btn btn-ghost btn-sm" type="button" data-edit-id="${item.id}">Editar</button>
                 <a class="btn btn-ghost btn-sm" href="index.html?full_name=${nameParam}">Ver consentimientos</a>
+                <a class="btn btn-ghost btn-sm" href="sessions.html?query=${sessionQuery}">Ver sesiones</a>
               </div>
             </td>
           </tr>
@@ -407,6 +411,10 @@
         closeClientModal();
       }
     });
+
+    if (window.LikeStudioWidgets && queryInput) {
+      window.LikeStudioWidgets.attachClientAutocomplete(queryInput, { minChars: 2 });
+    }
 
     loadClients();
   </script>
