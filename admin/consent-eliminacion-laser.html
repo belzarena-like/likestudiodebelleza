@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body data-consent-form="laser-eliminacion">
   <header class="topbar">
@@ -16,9 +17,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -142,120 +142,7 @@
   <script src="../static/js/consent-print.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    document.getElementById('signed_at').valueAsDate = new Date();
-    var treatmentServiceSelect = document.getElementById('treatment_service');
-
-    function loadServices() {
-      if (!window.LikeStudioWidgets || !window.LikeStudioWidgets.fetchServices) return;
-      window.LikeStudioWidgets.fetchServices().then(function (services) {
-        window.LikeStudioWidgets.renderServiceSelect(treatmentServiceSelect, services, { placeholder: 'Seleccionar...' });
-        var preferred = services.find(function (service) {
-          var name = String(service.name || '').toLowerCase();
-          return name.includes('elimin') || name.includes('tatuaje') || name.includes('micro');
-        });
-        if (preferred && !treatmentServiceSelect.value) {
-          treatmentServiceSelect.value = preferred.name;
-        }
-      });
-    }
-    loadServices();
-
-    document.getElementById('eliminacion-laser-form').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      var form = event.currentTarget;
-      var message = document.getElementById('form-message');
-      var formData = new FormData(form);
-      var fullName = String(formData.get('full_name') || '').trim();
-      var idNumber = String(formData.get('id_number') || '').trim();
-      var phone = String(formData.get('phone') || '').trim();
-      var treatmentService = String(formData.get('treatment_service') || '').trim();
-      var signatureText = String(formData.get('signature_text') || '').trim();
-      var therapistName = String(formData.get('therapist_name') || '').trim();
-      var points = formData.getAll('acceptance_points');
-      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
-      var estimatedSessions = parseInt(formData.get('estimated_sessions'), 10);
-      var consentId = new URLSearchParams(window.location.search).get('consent_id');
-      var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
-      var normalizedIdFinal = idNumber || existingId || normalizedId;
-
-      if (!fullName || !phone || !signatureText || !therapistName || !treatmentService) {
-        message.textContent = 'Nombre, telefono, profesional, tratamiento y firma son obligatorios.';
-        return;
-      }
-
-      if (points.length < 4) {
-        message.textContent = 'Debes aceptar todos los puntos obligatorios.';
-        return;
-      }
-
-      var payload = {
-        consent_type: 'laser',
-        full_name: fullName,
-        id_number: normalizedIdFinal,
-        phone: phone,
-        email: formData.get('email') || null,
-        treatment_areas: treatmentService + ' - ' + formData.get('treatment_area'),
-        medical_conditions: JSON.stringify({
-          age: formData.get('age') || null,
-          laser_type: formData.get('laser_type') || null,
-          estimated_sessions: formData.get('estimated_sessions') || null,
-          notes: formData.get('medical_conditions') || null
-        }),
-        personalized_risks: 'Consentimiento eliminacion de tatuaje/micropigmentacion con laser',
-        case_particularities: null,
-        acceptance_points: points,
-        photos_allowed: false,
-        signed_at: formData.get('signed_at'),
-        therapist_name: therapistName,
-        signature_text: signatureText
-      };
-
-      try {
-        var url = `${window.APP_CONFIG.API_BASE_URL}/consents` + (consentId ? `/${consentId}` : '');
-        var response = await fetch(url, {
-          method: consentId ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
-        }
-
-        var saved = await response.json();
-        if (!Number.isNaN(estimatedSessions)) {
-          await fetch(`${window.APP_CONFIG.API_BASE_URL}/sessions/upsert`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client_id: saved.client_id,
-              treatment_name: treatmentService,
-              planned_sessions: estimatedSessions,
-              status: 'planned',
-              notes: null
-            })
-          });
-        }
-        message.textContent = 'Consentimiento guardado correctamente.';
-        setTimeout(function () { window.location.href = 'index.html'; }, 900);
-      } catch (error) {
-        message.textContent = error.message;
-      }
-    });
-
-    var requiredChecks = document.querySelectorAll('#eliminacion-laser-form input[type=\"checkbox\"][required]');
-    var submitBtn = document.querySelector('#eliminacion-laser-form button[type=\"submit\"]');
-    function toggleSubmit() {
-      if (!submitBtn) return;
-      if (!requiredChecks.length) {
-        submitBtn.disabled = false;
-        return;
-      }
-      submitBtn.disabled = Array.prototype.some.call(requiredChecks, function (el) { return !el.checked; });
-    }
-    document.querySelector('#eliminacion-laser-form').addEventListener('change', toggleSubmit);
-    toggleSubmit();
-  </script>
+  <script src="js/consent-eliminacion-laser.js"></script>
 </body>
 </html>
+

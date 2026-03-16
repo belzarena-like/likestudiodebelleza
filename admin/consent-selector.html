@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body data-consent-daylist="true">
   <header class="topbar">
@@ -19,9 +20,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -97,199 +97,7 @@
   <script src="../static/js/app-config.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    const STORAGE_KEY = 'likestudio_client_prefill_v1';
-    const API_BASE = window.APP_CONFIG.API_BASE_URL;
-    const dayListDate = document.getElementById('consent-daylist-date');
-    const dayListProfessional = document.getElementById('consent-daylist-professional');
-    const dayListRefresh = document.getElementById('consent-daylist-refresh');
-    const dayListItems = document.getElementById('consent-daylist-items');
-    const dayListMessage = document.getElementById('consent-daylist-message');
-    const selectedClient = document.getElementById('selected-client');
-    const clearClient = document.getElementById('clear-client');
-    const consentType = document.getElementById('consent-type');
-    const professionalInput = document.getElementById('professional');
-    const openConsent = document.getElementById('open-consent');
-    const consentMessage = document.getElementById('consent-message');
-
-    function getLocalDateString(date) {
-      const base = date || new Date();
-      const year = base.getFullYear();
-      const month = String(base.getMonth() + 1).padStart(2, '0');
-      const day = String(base.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
-    function readStored() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch (e) {
-        return {};
-      }
-    }
-
-    function storePrefill(data) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) {
-        // Ignore storage failures.
-      }
-    }
-
-    function clearPrefill() {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {
-        // Ignore storage failures.
-      }
-    }
-
-    function renderSelected(data) {
-      if (!data || !data.full_name) {
-        selectedClient.textContent = 'No hay cliente seleccionado.';
-        return;
-      }
-      const pieces = [
-        data.full_name,
-        data.phone ? `Tel. ${data.phone}` : null,
-        data.id_number ? `DNI ${data.id_number}` : null
-      ].filter(Boolean);
-      selectedClient.textContent = pieces.join(' · ');
-    }
-
-    function guessConsentType(serviceName) {
-      const value = String(serviceName || '').toLowerCase();
-      if (value.includes('capilar')) return 'capilar';
-      if (value.includes('eliminacion') || value.includes('tatuaje')) return 'laser-eliminacion';
-      if (value.includes('laser') || value.includes('depil')) return 'laser';
-      if (value.includes('estet')) return 'estetico';
-      return 'micropigmentacion';
-    }
-
-    function resolveConsentPath(type) {
-      if (type === 'capilar') return 'consent-capilar-condiciones.html';
-      if (type === 'estetico') return 'consent-estetico.html';
-      if (type === 'laser') return 'consent-laser.html';
-      if (type === 'laser-eliminacion') return 'consent-eliminacion-laser.html';
-      return 'consent-micropigmentacion.html';
-    }
-
-    function applyPrefill(data) {
-      if (!data) return;
-      storePrefill(data);
-      renderSelected(data);
-      if (data.service_name) {
-        consentType.value = guessConsentType(data.service_name);
-      }
-      if (data.professional_name && !professionalInput.value) {
-        professionalInput.value = data.professional_name;
-      }
-    }
-
-    function getQueryPrefill() {
-      const params = new URLSearchParams(window.location.search);
-      const payload = {
-        full_name: params.get('client_name') || '',
-        id_number: params.get('client_id_number') || '',
-        phone: params.get('client_phone') || '',
-        email: '',
-        service_name: params.get('service_name') || '',
-        professional_name: params.get('professional_name') || ''
-      };
-      if (!payload.full_name && !payload.phone && !payload.id_number) return null;
-      return payload;
-    }
-
-    async function loadDayList() {
-      const dateValue = dayListDate.value || getLocalDateString(new Date());
-      const professional = dayListProfessional.value;
-      dayListMessage.textContent = 'Cargando citas...';
-      dayListItems.innerHTML = '';
-      try {
-        const params = new URLSearchParams();
-        params.set('start_date', dateValue);
-        params.set('end_date', dateValue);
-        params.set('appointment_type', 'appointment');
-        params.set('limit', '200');
-        params.set('offset', '0');
-        const response = await fetch(`${API_BASE}/admin/appointments?${params.toString()}`);
-        if (!response.ok) throw new Error('No se pudieron cargar las citas.');
-        const payload = await response.json();
-        let items = Array.isArray(payload.items) ? payload.items : [];
-        if (professional) {
-          const filter = professional.toLowerCase();
-          items = items.filter((item) => String(item.professional_name || '').toLowerCase() === filter);
-        }
-        if (!items.length) {
-          dayListMessage.textContent = 'No hay citas para este dia.';
-          return;
-        }
-        dayListMessage.textContent = '';
-        dayListItems.innerHTML = items.map((item) => {
-          const time = String(item.start_time || '').slice(0, 5);
-          const name = String(item.client_name || 'Cliente').trim();
-          const service = String(item.service_name || '').trim();
-          const label = `${time} · ${name}${service ? ' · ' + service : ''}`;
-          const payloadData = {
-            full_name: name,
-            id_number: '',
-            phone: item.client_phone || '',
-            email: '',
-            service_name: item.service_name || '',
-            professional_name: item.professional_name || ''
-          };
-          return `
-            <button class="btn btn-ghost btn-sm" type="button" data-payload='${JSON.stringify(payloadData).replace(/'/g, '&#39;')}'>
-              ${label}
-            </button>
-          `;
-        }).join('');
-      } catch (error) {
-        dayListMessage.textContent = error.message || 'No se pudieron cargar las citas.';
-      }
-    }
-
-    dayListItems.addEventListener('click', (event) => {
-      const button = event.target.closest('button[data-payload]');
-      if (!button) return;
-      try {
-        const raw = button.getAttribute('data-payload') || '';
-        const data = JSON.parse(raw.replace(/&#39;/g, "'"));
-        applyPrefill(data);
-      } catch (error) {
-        // Ignore parse errors.
-      }
-    });
-
-    openConsent.addEventListener('click', () => {
-      consentMessage.textContent = '';
-      const stored = readStored();
-      if (!stored.full_name && !stored.phone && !stored.id_number) {
-        consentMessage.textContent = 'Selecciona un cliente antes de abrir el consentimiento.';
-        return;
-      }
-      const path = resolveConsentPath(consentType.value);
-      window.open(path, '_blank', 'noopener');
-    });
-
-    clearClient.addEventListener('click', () => {
-      clearPrefill();
-      renderSelected({});
-    });
-
-    dayListDate.value = getLocalDateString(new Date());
-    dayListRefresh.addEventListener('click', loadDayList);
-    dayListDate.addEventListener('change', loadDayList);
-    dayListProfessional.addEventListener('change', loadDayList);
-
-    const queryPrefill = getQueryPrefill();
-    if (queryPrefill) {
-      applyPrefill(queryPrefill);
-    } else {
-      renderSelected(readStored());
-    }
-    loadDayList();
-  </script>
+  <script src="js/consent-selector.js"></script>
 </body>
 </html>
+

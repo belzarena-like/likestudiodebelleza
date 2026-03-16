@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body data-consent-form="estetico">
   <header class="topbar">
@@ -16,9 +17,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -164,121 +164,10 @@
   <script src="../static/js/consent-print.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    document.getElementById('signed_at').valueAsDate = new Date();
-    var treatmentSelect = document.getElementById('treatment');
-
-    function loadServices() {
-      if (!window.LikeStudioWidgets || !window.LikeStudioWidgets.fetchServices) return;
-      window.LikeStudioWidgets.fetchServices().then(function (services) {
-        window.LikeStudioWidgets.renderServiceSelect(treatmentSelect, services, { placeholder: 'Seleccionar...' });
-      });
-    }
-    loadServices();
-
-    document.getElementById('estetico-form').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      var form = event.currentTarget;
-      var message = document.getElementById('form-message');
-      var data = new FormData(form);
-      var firstName = String(data.get('full_name') || '').trim();
-      var lastName = String(data.get('last_name') || '').trim();
-      var idNumber = String(data.get('dni') || '').trim();
-      var phone = String(data.get('phone') || '').trim();
-      var treatment = String(data.get('treatment') || '').trim();
-      var signatureText = String(data.get('signature_text') || '').trim();
-      var therapistName = String(data.get('therapist_name') || '').trim();
-      var fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
-      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
-      var consentId = new URLSearchParams(window.location.search).get('consent_id');
-      var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
-      var normalizedIdFinal = idNumber || existingId || normalizedId;
-
-      if (!fullName || !phone || !signatureText || !therapistName || !treatment) {
-        message.textContent = 'Nombre, telefono, profesional, tratamiento y firma son obligatorios.';
-        return;
-      }
-
-      var payload = {
-        consent_type: 'aesthetic_treatment',
-        full_name: fullName,
-        id_number: normalizedIdFinal,
-        phone: phone,
-        email: data.get('email') || null,
-        treatment_areas: treatment,
-        medical_conditions: JSON.stringify({
-          conditions: data.getAll('conditions'),
-          history: data.get('history') || null,
-          profession: data.get('profession') || null,
-          age: data.get('age') || null,
-          children: data.get('children') || null,
-          lifestyle: data.get('lifestyle') || null,
-          sleep_quality: data.get('sleep_quality') || null,
-          smoking: data.get('smoking') || null,
-          alcohol: data.get('alcohol') || null,
-          sports: data.get('sports') || null,
-          sessions: data.get('sessions') || null,
-          observations: data.get('observations') || null,
-          appointment_policy_accepted: data.get('appointment_policy') === 'on'
-        }),
-        personalized_risks: null,
-        case_particularities: null,
-        acceptance_points: ['appointment_policy_accepted'],
-        photos_allowed: false,
-        signed_at: data.get('signed_at'),
-        therapist_name: therapistName,
-        signature_text: signatureText
-      };
-
-      try {
-        var url = `${window.APP_CONFIG.API_BASE_URL}/consents` + (consentId ? `/${consentId}` : '');
-        var response = await fetch(url, {
-          method: consentId ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          throw new Error('No se pudo guardar. Verifica que el backend este en ejecucion.');
-        }
-
-        var saved = await response.json();
-        var plannedSessions = parseInt(data.get('sessions'), 10);
-        if (!Number.isNaN(plannedSessions)) {
-          await fetch(`${window.APP_CONFIG.API_BASE_URL}/sessions/upsert`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client_id: saved.client_id,
-              treatment_name: payload.treatment_areas,
-              planned_sessions: plannedSessions,
-              status: 'planned',
-              notes: null
-            })
-          });
-        }
-        message.textContent = 'Ficha guardada correctamente.';
-        setTimeout(function () { window.location.href = 'index.html'; }, 900);
-      } catch (error) {
-        message.textContent = error.message;
-      }
-    });
-
-    var requiredChecks = document.querySelectorAll('#estetico-form input[type=\"checkbox\"][required]');
-    var submitBtn = document.querySelector('#estetico-form button[type=\"submit\"]');
-    function toggleSubmit() {
-      if (!submitBtn) return;
-      if (!requiredChecks.length) {
-        submitBtn.disabled = false;
-        return;
-      }
-      submitBtn.disabled = Array.prototype.some.call(requiredChecks, function (el) { return !el.checked; });
-    }
-    document.querySelector('#estetico-form').addEventListener('change', toggleSubmit);
-    toggleSubmit();
-  </script>
+  <script src="js/consent-estetico.js"></script>
 </body>
 </html>
+
 
 
 

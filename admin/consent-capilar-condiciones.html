@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body data-consent-form="capilar-condiciones">
   <header class="topbar">
@@ -16,9 +17,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -115,101 +115,7 @@
   <script src="../static/js/consent-print.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    document.getElementById('signed_at').valueAsDate = new Date();
-
-    document.getElementById('capilar-condiciones-form').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      var form = event.currentTarget;
-      var message = document.getElementById('form-message');
-      var data = new FormData(form);
-
-      var fullName = String(data.get('full_name') || '').trim();
-      var idNumber = String(data.get('id_number') || '').trim();
-      var phone = String(data.get('phone') || '').trim();
-      var totalAmount = String(data.get('total_amount') || '').trim();
-      var signatureText = String(data.get('signature_text') || '').trim();
-      var therapist = String(data.get('therapist_name') || '').trim();
-      var normalizedId = idNumber || ('NO-DOC-' + Date.now());
-      var points = data.getAll('acceptance_points');
-      var sessionsCount = parseInt(data.get('sessions_count'), 10);
-      var consentId = new URLSearchParams(window.location.search).get('consent_id');
-      var existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
-      var normalizedIdFinal = idNumber || existingId || normalizedId;
-
-      if (!fullName || !phone || !signatureText || !totalAmount) {
-        message.textContent = 'Nombre, telefono, valor total y firma son obligatorios.';
-        return;
-      }
-      if (points.length < 3) {
-        message.textContent = 'Debes aceptar todas las condiciones obligatorias.';
-        return;
-      }
-
-      var payload = {
-        consent_type: 'micropigmentation_capilar',
-        full_name: fullName,
-        id_number: normalizedIdFinal,
-        phone: phone,
-        email: null,
-        treatment_areas: 'Micropigmentacion capilar - condiciones de pago y reservas',
-        medical_conditions: JSON.stringify({
-          total_amount: totalAmount,
-          reserve_amount: data.get('reserve_amount') || null,
-          payment_terms: data.get('payment_terms') || null,
-          payments: data.get('payments') || null,
-          sessions: Number.isNaN(sessionsCount) ? null : sessionsCount
-        }),
-        personalized_risks: null,
-        case_particularities: null,
-        acceptance_points: points,
-        photos_allowed: false,
-        signed_at: data.get('signed_at'),
-        therapist_name: therapist || 'Like Studio Team',
-        signature_text: signatureText
-      };
-
-      try {
-        var url = `${window.APP_CONFIG.API_BASE_URL}/consents` + (consentId ? `/${consentId}` : '');
-        var response = await fetch(url, {
-          method: consentId ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!response.ok) throw new Error('No se pudo guardar. Verifica backend.');
-        var saved = await response.json();
-        if (!Number.isNaN(sessionsCount)) {
-          await fetch(`${window.APP_CONFIG.API_BASE_URL}/sessions/upsert`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client_id: saved.client_id,
-              treatment_name: 'Micropigmentacion capilar',
-              planned_sessions: sessionsCount,
-              status: 'planned',
-              notes: null
-            })
-          });
-        }
-        message.textContent = 'Condiciones de micropigmentacion capilar guardadas correctamente.';
-        setTimeout(function () { window.location.href = 'index.html'; }, 900);
-      } catch (error) {
-        message.textContent = error.message;
-      }
-    });
-
-    var requiredChecks = document.querySelectorAll('#capilar-condiciones-form input[type=\"checkbox\"][required]');
-    var submitBtn = document.querySelector('#capilar-condiciones-form button[type=\"submit\"]');
-    function toggleSubmit() {
-      if (!submitBtn) return;
-      if (!requiredChecks.length) {
-        submitBtn.disabled = false;
-        return;
-      }
-      submitBtn.disabled = Array.prototype.some.call(requiredChecks, function (el) { return !el.checked; });
-    }
-    document.querySelector('#capilar-condiciones-form').addEventListener('change', toggleSubmit);
-    toggleSubmit();
-  </script>
+  <script src="js/consent-capilar.js"></script>
 </body>
 </html>
+

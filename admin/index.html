@@ -1,105 +1,14 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Consentimientos | Like Studio Academy</title>
+  <title>Consentimientos | Like Studio Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
-  <style>
-    .admin-summary {
-      color: #d9e1ee;
-    }
-
-    .admin-table-wrap {
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #0f141d;
-    }
-
-    .admin-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 860px;
-      color: #e7edf8;
-    }
-
-    .admin-table thead tr {
-      background: #222d3f;
-      text-align: left;
-    }
-
-    .admin-table th,
-    .admin-table td {
-      padding: 10px;
-      border-top: 1px solid #2a354a;
-    }
-
-    .admin-empty {
-      color: #c8d2e3;
-      padding: 12px;
-    }
-
-    .admin-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .quick-create {
-      margin: 0 0 16px;
-    }
-
-    .quick-create details {
-      display: inline-block;
-      min-width: 280px;
-    }
-
-    .quick-create summary {
-      list-style: none;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .quick-create summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .quick-create-panel {
-      margin-top: 8px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #0f141d;
-      padding: 8px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .quick-create-panel a {
-      text-decoration: none;
-    }
-
-    @media (max-width: 700px) {
-      .admin-table {
-        min-width: 680px;
-        font-size: 0.88rem;
-      }
-
-      .admin-table th,
-      .admin-table td {
-        padding: 8px;
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .admin-table {
-        min-width: 740px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body>
   <header class="topbar">
@@ -111,9 +20,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -121,49 +29,42 @@
     </nav>
   </header>
 
-  <main class="form-wrap" style="width:min(1200px,100% - 2rem)">
-    <p class="eyebrow">Panel Admin</p>
-    <h1>Consentimientos firmados</h1>
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Consentimientos firmados</h1>
 
-    <div class="quick-create">
-      <details>
-        <summary class="btn">Nuevo consentimiento</summary>
-        <div class="quick-create-panel">
-          <a class="btn btn-ghost" href="consent-selector.html">Selector de consentimiento</a>
-          <a class="btn btn-ghost" href="consent-micropigmentacion.html">Micropigmentacion</a>
-          <a class="btn btn-ghost" href="consent-capilar-condiciones.html">Micropigmentacion capilar (pagos/reservas)</a>
-          <a class="btn btn-ghost" href="consent-estetico.html">Ficha estetica corporal</a>
-          <a class="btn btn-ghost" href="consent-laser.html">Depilacion laser</a>
-          <a class="btn btn-ghost" href="consent-eliminacion-laser.html">Eliminacion tatuaje/micropigmentacion</a>
-        </div>
-      </details>
+    <div class="admin-toolbar">
+      <div class="quick-create">
+        <details>
+          <summary class="btn btn-primary">+ Nuevo consentimiento</summary>
+          <div class="quick-create-panel">
+            <a class="btn btn-secondary" href="consent-selector.html">Selector de consentimiento</a>
+            <a class="btn btn-secondary" href="consent-micropigmentacion.html">Micropigmentacion</a>
+            <a class="btn btn-secondary" href="consent-capilar-condiciones.html">Micropigmentacion capilar</a>
+            <a class="btn btn-secondary" href="consent-estetico.html">Ficha estetica corporal</a>
+            <a class="btn btn-secondary" href="consent-laser.html">Depilacion laser</a>
+            <a class="btn btn-secondary" href="consent-eliminacion-laser.html">Eliminacion tatuaje/micropigmentacion</a>
+          </div>
+        </details>
+      </div>
     </div>
 
-    <div class="form-actions" style="margin: 0 0 16px;">
-      <a class="btn btn-ghost" href="clients.html">Ver clientes</a>
-      <a class="btn btn-ghost" href="client-profiles.html">Perfiles CRM</a>
-      <a class="btn btn-ghost" href="sessions.html">Ver sesiones</a>
-      <a class="btn btn-ghost" href="services.html">Servicios</a>
-      <a class="btn btn-ghost" href="working-hours.html">Horario</a>
-      <a class="btn btn-ghost" href="booking-draft.html">Booking / Agenda</a>
-    </div>
-
-    <form id="search-form" class="form-grid" style="margin-bottom:14px">
-      <div>
-        <label for="full_name">Nombre cliente o telefono</label>
-        <input id="full_name" name="full_name" />
+    <form id="search-form" class="admin-filters">
+      <div class="admin-filter-field wide">
+        <label class="filter-label" for="full_name">Nombre o teléfono</label>
+        <input class="filter-input" id="full_name" name="full_name" placeholder="Buscar cliente..." />
       </div>
-      <div>
-        <label for="id_number">DNI/NIE</label>
-        <input id="id_number" name="id_number" />
+      <div class="admin-filter-field">
+        <label class="filter-label" for="id_number">DNI/NIE</label>
+        <input class="filter-input" id="id_number" name="id_number" />
       </div>
-      <div>
-        <label for="therapist_name">Profesional</label>
-        <input id="therapist_name" name="therapist_name" />
+      <div class="admin-filter-field">
+        <label class="filter-label" for="therapist_name">Profesional</label>
+        <input class="filter-input" id="therapist_name" name="therapist_name" />
       </div>
-      <div>
-        <label for="consent_type">Tipo</label>
-        <select id="consent_type" name="consent_type">
+      <div class="admin-filter-field">
+        <label class="filter-label" for="consent_type">Tipo</label>
+        <select class="filter-select" id="consent_type" name="consent_type">
           <option value="">Todos</option>
           <option value="micropigmentation">Micropigmentacion</option>
           <option value="micropigmentation_capilar">Micropigmentacion capilar</option>
@@ -171,21 +72,22 @@
           <option value="laser">Depilacion laser</option>
         </select>
       </div>
-      <div>
-        <label for="signed_from">Desde</label>
-        <input id="signed_from" name="signed_from" type="date" />
+      <div class="admin-filter-field narrow">
+        <label class="filter-label" for="signed_from">Desde</label>
+        <input class="filter-input" id="signed_from" name="signed_from" type="date" />
       </div>
-      <div>
-        <label for="signed_to">Hasta</label>
-        <input id="signed_to" name="signed_to" type="date" />
+      <div class="admin-filter-field narrow">
+        <label class="filter-label" for="signed_to">Hasta</label>
+        <input class="filter-input" id="signed_to" name="signed_to" type="date" />
       </div>
-      <div style="display:flex;align-items:flex-end;gap:8px;">
-        <button class="btn" type="submit">Buscar</button>
-        <button class="btn btn-ghost" type="button" id="reset">Limpiar</button>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <button class="btn btn-secondary" type="button" id="reset">Limpiar</button>
       </div>
     </form>
 
-    <p id="summary" class="form-note admin-summary">Cargando...</p>
+    <p id="summary" class="admin-summary">Cargando...</p>
+
     <div class="admin-table-wrap">
       <table class="admin-table">
         <thead>
@@ -194,7 +96,7 @@
             <th>Cliente</th>
             <th>DNI/NIE</th>
             <th>Tipo</th>
-            <th>Tratamiento/Area</th>
+            <th>Tratamiento/Área</th>
             <th>Profesional</th>
             <th>Acciones</th>
           </tr>
@@ -203,9 +105,9 @@
       </table>
     </div>
 
-    <div class="form-actions" style="justify-content:space-between;">
-      <button id="prev" class="btn btn-ghost" type="button">Anterior</button>
-      <button id="next" class="btn btn-ghost" type="button">Siguiente</button>
+    <div class="admin-pagination">
+      <button id="prev" class="btn btn-secondary" type="button">← Anterior</button>
+      <button id="next" class="btn btn-secondary" type="button">Siguiente →</button>
     </div>
   </main>
 
@@ -213,148 +115,6 @@
   <script src="../static/js/app-config.js"></script>
   <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    const API_URL = `${window.APP_CONFIG.API_BASE_URL}/admin/consents`;
-    const limit = 20;
-    let offset = 0;
-    let lastTotal = 0;
-
-    const form = document.getElementById('search-form');
-    const summary = document.getElementById('summary');
-    const tableBody = document.getElementById('table-body');
-    const clientNameInput = document.getElementById('full_name');
-
-    function collectParams() {
-      const data = new FormData(form);
-      const params = new URLSearchParams();
-      ['full_name', 'id_number', 'therapist_name', 'consent_type', 'signed_from', 'signed_to'].forEach((key) => {
-        const value = data.get(key);
-        if (value) params.set(key, value);
-      });
-      params.set('limit', String(limit));
-      params.set('offset', String(offset));
-      return params;
-    }
-
-    function renderRows(items) {
-      if (!items.length) {
-        tableBody.innerHTML = '<tr><td class="admin-empty" colspan="7">Sin resultados.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = items.map((item) => {
-        const kindMap = {
-          micropigmentation: 'Micropigmentacion',
-          micropigmentation_capilar: 'Micropigmentacion capilar',
-          aesthetic_treatment: 'Tratamiento estetico',
-          laser: 'Depilacion laser'
-        };
-        const kind = kindMap[item.consent_type] || item.consent_type;
-        const editPath = resolveEditPath(item);
-        const editLink = editPath
-          ? `<a class="btn btn-ghost btn-sm" href="${editPath}?consent_id=${item.id}&mode=edit" target="_blank" rel="noopener">Editar</a>`
-          : `<span class="btn btn-ghost btn-sm" aria-disabled="true">Editar</span>`;
-        return `
-          <tr>
-            <td>${item.signed_at}</td>
-            <td>${item.client_name}</td>
-            <td>${item.client_id_number}</td>
-            <td>${kind}</td>
-            <td>${item.treatment_areas}</td>
-            <td>${item.therapist_name}</td>
-            <td>
-              <div class="admin-actions">
-                <a class="btn btn-ghost btn-sm" href="consent-view.html?id=${item.id}" target="_blank" rel="noopener">Ver</a>
-                ${editLink}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function resolveEditPath(item) {
-      if (item.consent_type === 'micropigmentation') {
-        return 'consent-micropigmentacion.html';
-      }
-      if (item.consent_type === 'micropigmentation_capilar') {
-        return 'consent-capilar-condiciones.html';
-      }
-      if (item.consent_type === 'aesthetic_treatment') {
-        return 'consent-estetico.html';
-      }
-      if (item.consent_type === 'laser') {
-        const area = String(item.treatment_areas || '').toLowerCase();
-        if (area.indexOf('eliminacion tatuaje/micropigmentacion') === 0) {
-          return 'consent-eliminacion-laser.html';
-        }
-        return 'consent-laser.html';
-      }
-      return null;
-    }
-
-    async function loadConsents() {
-      summary.textContent = 'Cargando...';
-      try {
-        const response = await fetch(`${API_URL}?${collectParams().toString()}`);
-        if (!response.ok) throw new Error('No se pudieron obtener los consentimientos.');
-        const payload = await response.json();
-        lastTotal = payload.total;
-        renderRows(payload.items);
-
-        const from = payload.total === 0 ? 0 : payload.offset + 1;
-        const to = Math.min(payload.offset + payload.limit, payload.total);
-        summary.textContent = `Mostrando ${from}-${to} de ${payload.total} consentimientos.`;
-
-        document.getElementById('prev').disabled = payload.offset <= 0;
-        document.getElementById('next').disabled = payload.offset + payload.limit >= payload.total;
-      } catch (error) {
-        summary.textContent = error.message;
-        tableBody.innerHTML = '';
-      }
-    }
-
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      offset = 0;
-      loadConsents();
-    });
-
-    document.getElementById('reset').addEventListener('click', () => {
-      form.reset();
-      offset = 0;
-      loadConsents();
-    });
-
-    document.getElementById('prev').addEventListener('click', () => {
-      offset = Math.max(0, offset - limit);
-      loadConsents();
-    });
-
-    document.getElementById('next').addEventListener('click', () => {
-      if (offset + limit < lastTotal) {
-        offset += limit;
-        loadConsents();
-      }
-    });
-
-    function applyQueryParams() {
-      const params = new URLSearchParams(window.location.search);
-      ['full_name', 'id_number', 'consent_type', 'signed_from', 'signed_to'].forEach((key) => {
-        const value = params.get(key);
-        if (value && form.elements[key]) {
-          form.elements[key].value = value;
-        }
-      });
-    }
-
-    applyQueryParams();
-    if (window.LikeStudioWidgets && clientNameInput) {
-      window.LikeStudioWidgets.attachClientAutocomplete(clientNameInput, { minChars: 2 });
-    }
-
-    loadConsents();
-  </script>
+  <script src="js/consents.js"></script>
 </body>
 </html>
-

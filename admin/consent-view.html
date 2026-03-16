@@ -8,56 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/site.css" />
-  <style>
-    .consent-card {
-      background: #0f141d;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .consent-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .consent-k {
-      color: #9fb0c9;
-      font-size: .9rem;
-      margin-bottom: 4px;
-    }
-    .consent-v {
-      color: #ecf1fa;
-      font-size: .98rem;
-      word-break: break-word;
-    }
-    .consent-text {
-      white-space: pre-wrap;
-    }
-    @media (max-width: 760px) {
-      .consent-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media print {
-      .topbar,
-      .form-actions {
-        display: none !important;
-      }
-      body {
-        background: #fff;
-        color: #000;
-      }
-      .form-wrap,
-      .consent-card,
-      .consent-v,
-      .consent-k {
-        color: #000 !important;
-        border-color: #ddd !important;
-        background: #fff !important;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../css/admin-common.css" />
 </head>
 <body>
   <header class="topbar">
@@ -66,9 +17,8 @@
     <nav class="menu" data-menu>
       <a href="index.html">Consentimientos</a>
       <a href="clients.html">Clientes</a>
-      <a href="client-profiles.html">Perfiles CRM</a>
       <a href="sessions.html">Sesiones</a>
-      <a href="booking-draft.html">Booking / Agenda</a>
+      <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
       <a href="../index.html">Web publica</a>
@@ -76,58 +26,58 @@
     </nav>
   </header>
 
-  <main class="form-wrap" style="width:min(1000px,100% - 2rem)">
-    <p class="eyebrow">Panel Admin</p>
-    <h1>Detalle de consentimiento</h1>
-    <p id="loading" class="form-note">Cargando...</p>
+  <main class="admin-page-main narrow">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Detalle de consentimiento</h1>
+    <p id="loading" class="page-subtitle">Cargando...</p>
 
     <div id="content" style="display:none;">
-      <div class="form-actions">
-        <button id="view-original" class="btn btn-ghost" type="button">Ver original</button>
-        <button id="download-original-pdf" class="btn btn-ghost" type="button">Descargar PDF original</button>
-        <button id="edit-original" class="btn btn-ghost" type="button">Editar consentimiento</button>
-        <button id="download-summary-pdf" class="btn btn-ghost" type="button">Descargar PDF (resumen)</button>
-        <a class="btn btn-ghost" href="index.html">Volver al listado</a>
+      <div class="admin-toolbar form-actions" style="margin-bottom:1.25rem;">
+        <button id="view-original" class="btn btn-secondary" type="button">Ver original</button>
+        <button id="download-original-pdf" class="btn btn-secondary" type="button">Descargar PDF original</button>
+        <button id="edit-original" class="btn btn-secondary" type="button">Editar consentimiento</button>
+        <button id="download-summary-pdf" class="btn btn-secondary" type="button">Descargar PDF (resumen)</button>
+        <a class="btn btn-secondary" href="index.html">Volver al listado</a>
       </div>
 
-      <section class="consent-card">
-        <div class="consent-grid">
-          <div><div class="consent-k">ID</div><div id="v-id" class="consent-v"></div></div>
-          <div><div class="consent-k">Fecha firma</div><div id="v-signed-at" class="consent-v"></div></div>
-          <div><div class="consent-k">Tipo</div><div id="v-type" class="consent-v"></div></div>
-          <div><div class="consent-k">Profesional</div><div id="v-therapist" class="consent-v"></div></div>
-          <div><div class="consent-k">Cliente</div><div id="v-client" class="consent-v"></div></div>
-          <div><div class="consent-k">DNI/NIE</div><div id="v-id-number" class="consent-v"></div></div>
-          <div><div class="consent-k">Telefono</div><div id="v-phone" class="consent-v"></div></div>
-          <div><div class="consent-k">Email</div><div id="v-email" class="consent-v"></div></div>
-          <div><div class="consent-k">Fotos autorizadas</div><div id="v-photos" class="consent-v"></div></div>
-          <div><div class="consent-k">Firma texto</div><div id="v-signature" class="consent-v"></div></div>
+      <section class="consent-detail-card">
+        <div class="consent-detail-grid">
+          <div><div class="consent-detail-key">ID</div><div id="v-id" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Fecha firma</div><div id="v-signed-at" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Tipo</div><div id="v-type" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Profesional</div><div id="v-therapist" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Cliente</div><div id="v-client" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">DNI/NIE</div><div id="v-id-number" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Telefono</div><div id="v-phone" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Email</div><div id="v-email" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Fotos autorizadas</div><div id="v-photos" class="consent-detail-val"></div></div>
+          <div><div class="consent-detail-key">Firma texto</div><div id="v-signature" class="consent-detail-val"></div></div>
         </div>
       </section>
 
-      <section class="consent-card">
-        <div class="consent-k">Tratamiento / Area</div>
-        <div id="v-treatment" class="consent-v consent-text"></div>
+      <section class="consent-detail-card">
+        <div class="consent-detail-key">Tratamiento / Area</div>
+        <div id="v-treatment" class="consent-detail-val pre"></div>
       </section>
 
-      <section class="consent-card">
-        <div class="consent-k">Condiciones medicas</div>
-        <div id="v-medical" class="consent-v consent-text"></div>
+      <section class="consent-detail-card">
+        <div class="consent-detail-key">Condiciones medicas</div>
+        <div id="v-medical" class="consent-detail-val pre"></div>
       </section>
 
-      <section class="consent-card">
-        <div class="consent-k">Riesgos personalizados</div>
-        <div id="v-risks" class="consent-v consent-text"></div>
+      <section class="consent-detail-card">
+        <div class="consent-detail-key">Riesgos personalizados</div>
+        <div id="v-risks" class="consent-detail-val pre"></div>
       </section>
 
-      <section class="consent-card">
-        <div class="consent-k">Particularidades</div>
-        <div id="v-case" class="consent-v consent-text"></div>
+      <section class="consent-detail-card">
+        <div class="consent-detail-key">Particularidades</div>
+        <div id="v-case" class="consent-detail-val pre"></div>
       </section>
 
-      <section class="consent-card">
-        <div class="consent-k">Puntos aceptados</div>
-        <ul id="v-points" class="consent-v"></ul>
+      <section class="consent-detail-card">
+        <div class="consent-detail-key">Puntos aceptados</div>
+        <ul id="v-points" class="consent-detail-val"></ul>
       </section>
     </div>
   </main>
@@ -136,124 +86,6 @@
   <script src="../static/js/app-config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="../static/js/site.js"></script>
-  <script>
-    function byId(id) { return document.getElementById(id); }
-    function textOrDash(v) { return v ? String(v) : '-'; }
-    function clientIdLabel(v) {
-      var id = String(v || '');
-      return id.indexOf('NO-DOC-') === 0 ? '-' : textOrDash(id);
-    }
-    function typeLabel(v) {
-      return ({
-        micropigmentation: 'Micropigmentacion',
-        micropigmentation_capilar: 'Micropigmentacion capilar',
-        aesthetic_treatment: 'Tratamiento estetico',
-        laser: 'Laser'
-      })[v] || v;
-    }
-    function printTemplatePath(consent) {
-      if (consent.consent_type === 'micropigmentation') {
-        var area = String(consent.treatment_areas || '').toLowerCase();
-        if (area.indexOf('micropigmentacion capilar - condiciones de pago y reservas') === 0) {
-          return 'consent-capilar-condiciones.html';
-        }
-        return 'consent-micropigmentacion.html';
-      }
-      if (consent.consent_type === 'micropigmentation_capilar') {
-        return 'consent-capilar-condiciones.html';
-      }
-      if (consent.consent_type === 'aesthetic_treatment') return 'consent-estetico.html';
-      if (consent.consent_type === 'laser') {
-        var area = String(consent.treatment_areas || '').toLowerCase();
-        if (area.indexOf('eliminacion tatuaje/micropigmentacion') === 0) {
-          return 'consent-eliminacion-laser.html';
-        }
-        return 'consent-laser.html';
-      }
-      return null;
-    }
-
-    async function loadDetail() {
-      var loading = byId('loading');
-      var content = byId('content');
-      var params = new URLSearchParams(window.location.search);
-      var id = params.get('id');
-
-      if (!id) {
-        loading.textContent = 'Falta el id del consentimiento.';
-        return;
-      }
-
-      try {
-        var response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/consents/${id}`);
-        if (!response.ok) throw new Error('No se pudo cargar el consentimiento.');
-        var c = await response.json();
-
-        byId('v-id').textContent = c.id;
-        byId('v-signed-at').textContent = textOrDash(c.signed_at);
-        byId('v-type').textContent = typeLabel(c.consent_type);
-        byId('v-therapist').textContent = textOrDash(c.therapist_name);
-        byId('v-client').textContent = textOrDash(c.client_name);
-        byId('v-id-number').textContent = clientIdLabel(c.client_id_number);
-        byId('v-phone').textContent = textOrDash(c.client_phone);
-        byId('v-email').textContent = textOrDash(c.client_email);
-        byId('v-photos').textContent = c.photos_allowed ? 'Si' : 'No';
-        byId('v-signature').textContent = textOrDash(c.signature_text);
-        byId('v-treatment').textContent = textOrDash(c.treatment_areas);
-        byId('v-medical').textContent = textOrDash(c.medical_conditions);
-        byId('v-risks').textContent = textOrDash(c.personalized_risks);
-        byId('v-case').textContent = textOrDash(c.case_particularities);
-
-        var points = Array.isArray(c.acceptance_points) ? c.acceptance_points : [];
-        byId('v-points').innerHTML = points.length
-          ? points.map(function (p) { return '<li>' + p + '</li>'; }).join('')
-          : '<li>-</li>';
-
-        var path = printTemplatePath(c);
-        var viewBtn = byId('view-original');
-        var originalPdfBtn = byId('download-original-pdf');
-        var editBtn = byId('edit-original');
-        var pdfBtn = byId('download-summary-pdf');
-        if (path) {
-          viewBtn.onclick = function () {
-            var url = path + '?consent_id=' + encodeURIComponent(c.id);
-            window.open(url, '_blank', 'noopener');
-          };
-          originalPdfBtn.onclick = function () {
-            var url = path + '?consent_id=' + encodeURIComponent(c.id) + '&autopdf=1';
-            window.open(url, '_blank', 'noopener');
-          };
-          editBtn.onclick = function () {
-            var url = path + '?consent_id=' + encodeURIComponent(c.id) + '&mode=edit';
-            window.open(url, '_blank', 'noopener');
-          };
-        } else {
-          viewBtn.disabled = true;
-          originalPdfBtn.disabled = true;
-          editBtn.disabled = true;
-        }
-
-        pdfBtn.onclick = function () {
-          var target = byId('content');
-          var options = {
-            margin: 8,
-            filename: 'consentimiento-' + c.id + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
-          };
-          html2pdf().set(options).from(target).save();
-        };
-
-        loading.style.display = 'none';
-        content.style.display = 'block';
-      } catch (error) {
-        loading.textContent = error.message;
-      }
-    }
-
-    loadDetail();
-  </script>
+  <script src="js/consent-view.js"></script>
 </body>
 </html>

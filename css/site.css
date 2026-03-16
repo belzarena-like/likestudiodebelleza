@@ -14,7 +14,17 @@
 
 * {
   box-sizing: border-box;
+  /* Styled scrollbars — Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #2a354a #0e1014;
 }
+
+/* Styled scrollbars — WebKit/Blink */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: #0e1014; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #2a354a; border-radius: 10px; border: 2px solid #0e1014; }
+::-webkit-scrollbar-thumb:hover { background: #3a4a60; }
+::-webkit-scrollbar-corner { background: #0e1014; }
 
 html,
 body {
@@ -469,7 +479,7 @@ a {
 }
 
 .form-wrap {
-  width: min(980px, 100% - 2rem);
+  width: min(1400px, 100% - 2rem);
   margin: 2.2rem auto 4rem;
   background: #141922;
   border: 1px solid var(--line);
@@ -498,7 +508,7 @@ input,
 textarea,
 select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #2f3a4f;
   font: inherit;
@@ -630,7 +640,7 @@ textarea {
   }
 
   .form-wrap {
-    width: min(920px, 100% - 1.5rem);
+    width: min(100% - 1.5rem, 1400px);
     margin: 1.6rem auto 3rem;
   }
 
@@ -671,13 +681,13 @@ textarea {
   }
 
   .topbar-actions {
-    order: 2;
+    order: 3;
     width: 100%;
     justify-content: flex-end;
   }
 
   .menu-toggle {
-    order: 3;
+    order: 1;
   }
 
   .split,
@@ -687,6 +697,17 @@ textarea {
   .reviews-wrap,
   .trust-strip,
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-wrap {
+    width: 100%;
+    margin: 1rem auto 2rem;
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .check-grid {
     grid-template-columns: 1fr;
   }
 
