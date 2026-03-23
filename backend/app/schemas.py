@@ -107,6 +107,21 @@ class AdminClientProfileSearchResponse(BaseModel):
     offset: int
 
 
+class WorkingHoursDay(BaseModel):
+    weekday: int = Field(ge=0, le=6)
+    is_open: bool
+    start_time: time | None = None
+    end_time: time | None = None
+
+
+class WorkingHoursUpdate(BaseModel):
+    items: list[WorkingHoursDay] = Field(min_length=1)
+
+
+class WorkingHoursResponse(BaseModel):
+    items: list[WorkingHoursDay]
+
+
 class AvailabilityResponse(BaseModel):
     date: date
     professional_name: str
@@ -209,6 +224,35 @@ class SessionAttendanceUpdate(BaseModel):
     attended: bool
 
 
+class SessionAppointmentHistoryItem(BaseModel):
+    id: int
+    appointment_date: date
+    start_time: time
+    end_time: time
+    professional_name: str
+    service_name: str
+    status: str
+    notes: str | None
+
+
+class SessionAppointmentHistoryResponse(BaseModel):
+    items: list[SessionAppointmentHistoryItem]
+
+
+class SessionAppointmentCreate(BaseModel):
+    appointment_date: date
+    start_time: time
+    end_time: time
+    professional_name: str = Field(min_length=2, max_length=180)
+    status: str = Field(default="completed", max_length=32)
+    notes: str | None = None
+
+
+class SessionDeleteResponse(BaseModel):
+    id: int
+    deleted: bool
+
+
 class AppointmentType(str, Enum):
     APPOINTMENT = "appointment"
     BLOCK = "block"
@@ -229,6 +273,7 @@ class AppointmentCreate(BaseModel):
 
 class AppointmentUpdate(BaseModel):
     client_id: int | None = None
+    session_id: int | None = None
     service_id: int | None = None
     service_name: str | None = Field(default=None, min_length=2, max_length=220)
     professional_name: str | None = Field(default=None, min_length=2, max_length=180)
@@ -243,6 +288,7 @@ class AppointmentUpdate(BaseModel):
 
 class AppointmentRead(AppointmentCreate):
     id: int
+    session_id: int | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -254,6 +300,7 @@ class AppointmentAdminRead(BaseModel):
     client_id: int | None
     client_name: str | None
     client_phone: str | None
+    session_id: int | None = None
     service_id: int | None
     service_name: str
     professional_name: str
@@ -354,3 +401,101 @@ class AdminClientPrefillRead(BaseModel):
     id_number: str
     phone: str | None
     email: str | None
+# Training/Course Management Schemas
+
+class TrainingVideoCreate(BaseModel):
+    title: str = Field(..., min_length=2, max_length=200)
+    description: str | None = None
+    filename: str = Field(..., min_length=1, max_length=500)
+    s3_key: str = Field(..., min_length=1, max_length=500)
+    s3_bucket: str = Field(..., min_length=1, max_length=200)
+    duration_seconds: int | None = None
+    file_size_bytes: int | None = None
+    mime_type: str = Field(default="video/mp4", max_length=100)
+    is_public: bool = False
+
+class TrainingVideoRead(TrainingVideoCreate):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = {"from_attributes": True}
+
+class TrainingSessionCreate(BaseModel):
+    title: str = Field(..., min_length=2, max_length=200)
+    description: str | None = None
+    instructor_name: str = Field(..., min_length=2, max_length=180)
+    category: str = Field(..., min_length=2, max_length=100)
+    difficulty_level: str = Field(default="beginner", pattern="^(beginner|intermediate|advanced)$")
+    access_expiry_days: int = Field(default=30, ge=1, le=365)
+    is_active: bool = True
+
+class TrainingSessionRead(TrainingSessionCreate):
+    id: int
+    total_duration_minutes: int = 0
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = {"from_attributes": True}
+
+class TrainingSessionUpdate(BaseModel):
+    title: str | None = Field(None, min_length=2, max_length=200)
+    description: str | None = None
+    instructor_name: str | None = Field(None, min_length=2, max_length=180)
+    category: str | None = Field(None, min_length=2, max_length=100)
+    difficulty_level: str | None = Field(None, pattern="^(beginner|intermediate|advanced)$")
+    access_expiry_days: int | None = Field(None, ge=1, le=365)
+    is_active: bool | None = None
+
+class TrainingSessionVideoLink(BaseModel):
+    training_session_id: int
+    video_id: int
+    display_order: int = 0
+
+class TrainingUserAccessCreate(BaseModel):
+    training_session_id: int
+    username: str = Field(..., min_length=3, max_length=100)
+    password: str = Field(..., min_length=6, max_length=100)
+    full_name: str = Field(..., min_length=2, max_length=180)
+    email: str | None = Field(None, max_length=180)
+    access_days: int = Field(30, ge=1, le=365)
+
+class TrainingUserAccessRead(BaseModel):
+    id: int
+    training_session_id: int
+    username: str
+    full_name: str
+    email: str | None
+    access_granted_at: datetime
+    access_expires_at: datetime
+    is_active: bool
+    last_access_at: datetime | None
+    access_count: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = {"from_attributes": True}
+
+class TrainingVideoViewLogCreate(BaseModel):
+    video_id: int
+    training_session_id: int
+    user_access_id: int
+    ip_address: str | None = None
+    user_agent: str | None = None
+
+class TrainingSessionWithVideos(TrainingSessionRead):
+    videos: list[TrainingVideoRead] = []
+    user_access_count: int = 0
+    active_users: int = 0
+
+class TrainingSessionSearchResponse(BaseModel):
+    items: list[TrainingSessionRead]
+    total: int
+    limit: int
+    offset: int
+
+class TrainingUserAccessSearchResponse(BaseModel):
+    items: list[TrainingUserAccessRead]
+    total: int
+    limit: int
+    offset: int

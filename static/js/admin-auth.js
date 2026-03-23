@@ -1,7 +1,7 @@
 ﻿(function () {
   var AUTH_KEY = "likestudio_admin_auth_v2";
   var LEGACY_AUTH_KEY = "likestudio_admin_auth";
-  var AUTH_TTL_MS = 2 * 60 * 60 * 1000;
+  var AUTH_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
   var USERNAME = "likestudio";
   var PASSWORD = "liegeJosemi2026";
 

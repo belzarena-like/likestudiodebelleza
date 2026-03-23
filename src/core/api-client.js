@@ -1,0 +1,157 @@
+/**
+ * API Client - Centralized HTTP client for all API calls
+ */
+
+export class ApiClient {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  /**
+   * Make a GET request
+   */
+  async get(endpoint, params = {}) {
+    const url = new URL(endpoint, this.baseURL);
+    Object.keys(params).forEach(key => {
+      if (params[key] !== null && params[key] !== undefined) {
+        url.searchParams.append(key, params[key]);
+      }
+    });
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this._getHeaders(),
+    });
+
+    return this._handleResponse(response);
+  }
+
+  /**
+   * Make a POST request
+   */
+  async post(endpoint, data = {}) {
+    const url = new URL(endpoint, this.baseURL);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: this._getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    return this._handleResponse(response);
+  }
+
+  /**
+   * Make a POST request with FormData
+   */
+  async postForm(endpoint, formData) {
+    const url = new URL(endpoint, this.baseURL);
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    return this._handleResponse(response);
+  }
+
+  /**
+   * Make a PUT request
+   */
+  async put(endpoint, data = {}) {
+    const url = new URL(endpoint, this.baseURL);
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: this._getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    return this._handleResponse(response);
+  }
+
+  /**
+   * Make a DELETE request
+   */
+  async delete(endpoint) {
+    const url = new URL(endpoint, this.baseURL);
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: this._getHeaders(),
+    });
+
+    return this._handleResponse(response);
+  }
+
+  /**
+   * Upload file directly to S3 using pre-signed URL
+   */
+  async uploadToS3(presignedUrl, file, contentType, onProgress = null) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', presignedUrl);
+      xhr.setRequestHeader('Content-Type', contentType);
+
+      if (onProgress) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = Math.round((e.loaded / e.total) * 100);
+            onProgress(percentComplete);
+          }
+        };
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Upload failed: ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Upload failed'));
+      xhr.send(file);
+    });
+  }
+
+  /**
+   * Get default headers
+   */
+  _getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  /**
+   * Handle API response
+   */
+  async _handleResponse(response) {
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new ApiError(error.detail || 'Request failed', response.status, error);
+    }
+
+    // Handle empty responses
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return null;
+    }
+
+    return response.json();
+  }
+}
+
+/**
+ * Custom API Error class
+ */
+export class ApiError extends Error {
+  constructor(message, status, data) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
+// Create singleton instance
+export const apiClient = new ApiClient(
+  window.APP_CONFIG?.API_BASE_URL || 'https://apis.listoapp.es/like_api'
+);
