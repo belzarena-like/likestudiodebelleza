@@ -4,16 +4,12 @@
 
 export class ApiClient {
   constructor() {
-    // Don't set baseURL in constructor - read it lazily
-    this._baseURL = null;
+    // Don't cache baseURL - always read fresh from config
   }
 
   get baseURL() {
-    // Lazy load the base URL from config
-    if (!this._baseURL) {
-      this._baseURL = window.APP_CONFIG?.API_BASE_URL || 'https://apis.listoapp.es/like_api';
-    }
-    return this._baseURL;
+    // Always read fresh from config (no caching)
+    return window.APP_CONFIG?.API_BASE_URL || 'https://apis.listoapp.es/like_api';
   }
 
   /**
