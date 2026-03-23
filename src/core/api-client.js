@@ -3,8 +3,17 @@
  */
 
 export class ApiClient {
-  constructor(baseURL) {
-    this.baseURL = baseURL;
+  constructor() {
+    // Don't set baseURL in constructor - read it lazily
+    this._baseURL = null;
+  }
+
+  get baseURL() {
+    // Lazy load the base URL from config
+    if (!this._baseURL) {
+      this._baseURL = window.APP_CONFIG?.API_BASE_URL || 'https://apis.listoapp.es/like_api';
+    }
+    return this._baseURL;
   }
 
   /**
@@ -151,7 +160,5 @@ export class ApiError extends Error {
   }
 }
 
-// Create singleton instance
-export const apiClient = new ApiClient(
-  window.APP_CONFIG?.API_BASE_URL || 'https://apis.listoapp.es/like_api'
-);
+// Create singleton instance (baseURL will be read lazily)
+export const apiClient = new ApiClient();
