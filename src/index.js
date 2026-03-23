@@ -9,6 +9,7 @@ export * from './core/storage.js';
 export * from './core/utils.js';
 
 // Services
+export * from './services/academy.service.js';
 export * from './services/training.service.js';
 export * from './services/client.service.js';
 export * from './services/appointment.service.js';
