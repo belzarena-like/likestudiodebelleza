@@ -74,10 +74,10 @@ export class Storage {
   }
 }
 
-// Create singleton instances
-export const localStorage = new Storage('local');
-export const sessionStorage = new Storage('session');
+// Create singleton instances with different names to avoid shadowing globals
+export const localStorageWrapper = new Storage('local');
+export const sessionStorageWrapper = new Storage('session');
 
 // Default export for convenience
-export const storage = localStorage;
+export const storage = localStorageWrapper;
 export default storage;
