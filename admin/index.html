@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consentimientos | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <img class="brand-logo" src="../assets/imgs/logo.jpg" alt="Like Studio logo" />
+      <span>Admin Like Studio</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Consentimientos</a>
+      <a href="clients.html">Clientes</a>
+      <a href="sessions.html">Sesiones</a>
+      <a href="booking-draft.html">Agenda</a>
+      <a href="services.html">Servicios</a>
+      <a href="working-hours.html">Horario</a>
+      <div class="menu-item">
+        <a href="#">Academia <span class="menu-item-arrow">▼</span></a>
+        <div class="submenu">
+          <a href="training.html">Gestión de Cursos</a>
+          <a href="videos.html">Gestión de Videos</a>
+        </div>
+      </div>
+      <a href="../index.html">Web publica</a>
+      <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
+    </nav>
+  </header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Consentimientos firmados</h1>
+
+    <div class="admin-toolbar">
+      <div class="quick-create">
+        <details>
+          <summary class="btn btn-primary">+ Nuevo consentimiento</summary>
+          <div class="quick-create-panel">
+            <a class="btn btn-secondary" href="consent-selector.html">Selector de consentimiento</a>
+            <a class="btn btn-secondary" href="consent-micropigmentacion.html">Micropigmentacion</a>
+            <a class="btn btn-secondary" href="consent-capilar-condiciones.html">Micropigmentacion capilar</a>
+            <a class="btn btn-secondary" href="consent-estetico.html">Ficha estetica corporal</a>
+            <a class="btn btn-secondary" href="consent-laser.html">Depilacion laser</a>
+            <a class="btn btn-secondary" href="consent-eliminacion-laser.html">Eliminacion tatuaje/micropigmentacion</a>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <form id="search-form" class="admin-filters">
+      <div class="admin-filter-field wide">
+        <label class="filter-label" for="full_name">Nombre o teléfono</label>
+        <input class="filter-input" id="full_name" name="full_name" placeholder="Buscar cliente..." />
+      </div>
+      <div class="admin-filter-field">
+        <label class="filter-label" for="id_number">DNI/NIE</label>
+        <input class="filter-input" id="id_number" name="id_number" />
+      </div>
+      <div class="admin-filter-field">
+        <label class="filter-label" for="therapist_name">Profesional</label>
+        <input class="filter-input" id="therapist_name" name="therapist_name" />
+      </div>
+      <div class="admin-filter-field">
+        <label class="filter-label" for="consent_type">Tipo</label>
+        <select class="filter-select" id="consent_type" name="consent_type">
+          <option value="">Todos</option>
+          <option value="micropigmentation">Micropigmentacion</option>
+          <option value="micropigmentation_capilar">Micropigmentacion capilar</option>
+          <option value="aesthetic_treatment">Tratamiento estetico</option>
+          <option value="laser">Depilacion laser</option>
+        </select>
+      </div>
+      <div class="admin-filter-field narrow">
+        <label class="filter-label" for="signed_from">Desde</label>
+        <input class="filter-input" id="signed_from" name="signed_from" type="date" />
+      </div>
+      <div class="admin-filter-field narrow">
+        <label class="filter-label" for="signed_to">Hasta</label>
+        <input class="filter-input" id="signed_to" name="signed_to" type="date" />
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <button class="btn btn-secondary" type="button" id="reset">Limpiar</button>
+      </div>
+    </form>
+
+    <p id="summary" class="admin-summary">Cargando...</p>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Fecha firma</th>
+            <th>Cliente</th>
+            <th>DNI/NIE</th>
+            <th>Tipo</th>
+            <th>Tratamiento/Área</th>
+            <th>Profesional</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="admin-pagination">
+      <button id="prev" class="btn btn-secondary" type="button">← Anterior</button>
+      <button id="next" class="btn btn-secondary" type="button">Siguiente →</button>
+    </div>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script type="module" src="js/consents.js"></script>
+</body>
+</html>
