@@ -16,7 +16,7 @@ export class ApiClient {
    * Make a GET request
    */
   async get(endpoint, params = {}) {
-    const url = new URL(endpoint, this.baseURL);
+    const url = new URL(this.baseURL + endpoint);
     Object.keys(params).forEach(key => {
       if (params[key] !== null && params[key] !== undefined) {
         url.searchParams.append(key, params[key]);
@@ -35,7 +35,7 @@ export class ApiClient {
    * Make a POST request
    */
   async post(endpoint, data = {}) {
-    const url = new URL(endpoint, this.baseURL);
+    const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'POST',
       headers: this._getHeaders(),
@@ -49,7 +49,7 @@ export class ApiClient {
    * Make a POST request with FormData
    */
   async postForm(endpoint, formData) {
-    const url = new URL(endpoint, this.baseURL);
+    const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
@@ -62,7 +62,7 @@ export class ApiClient {
    * Make a PUT request
    */
   async put(endpoint, data = {}) {
-    const url = new URL(endpoint, this.baseURL);
+    const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'PUT',
       headers: this._getHeaders(),
@@ -76,7 +76,7 @@ export class ApiClient {
    * Make a DELETE request
    */
   async delete(endpoint) {
-    const url = new URL(endpoint, this.baseURL);
+    const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'DELETE',
       headers: this._getHeaders(),

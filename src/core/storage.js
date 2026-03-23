@@ -77,3 +77,7 @@ export class Storage {
 // Create singleton instances
 export const localStorage = new Storage('local');
 export const sessionStorage = new Storage('session');
+
+// Default export for convenience
+export const storage = localStorage;
+export default storage;
