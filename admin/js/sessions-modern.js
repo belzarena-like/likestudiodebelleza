@@ -311,7 +311,7 @@ class SessionsModernController {
 
       <div class="card-actions">
         <span class="card-msg" data-msg></span>
-        <button class="btn btn-danger btn-sm" data-attend="no">No asistió</button>
+        <button class="btn btn-danger btn-sm" data-attend="no-lost">❌ No asistió (Sesión perdida)</button>
         <button class="btn btn-secondary btn-sm" data-save-session>Guardar</button>
         <button class="btn btn-secondary btn-sm" data-consent>Consentimiento</button>
         ${sid ? `<button class="btn btn-secondary btn-sm" data-history-toggle="${sid}">Ver historial</button>` : ''}
@@ -523,7 +523,12 @@ class SessionsModernController {
     // Attend button
     const attendBtn = e.target.closest('[data-attend]');
     if (attendBtn) {
-      await this.handleAttendance(aid, attendBtn.dataset.attend === 'yes', msg);
+      const attendType = attendBtn.dataset.attend;
+      if (attendType === 'no-lost') {
+        await this.handleNoShowLost(aid, sid, msg);
+      } else {
+        await this.handleAttendance(aid, attendType === 'yes', msg);
+      }
       return;
     }
 
@@ -643,6 +648,40 @@ class SessionsModernController {
     } catch (error) {
       msgEl.textContent = error.message;
       Toast.error('Error al marcar asistencia');
+    }
+  }
+
+  async handleNoShowLost(appointmentId, sessionId, msgEl) {
+    if (!confirm('¿Confirmar que el cliente no asistió y se pierde la sesión? Esta acción marcará la sesión como completada sin asistencia.')) {
+      return;
+    }
+
+    msgEl.textContent = 'Guardando...';
+    
+    try {
+      // Mark appointment as cancelled/no-show
+      await appointmentService.updateAppointment(appointmentId, { 
+        status: 'cancelled',
+        notes: 'No asistió - Sesión perdida'
+      });
+
+      // If there's a session, increment completed count (lost session counts as completed)
+      if (sessionId) {
+        const card = document.querySelector(`[data-session-id="${sessionId}"]`);
+        if (card) {
+          const currentCompleted = parseInt(card.querySelector('[data-field="completed"]').value) || 0;
+          await sessionService.updateSession(sessionId, { 
+            completed_sessions: currentCompleted + 1 
+          });
+        }
+      }
+
+      msgEl.textContent = '✓ Sesión perdida marcada';
+      Toast.success('Sesión marcada como perdida - cuenta como completada');
+      await this.load();
+    } catch (error) {
+      msgEl.textContent = error.message;
+      Toast.error('Error al marcar sesión perdida');
     }
   }
 

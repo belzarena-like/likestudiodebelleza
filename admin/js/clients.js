@@ -1,5 +1,5 @@
 /**
- * Clients Controller - Refactored to use clean architecture
+ * Clients Controller - Refactored to use clean architecture with expandable cards
  */
 
 import { clientService } from '../../src/services/client.service.js';
@@ -15,11 +15,12 @@ class ClientsController {
     this.lastTotal = 0;
     this.editingId = null;
     this.clientsById = {};
+    this.expandedClientId = null;
 
     // DOM elements
     this.form = document.getElementById('search-form');
     this.summary = document.getElementById('summary');
-    this.tbody = document.getElementById('table-body');
+    this.clientsList = document.getElementById('clients-list');
     this.modal = new Modal('client-modal');
     this.modalTitle = document.getElementById('modal-title');
     this.clientForm = document.getElementById('client-form');
@@ -70,11 +71,25 @@ class ClientsController {
     // Client form submit
     this.clientForm.addEventListener('submit', (e) => this.handleSubmit(e));
 
-    // Table row actions
-    this.tbody.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-edit-id]');
-      if (btn) {
-        this.startEdit(parseInt(btn.dataset.editId));
+    // Client card actions (event delegation)
+    this.clientsList.addEventListener('click', (e) => {
+      const card = e.target.closest('.client-card');
+      if (!card) return;
+
+      const clientId = parseInt(card.dataset.clientId);
+
+      // Toggle card
+      if (e.target.closest('.client-card-header') && !e.target.closest('.client-card-actions')) {
+        this.toggleCard(clientId);
+        return;
+      }
+
+      // Edit button
+      const editBtn = e.target.closest('[data-edit-id]');
+      if (editBtn) {
+        e.stopPropagation();
+        this.startEdit(clientId);
+        return;
       }
     });
 
@@ -99,39 +114,61 @@ class ClientsController {
       const data = await clientService.searchClients(query, false, this.LIMIT, this.offset);
       
       this.lastTotal = data.total;
-      this.renderRows(data.items);
+      this.renderCards(data.items);
       this.updateSummary(data);
       this.updatePagination(data);
     } catch (error) {
       this.summary.textContent = 'Error al cargar clientes';
-      this.tbody.innerHTML = '';
+      this.clientsList.innerHTML = '<p class="history-empty">No se pudieron cargar los clientes</p>';
       Toast.error('No se pudieron obtener los clientes');
     }
   }
 
-  renderRows(items) {
+  renderCards(items) {
     if (!items.length) {
-      this.tbody.innerHTML = `<tr><td class="admin-table-empty" colspan="5">Sin resultados.</td></tr>`;
+      this.clientsList.innerHTML = '<p class="history-empty">Sin resultados.</p>';
       return;
     }
 
     this.clientsById = {};
-    this.tbody.innerHTML = items.map(item => {
+    this.clientsList.innerHTML = items.map(item => {
       this.clientsById[item.id] = item;
-      const nameParam = encodeURIComponent(item.full_name || '');
-      const sessionQuery = encodeURIComponent(item.phone || item.full_name || '');
       
-      return `<tr>
-        <td>${item.full_name}</td>
-        <td>${item.id_number}</td>
-        <td>${item.phone || '—'}</td>
-        <td>${item.email || '—'}</td>
-        <td><div class="row-actions">
-          <button class="btn btn-secondary btn-sm" data-edit-id="${item.id}">Editar</button>
-          <a class="btn btn-secondary btn-sm" href="index.html?full_name=${nameParam}">Consentimientos</a>
-          <a class="btn btn-secondary btn-sm" href="sessions.html?query=${sessionQuery}">Sesiones</a>
-        </div></td>
-      </tr>`;
+      return `
+        <div class="client-card" data-client-id="${item.id}">
+          <div class="client-card-header">
+            <div class="client-card-field">
+              <span class="client-card-label">Nombre</span>
+              <span class="client-card-value">${item.full_name}</span>
+            </div>
+            <div class="client-card-field">
+              <span class="client-card-label">DNI/NIE</span>
+              <span class="client-card-value">${item.id_number}</span>
+            </div>
+            <div class="client-card-field">
+              <span class="client-card-label">Teléfono</span>
+              <span class="client-card-value">${item.phone || '—'}</span>
+            </div>
+            <div class="client-card-field">
+              <span class="client-card-label">Email</span>
+              <span class="client-card-value">${item.email || '—'}</span>
+            </div>
+            <div class="client-card-actions">
+              <button class="btn btn-secondary btn-sm" data-edit-id="${item.id}" title="Editar cliente">
+                ✏️ Editar
+              </button>
+              <button class="client-card-toggle" title="Ver historial">
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="client-card-body">
+            <div class="client-card-content" id="client-history-${item.id}">
+              <p class="history-empty">Cargando historial...</p>
+            </div>
+          </div>
+        </div>
+      `;
     }).join('');
   }
 
@@ -144,6 +181,199 @@ class ClientsController {
   updatePagination(data) {
     document.getElementById('prev').disabled = data.offset <= 0;
     document.getElementById('next').disabled = data.offset + data.limit >= data.total;
+  }
+
+  async toggleCard(clientId) {
+    const card = document.querySelector(`[data-client-id="${clientId}"]`);
+    if (!card) return;
+
+    const isExpanded = card.classList.contains('expanded');
+
+    // Collapse all cards
+    document.querySelectorAll('.client-card.expanded').forEach(c => {
+      c.classList.remove('expanded');
+    });
+
+    if (!isExpanded) {
+      card.classList.add('expanded');
+      this.expandedClientId = clientId;
+      await this.loadHistory(clientId);
+    } else {
+      this.expandedClientId = null;
+    }
+  }
+
+  async loadHistory(clientId) {
+    const client = this.clientsById[clientId];
+    if (!client) return;
+
+    const content = document.getElementById(`client-history-${clientId}`);
+    content.innerHTML = '<p class="history-empty">Cargando historial...</p>';
+
+    try {
+      // Fetch all client data in parallel
+      const [consents, sessions, appointments] = await Promise.all([
+        this.fetchConsents(clientId),
+        this.fetchSessions(clientId),
+        this.fetchAppointments(clientId)
+      ]);
+
+      content.innerHTML = this.renderHistory(client, consents, sessions, appointments);
+    } catch (error) {
+      content.innerHTML = '<p class="history-empty">Error al cargar el historial</p>';
+      Toast.error('No se pudo cargar el historial del cliente');
+    }
+  }
+
+  async fetchConsents(clientId) {
+    try {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/clients/${clientId}/consents`);
+      if (!response.ok) return [];
+      return await response.json();
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async fetchSessions(clientId) {
+    try {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/sessions?client_id=${clientId}&limit=100`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.items || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async fetchAppointments(clientId) {
+    try {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/appointments?client_id=${clientId}&limit=100`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.items || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  renderHistory(client, consents, sessions, appointments) {
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '—';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    const formatTime = (timeStr) => {
+      if (!timeStr) return '—';
+      return timeStr.slice(0, 5);
+    };
+
+    const consentTypeMap = {
+      'micropigmentation': 'Micropigmentación',
+      'micropigmentation_capilar': 'Micropigmentación Capilar',
+      'aesthetic_treatment': 'Tratamiento Estético',
+      'laser': 'Láser'
+    };
+
+    const nameParam = encodeURIComponent(client.full_name || '');
+    const sessionQuery = encodeURIComponent(client.phone || client.full_name || '');
+
+    return `
+      <div class="history-section">
+        <div class="history-section-header">
+          <div class="history-section-title">
+            Consentimientos
+            <span class="history-section-count">${consents.length}</span>
+          </div>
+          <div class="history-section-actions">
+            <a href="index.html?full_name=${nameParam}" class="btn btn-secondary btn-sm" target="_blank">
+              Ver Todos →
+            </a>
+          </div>
+        </div>
+        ${consents.length === 0 ? '<p class="history-empty">No hay consentimientos registrados</p>' : 
+          consents.slice(0, 5).map(c => `
+            <div class="history-item">
+              <div class="history-item-header">
+                <div>
+                  <div class="history-item-title">${consentTypeMap[c.consent_type] || c.consent_type}</div>
+                  <div class="history-item-detail">${c.treatment_areas}</div>
+                  <div class="history-item-detail">Profesional: ${c.therapist_name}</div>
+                </div>
+                <div class="history-item-date">${formatDate(c.signed_at)}</div>
+              </div>
+              <div class="history-item-footer">
+                <a href="consent-view.html?id=${c.id}" class="btn btn-secondary btn-sm" target="_blank">Ver Detalle</a>
+              </div>
+            </div>
+          `).join('') + (consents.length > 5 ? `<p class="history-empty">Y ${consents.length - 5} más...</p>` : '')
+        }
+      </div>
+
+      <div class="history-section">
+        <div class="history-section-header">
+          <div class="history-section-title">
+            Sesiones de Tratamiento
+            <span class="history-section-count">${sessions.length}</span>
+          </div>
+          <div class="history-section-actions">
+            <a href="sessions.html?query=${sessionQuery}" class="btn btn-secondary btn-sm" target="_blank">
+              Ver Todas →
+            </a>
+          </div>
+        </div>
+        ${sessions.length === 0 ? '<p class="history-empty">No hay sesiones registradas</p>' : 
+          sessions.slice(0, 5).map(s => `
+            <div class="history-item">
+              <div class="history-item-header">
+                <div>
+                  <div class="history-item-title">${s.treatment_name}</div>
+                  <div class="history-item-detail">Sesiones: ${s.completed_sessions} / ${s.planned_sessions}</div>
+                  ${s.notes ? `<div class="history-item-detail">Notas: ${s.notes}</div>` : ''}
+                </div>
+                <div class="history-item-date">${formatDate(s.created_at)}</div>
+              </div>
+              <div class="history-item-footer">
+                <span class="history-item-badge badge-${s.status === 'completed' ? 'completed' : 'planned'}">${s.status}</span>
+              </div>
+            </div>
+          `).join('') + (sessions.length > 5 ? `<p class="history-empty">Y ${sessions.length - 5} más...</p>` : '')
+        }
+      </div>
+
+      <div class="history-section">
+        <div class="history-section-header">
+          <div class="history-section-title">
+            Citas
+            <span class="history-section-count">${appointments.length}</span>
+          </div>
+          <div class="history-section-actions">
+            <a href="booking-draft.html?client_id=${client.id}" class="btn btn-secondary btn-sm" target="_blank">
+              Ver Todas →
+            </a>
+          </div>
+        </div>
+        ${appointments.length === 0 ? '<p class="history-empty">No hay citas registradas</p>' : 
+          appointments.slice(0, 5).map(a => `
+            <div class="history-item">
+              <div class="history-item-header">
+                <div>
+                  <div class="history-item-title">${a.service_name}</div>
+                  <div class="history-item-detail">Profesional: ${a.professional_name}</div>
+                  <div class="history-item-detail">Hora: ${formatTime(a.start_time)} - ${formatTime(a.end_time)}</div>
+                  ${a.notes ? `<div class="history-item-detail">Notas: ${a.notes}</div>` : ''}
+                </div>
+                <div class="history-item-date">${formatDate(a.appointment_date)}</div>
+              </div>
+              <div class="history-item-footer">
+                <span class="history-item-badge badge-${a.status === 'completed' ? 'completed' : a.status === 'cancelled' ? 'cancelled' : 'scheduled'}">${a.status}</span>
+              </div>
+            </div>
+          `).join('') + (appointments.length > 5 ? `<p class="history-empty">Y ${appointments.length - 5} más...</p>` : '')
+        }
+      </div>
+    `;
   }
 
   resetForm() {
