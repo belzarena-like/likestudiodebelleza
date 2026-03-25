@@ -8,6 +8,7 @@ import { appointmentService } from '../../src/services/appointment.service.js';
 import { storage } from '../../src/core/storage.js';
 import { Toast } from '../../src/ui/components/toast.js';
 import { Loading } from '../../src/ui/components/loading.js';
+import { getStatusLabel, getStatusClass } from '../../src/utils/status-labels.js';
 
 class SessionsModernController {
   constructor() {
@@ -62,24 +63,6 @@ class SessionsModernController {
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  statusLabel(status) {
-    const labels = {
-      planned: 'Planificado',
-      in_progress: 'En progreso',
-      completed: 'Completado',
-    };
-    return labels[status] || status;
-  }
-
-  statusClass(status) {
-    const classes = {
-      planned: 'badge-secondary',
-      in_progress: 'badge-warning',
-      completed: 'badge-success',
-    };
-    return classes[status] || 'badge-secondary';
-  }
-
   matchesSearch(item, query) {
     if (!query) return true;
     const name = (item.client_name || '').toLowerCase();
@@ -124,7 +107,7 @@ class SessionsModernController {
             <div class="history-item-meta">${i.service_name || ''} · ${i.professional_name}${i.notes ? ` · ${i.notes}` : ''}</div>
           </div>
           <div class="history-item-actions">
-            <span class="badge ${this.statusClass(i.status)}">${this.statusLabel(i.status)}</span>
+            <span class="badge ${getStatusClass(i.status)}">${getStatusLabel(i.status)}</span>
             ${i.status !== 'completed' ? `<button class="btn btn-secondary btn-sm" data-history-complete="${i.id}" data-history-session="${sessionId}">Marcar completada</button>` : ''}
             <button class="btn btn-danger btn-sm" data-history-delete="${i.id}">Eliminar</button>
           </div>
@@ -283,7 +266,7 @@ class SessionsModernController {
         </div>
         <div class="client-badges">
           <span class="badge badge-primary">${item.service_name}</span>
-          <span class="badge ${this.statusClass(item.status)}">${this.statusLabel(item.status)}</span>
+          <span class="badge ${getStatusClass(item.status)}">${getStatusLabel(item.status)}</span>
           <span class="session-total-counter" data-total-counter>🗓 ${done} sesión${done !== 1 ? 'es' : ''}</span>
         </div>
       </div>

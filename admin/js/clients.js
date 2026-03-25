@@ -7,6 +7,7 @@ import { Toast } from '../../src/ui/components/toast.js';
 import { Modal } from '../../src/ui/components/modal.js';
 import { Loading } from '../../src/ui/components/loading.js';
 import { Form } from '../../src/ui/components/form.js';
+import { getStatusLabel, getStatusClass } from '../../src/utils/status-labels.js';
 
 class ClientsController {
   constructor() {
@@ -335,7 +336,7 @@ class ClientsController {
                 <div class="history-item-date">${formatDate(s.created_at)}</div>
               </div>
               <div class="history-item-footer">
-                <span class="history-item-badge badge-${s.status === 'completed' ? 'completed' : 'planned'}">${s.status}</span>
+                <span class="history-item-badge ${getStatusClass(s.status)}">${getStatusLabel(s.status)}</span>
               </div>
             </div>
           `).join('') + (sessions.length > 5 ? `<p class="history-empty">Y ${sessions.length - 5} más...</p>` : '')
@@ -367,7 +368,7 @@ class ClientsController {
                 <div class="history-item-date">${formatDate(a.appointment_date)}</div>
               </div>
               <div class="history-item-footer">
-                <span class="history-item-badge badge-${a.status === 'completed' ? 'completed' : a.status === 'cancelled' ? 'cancelled' : 'scheduled'}">${a.status}</span>
+                <span class="history-item-badge ${getStatusClass(a.status)}">${getStatusLabel(a.status)}</span>
               </div>
             </div>
           `).join('') + (appointments.length > 5 ? `<p class="history-empty">Y ${appointments.length - 5} más...</p>` : '')

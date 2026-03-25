@@ -979,13 +979,33 @@ body.modal-open { overflow: hidden; }
 }
 
 .badge-scheduled {
-  background: #7c2d12;
-  color: #fed7aa;
+  background: #92400e;
+  color: #fef3c7;
 }
 
 .badge-cancelled {
   background: #7f1d1d;
   color: #fecaca;
+}
+
+.badge-warning {
+  background: #92400e;
+  color: #fef3c7;
+}
+
+.badge-success {
+  background: #065f46;
+  color: #d1fae5;
+}
+
+.badge-secondary {
+  background: #374151;
+  color: #d1d5db;
+}
+
+.badge-primary {
+  background: #1e40af;
+  color: #dbeafe;
 }
 
 @media (max-width: 1024px) {
