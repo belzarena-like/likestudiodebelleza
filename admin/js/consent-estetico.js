@@ -26,6 +26,8 @@
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
     message.textContent = '';
     const data       = new FormData(form);
     const firstName  = data.get('full_name').trim();
@@ -39,7 +41,7 @@
     const existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
     const finalId    = idNumber || existingId || ('NO-DOC-' + Date.now());
 
-    if (!fullName || !phone || !signature || !therapist || !treatment) { message.textContent = 'Nombre, teléfono, profesional, tratamiento y firma son obligatorios.'; return; }
+    if (!fullName || !phone || !signature || !therapist || !treatment) { message.textContent = 'Nombre, teléfono, profesional, tratamiento y firma son obligatorios.'; submitBtn.disabled = false; return; }
 
     const payload = {
       consent_type: 'aesthetic_treatment', full_name: fullName, id_number: finalId,
@@ -74,6 +76,6 @@
       }
       message.textContent = 'Ficha guardada correctamente.';
       setTimeout(() => { window.location.href = 'index.html'; }, 900);
-    } catch (err) { message.textContent = err.message; }
+    } catch (err) { message.textContent = err.message; submitBtn.disabled = false; }
   });
 })();

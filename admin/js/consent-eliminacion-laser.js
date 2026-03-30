@@ -30,6 +30,8 @@
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
     message.textContent = '';
     const data      = new FormData(form);
     const fullName  = data.get('full_name').trim();
@@ -45,10 +47,12 @@
 
     if (!fullName || !phone || !signature || !therapist || !service) {
       message.textContent = 'Nombre, teléfono, profesional, tratamiento y firma son obligatorios.';
+      submitBtn.disabled = false;
       return;
     }
     if (points.length < 4) {
       message.textContent = 'Debes aceptar todos los puntos obligatorios.';
+      submitBtn.disabled = false;
       return;
     }
 
@@ -87,6 +91,6 @@
       }
       message.textContent = 'Consentimiento de eliminación láser guardado correctamente.';
       setTimeout(() => { window.location.href = 'index.html'; }, 900);
-    } catch (err) { message.textContent = err.message; }
+    } catch (err) { message.textContent = err.message; submitBtn.disabled = false; }
   });
 })();
