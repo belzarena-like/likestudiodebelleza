@@ -283,7 +283,7 @@ class SessionsModernController {
           <div class="session-field">
             <span class="session-field-label">Sesiones completadas</span>
             <input type="number" class="filter-input" style="width:90px" min="0" max="${total}"
-                   value="${done}" data-field="completed" />
+                   value="${done}" data-field="completed" readonly />
           </div>
         </div>
         <div class="session-field">
@@ -507,6 +507,7 @@ class SessionsModernController {
     const attendBtn = e.target.closest('[data-attend]');
     if (attendBtn) {
       const attendType = attendBtn.dataset.attend;
+      console.log('Attend button clicked:', { appointmentId: aid, sessionId: sid, attendType });
       if (attendType === 'no-lost') {
         await this.handleNoShowLost(aid, sid, msg);
       } else {
@@ -621,20 +622,34 @@ class SessionsModernController {
   }
 
   async handleAttendance(appointmentId, attended, msgEl) {
+    if (!appointmentId) {
+      msgEl.textContent = 'Error: ID de cita no válido';
+      Toast.error('ID de cita no válido');
+      return;
+    }
+
     msgEl.textContent = 'Guardando...';
     
     try {
-      await sessionService.markAttendance(parseInt(appointmentId), attended);
+      const result = await sessionService.markAttendance(parseInt(appointmentId), attended);
+      console.log('Attendance marked:', result);
       msgEl.textContent = attended ? '✓ Asistencia marcada' : 'No asistencia marcada';
       Toast.success(attended ? 'Asistencia marcada' : 'No asistencia marcada');
       await this.load();
     } catch (error) {
-      msgEl.textContent = error.message;
+      console.error('Error marking attendance:', error);
+      msgEl.textContent = error.message || 'Error al marcar asistencia';
       Toast.error('Error al marcar asistencia');
     }
   }
 
   async handleNoShowLost(appointmentId, sessionId, msgEl) {
+    if (!appointmentId) {
+      msgEl.textContent = 'Error: ID de cita no válido';
+      Toast.error('ID de cita no válido');
+      return;
+    }
+
     if (!confirm('¿Confirmar que el cliente no asistió y se pierde la sesión? Esta acción marcará la sesión como completada sin asistencia.')) {
       return;
     }
@@ -663,7 +678,8 @@ class SessionsModernController {
       Toast.success('Sesión marcada como perdida - cuenta como completada');
       await this.load();
     } catch (error) {
-      msgEl.textContent = error.message;
+      console.error('Error marking no-show:', error);
+      msgEl.textContent = error.message || 'Error al marcar sesión perdida';
       Toast.error('Error al marcar sesión perdida');
     }
   }
@@ -671,13 +687,12 @@ class SessionsModernController {
   async handleSaveSession(card, sessionId, msgEl) {
     if (!sessionId) return;
     
-    const completed = parseInt(card.querySelector('[data-field="completed"]').value) || 0;
     const notes = card.querySelector('[data-field="notes"]').value || null;
     
     msgEl.textContent = 'Guardando...';
 
     try {
-      await sessionService.updateSession(sessionId, { completed_sessions: completed, notes });
+      await sessionService.updateSession(sessionId, { notes });
       msgEl.textContent = '✓ Guardado';
       Toast.success('Sesión actualizada');
       await this.load();
