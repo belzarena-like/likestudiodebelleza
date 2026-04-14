@@ -8,7 +8,7 @@ import sys
 from datetime import date, datetime, time
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
@@ -564,14 +564,7 @@ def public_availability(
         if is_free(candidate, candidate + duration):
             hour = candidate // 60
             minute = candidate % 60
-            time_str = f"{hour:02d}:{minute:02d}"
-
-            # For services >= 60 minutes, only allow hour slots (x:00)
-            # For services < 60 minutes, allow all 15-minute slots
-            if duration >= 60 and minute != 0:
-                continue
-
-            start_times.append(time_str)
+            start_times.append(f"{hour:02d}:{minute:02d}")
 
     return schemas.AvailabilityResponse(
         date=appointment_date,
@@ -592,27 +585,6 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
     duration = service.duration_minutes or 60
     start_minutes = payload.start_time.hour * 60 + payload.start_time.minute
     end_minutes = start_minutes + duration
-
-    # Validate booking time rules: services >= 60 minutes must start on the hour
-    if duration >= 60 and payload.start_time.minute != 0:
-        raise HTTPException(
-            status_code=400,
-            detail="Servicios de 1 hora o más solo pueden reservarse en horas completas (ej: 10:00, 11:00)",
-        )
-
-    # Validate 4-hour advance booking rule
-    now = datetime.utcnow()
-    appointment_datetime = datetime.combine(
-        payload.appointment_date, payload.start_time
-    )
-    hours_until_appointment = (appointment_datetime - now).total_seconds() / 3600
-
-    if hours_until_appointment < 4:
-        raise HTTPException(
-            status_code=400,
-            detail="Las reservas deben realizarse con al menos 4 horas de anticipación",
-        )
-
     working_hours = crud.get_working_hours_for_date(db, payload.appointment_date)
     if (
         not working_hours
@@ -678,32 +650,6 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     except crud.AppointmentValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-    # Send confirmation email if client has email
-    if client.email:
-        email_settings = crud.get_email_settings(db)
-        if email_settings and email_settings.enabled:
-            from app.services.email_service import EmailService, EmailSettings
-
-            settings = EmailSettings(
-                smtp_host=email_settings.smtp_host,
-                smtp_port=email_settings.smtp_port,
-                smtp_user=email_settings.smtp_user,
-                smtp_password=email_settings.smtp_password,
-                from_email=email_settings.from_email,
-                from_name=email_settings.from_name,
-                enabled=email_settings.enabled,
-            )
-            EmailService.send_appointment_confirmation(
-                settings=settings,
-                client_email=client.email,
-                client_name=client.full_name,
-                service_name=service.name,
-                appointment_date=payload.appointment_date,
-                start_time=payload.start_time.strftime("%H:%M"),
-                professional_name=payload.professional_name,
-                business_name="Like Studio",
-            )
 
     return schemas.PublicBookingResponse(appointment_id=appointment.id)
 
@@ -782,87 +728,3 @@ def admin_get_consent(consent_id: int, db: Session = Depends(get_db)):
     if not consent:
         raise HTTPException(status_code=404, detail="Consent not found")
     return consent
-
-
-@app.put("/consents/{consent_id}/signature")
-async def update_consent_signature(
-    consent_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)
-):
-    """Upload signature image for a consent - stores base64 in database."""
-    consent = db.get(models.Consent, consent_id)
-    if not consent:
-        raise HTTPException(status_code=404, detail="Consent not found")
-
-    # Validate file type
-    if file.content_type not in ["image/png", "image/jpeg"]:
-        raise HTTPException(
-            status_code=400, detail="Only PNG and JPEG images are allowed"
-        )
-
-    # Read file and convert to base64
-    content = await file.read()
-    import base64
-
-    base64_content = base64.b64encode(content).decode("utf-8")
-    mime_type = file.content_type
-
-    # Store base64 directly in database
-    consent.signature_image_path = base64_content
-    consent.signature_mime_type = mime_type
-    db.add(consent)
-    db.commit()
-    db.refresh(consent)
-
-    return {"signature_stored": True, "signature_mime_type": mime_type}
-
-
-# ── Email Settings Routes ─────────────────────────────────────────────────────
-
-
-@app.get("/admin/email-settings", response_model=schemas.EmailSettingsResponse)
-def admin_get_email_settings(db: Session = Depends(get_db)):
-    """Get email settings"""
-    settings = crud.get_email_settings(db)
-    if not settings:
-        return schemas.EmailSettingsResponse(
-            smtp_host="smtp.gmail.com",
-            smtp_port=587,
-            smtp_user="",
-            smtp_password="",
-            from_email="",
-            from_name="Like Studio",
-            enabled=False,
-        )
-    return schemas.EmailSettingsResponse(
-        smtp_host=settings.smtp_host,
-        smtp_port=settings.smtp_port,
-        smtp_user=settings.smtp_user,
-        smtp_password=settings.smtp_password,
-        from_email=settings.from_email,
-        from_name=settings.from_name,
-        enabled=settings.enabled,
-    )
-
-
-@app.put("/admin/email-settings", response_model=schemas.EmailSettingsRead)
-def admin_update_email_settings(
-    payload: schemas.EmailSettingsCreate,
-    db: Session = Depends(get_db),
-):
-    """Create or update email settings"""
-    settings = crud.upsert_email_settings(db, payload)
-    return settings
-
-
-@app.post("/admin/email-settings/test")
-def admin_test_email_settings(
-    payload: schemas.EmailSettingsCreate,
-):
-    """Test email settings by trying to connect"""
-    success, message = EmailService.test_connection(
-        smtp_host=payload.smtp_host,
-        smtp_port=payload.smtp_port,
-        smtp_user=payload.smtp_user,
-        smtp_password=payload.smtp_password,
-    )
-    return schemas.EmailTestResult(success=success, message=message)
