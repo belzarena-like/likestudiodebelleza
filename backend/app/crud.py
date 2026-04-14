@@ -1,8 +1,8 @@
-from datetime import date, datetime, time
 import re
 import unicodedata
+from datetime import date, datetime, time
 
-from sqlalchemy import func, select, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 if __package__:
@@ -31,7 +31,9 @@ DEFAULT_WORKING_HOURS: dict[int, tuple[bool, time | None, time | None]] = {
 }
 
 
-def _normalize_working_hours(item: schemas.WorkingHoursDay) -> tuple[bool, time | None, time | None]:
+def _normalize_working_hours(
+    item: schemas.WorkingHoursDay,
+) -> tuple[bool, time | None, time | None]:
     if item.is_open:
         if item.start_time is None or item.end_time is None:
             raise ValueError("Start and end times are required for open days")
@@ -49,9 +51,7 @@ def _normalize_phone(phone: str | None) -> str | None:
 
 
 def ensure_working_hours_defaults(db: Session) -> None:
-    existing = {
-        row[0] for row in db.execute(select(models.WorkingHours.weekday)).all()
-    }
+    existing = {row[0] for row in db.execute(select(models.WorkingHours.weekday)).all()}
     if len(existing) == 7:
         return
 
@@ -97,7 +97,11 @@ def upsert_working_hours(
             raise ValueError("Duplicate weekday in payload")
         seen.add(item.weekday)
         is_open, start_time, end_time = _normalize_working_hours(item)
-        row = db.scalar(select(models.WorkingHours).where(models.WorkingHours.weekday == item.weekday))
+        row = db.scalar(
+            select(models.WorkingHours).where(
+                models.WorkingHours.weekday == item.weekday
+            )
+        )
         if row:
             row.is_open = is_open
             row.start_time = start_time
@@ -116,20 +120,30 @@ def upsert_working_hours(
     return list_working_hours(db)
 
 
-def get_working_hours_for_date(db: Session, appointment_date: date) -> models.WorkingHours | None:
+def get_working_hours_for_date(
+    db: Session, appointment_date: date
+) -> models.WorkingHours | None:
     ensure_working_hours_defaults(db)
     weekday = appointment_date.weekday()
-    return db.scalar(select(models.WorkingHours).where(models.WorkingHours.weekday == weekday))
+    return db.scalar(
+        select(models.WorkingHours).where(models.WorkingHours.weekday == weekday)
+    )
 
 
 def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
     normalized_phone = _normalize_phone(payload.phone)
-    existing = db.scalar(select(models.Client).where(models.Client.id_number == payload.id_number))
+    existing = db.scalar(
+        select(models.Client).where(models.Client.id_number == payload.id_number)
+    )
     if existing:
         if normalized_phone:
-            phone_owner = db.scalar(select(models.Client).where(models.Client.phone == normalized_phone))
+            phone_owner = db.scalar(
+                select(models.Client).where(models.Client.phone == normalized_phone)
+            )
             if phone_owner and phone_owner.id != existing.id:
-                raise ValueError(f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})")
+                raise ValueError(
+                    f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})"
+                )
         existing.full_name = payload.full_name
         existing.phone = normalized_phone
         existing.email = str(payload.email) if payload.email else None
@@ -139,16 +153,22 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
         return existing
 
     if normalized_phone:
-        phone_owner = db.scalar(select(models.Client).where(models.Client.phone == normalized_phone))
+        phone_owner = db.scalar(
+            select(models.Client).where(models.Client.phone == normalized_phone)
+        )
         if phone_owner:
             # Phone exists for another client
             # If the id_number is auto-generated (NO-DOC-*) or missing, use the existing client
-            is_auto_id = not payload.id_number or str(payload.id_number).startswith("NO-DOC-")
+            is_auto_id = not payload.id_number or str(payload.id_number).startswith(
+                "NO-DOC-"
+            )
             if is_auto_id:
                 # Update the existing client found by phone
                 phone_owner.full_name = payload.full_name
                 # Only update id_number if the existing one is also auto-generated
-                if not phone_owner.id_number or str(phone_owner.id_number).startswith("NO-DOC-"):
+                if not phone_owner.id_number or str(phone_owner.id_number).startswith(
+                    "NO-DOC-"
+                ):
                     phone_owner.id_number = payload.id_number
                 phone_owner.email = str(payload.email) if payload.email else None
                 db.add(phone_owner)
@@ -156,7 +176,9 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
                 db.refresh(phone_owner)
                 return phone_owner
             # Real id_number conflict
-            raise ValueError(f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})")
+            raise ValueError(
+                f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})"
+            )
 
     client = models.Client(
         full_name=payload.full_name,
@@ -170,13 +192,17 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
     return client
 
 
-def update_client(db: Session, client_id: int, payload: schemas.ClientUpdate) -> models.Client | None:
+def update_client(
+    db: Session, client_id: int, payload: schemas.ClientUpdate
+) -> models.Client | None:
     client = db.get(models.Client, client_id)
     if not client:
         return None
 
     if payload.id_number != client.id_number:
-        existing = db.scalar(select(models.Client).where(models.Client.id_number == payload.id_number))
+        existing = db.scalar(
+            select(models.Client).where(models.Client.id_number == payload.id_number)
+        )
         if existing and existing.id != client.id:
             raise ValueError("ID number already exists")
         client.id_number = payload.id_number
@@ -184,7 +210,9 @@ def update_client(db: Session, client_id: int, payload: schemas.ClientUpdate) ->
     normalized_phone = _normalize_phone(payload.phone)
     if normalized_phone != client.phone:
         if normalized_phone:
-            existing_phone = db.scalar(select(models.Client).where(models.Client.phone == normalized_phone))
+            existing_phone = db.scalar(
+                select(models.Client).where(models.Client.phone == normalized_phone)
+            )
             if existing_phone and existing_phone.id != client.id:
                 raise ValueError("Phone already exists")
         client.phone = normalized_phone
@@ -197,7 +225,9 @@ def update_client(db: Session, client_id: int, payload: schemas.ClientUpdate) ->
     return client
 
 
-def create_session(db: Session, payload: schemas.TreatmentSessionCreate) -> models.TreatmentSession:
+def create_session(
+    db: Session, payload: schemas.TreatmentSessionCreate
+) -> models.TreatmentSession:
     session = models.TreatmentSession(
         client_id=payload.client_id,
         treatment_name=payload.treatment_name,
@@ -245,7 +275,13 @@ def upsert_session(
     return session
 
 
-def create_consent(db: Session, payload: schemas.ConsentCreate, client_id: int) -> models.Consent:
+def create_consent(
+    db: Session,
+    payload: schemas.ConsentCreate,
+    client_id: int,
+    signature_image_path: str | None = None,
+    signature_mime_type: str | None = None,
+) -> models.Consent:
     consent = models.Consent(
         client_id=client_id,
         consent_type=payload.consent_type,
@@ -258,6 +294,8 @@ def create_consent(db: Session, payload: schemas.ConsentCreate, client_id: int) 
         therapist_name=payload.therapist_name,
         signature_text=payload.signature_text,
         signed_at=payload.signed_at,
+        signature_image_path=signature_image_path,
+        signature_mime_type=signature_mime_type,
     )
     db.add(consent)
     db.commit()
@@ -279,7 +317,9 @@ def get_client_by_id_number(db: Session, id_number: str) -> models.Client | None
     return db.scalar(select(models.Client).where(models.Client.id_number == id_number))
 
 
-def get_admin_consent(db: Session, consent_id: int) -> schemas.ConsentAdminDetailRead | None:
+def get_admin_consent(
+    db: Session, consent_id: int
+) -> schemas.ConsentAdminDetailRead | None:
     row = db.execute(
         select(models.Consent, models.Client)
         .join(models.Client, models.Client.id == models.Consent.client_id)
@@ -305,6 +345,8 @@ def get_admin_consent(db: Session, consent_id: int) -> schemas.ConsentAdminDetai
         photos_allowed=consent.photos_allowed,
         therapist_name=consent.therapist_name,
         signature_text=consent.signature_text,
+        signature_image_path=consent.signature_image_path,
+        signature_mime_type=consent.signature_mime_type,
         signed_at=consent.signed_at,
         created_at=consent.created_at,
     )
@@ -324,7 +366,9 @@ def update_consent(
         return None
 
     if payload.id_number != client.id_number:
-        existing = db.scalar(select(models.Client).where(models.Client.id_number == payload.id_number))
+        existing = db.scalar(
+            select(models.Client).where(models.Client.id_number == payload.id_number)
+        )
         if existing and existing.id != client.id:
             raise ValueError("ID number already exists")
         client.id_number = payload.id_number
@@ -344,6 +388,8 @@ def update_consent(
     consent.therapist_name = payload.therapist_name
     consent.signature_text = payload.signature_text
     consent.signed_at = payload.signed_at
+    consent.signature_image_path = payload.signature_image_path
+    consent.signature_mime_type = payload.signature_mime_type
 
     db.add(consent)
     db.commit()
@@ -386,7 +432,9 @@ def search_clients(
         total = db.scalar(count_query) or 0
 
         rows = db.execute(
-            base.order_by(models.Client.full_name.asc(), models.Client.id.asc()).limit(limit).offset(offset)
+            base.order_by(models.Client.full_name.asc(), models.Client.id.asc())
+            .limit(limit)
+            .offset(offset)
         ).all()
 
         items = [
@@ -410,7 +458,9 @@ def search_clients(
     total = db.scalar(count_query) or 0
 
     rows = db.scalars(
-        base.order_by(models.Client.full_name.asc(), models.Client.id.asc()).limit(limit).offset(offset)
+        base.order_by(models.Client.full_name.asc(), models.Client.id.asc())
+        .limit(limit)
+        .offset(offset)
     ).all()
 
     items = [
@@ -428,7 +478,9 @@ def search_clients(
 
 
 def get_service_by_name(db: Session, name: str) -> models.Service | None:
-    return db.scalar(select(models.Service).where(func.lower(models.Service.name) == name.lower()))
+    return db.scalar(
+        select(models.Service).where(func.lower(models.Service.name) == name.lower())
+    )
 
 
 def create_service(db: Session, payload: schemas.ServiceCreate) -> models.Service:
@@ -446,7 +498,9 @@ def create_service(db: Session, payload: schemas.ServiceCreate) -> models.Servic
     return service
 
 
-def update_service(db: Session, service_id: int, payload: schemas.ServiceUpdate) -> models.Service | None:
+def update_service(
+    db: Session, service_id: int, payload: schemas.ServiceUpdate
+) -> models.Service | None:
     service = db.get(models.Service, service_id)
     if not service:
         return None
@@ -483,7 +537,9 @@ def search_services(
     total = db.scalar(count_query) or 0
 
     rows = db.scalars(
-        base.order_by(models.Service.name.asc(), models.Service.id.asc()).limit(limit).offset(offset)
+        base.order_by(models.Service.name.asc(), models.Service.id.asc())
+        .limit(limit)
+        .offset(offset)
     ).all()
 
     items = [
@@ -504,7 +560,9 @@ def upsert_client_profile(
     client_id: int,
     payload: schemas.ClientProfileUpsert,
 ) -> models.ClientProfile:
-    profile = db.scalar(select(models.ClientProfile).where(models.ClientProfile.client_id == client_id))
+    profile = db.scalar(
+        select(models.ClientProfile).where(models.ClientProfile.client_id == client_id)
+    )
     if profile:
         profile.instagram = payload.instagram
         profile.shoot_type = payload.shoot_type
@@ -590,11 +648,14 @@ def _select_best_session(
     open_sessions = [
         session
         for session in sessions
-        if session.completed_sessions < session.planned_sessions and session.status != "completed"
+        if session.completed_sessions < session.planned_sessions
+        and session.status != "completed"
     ]
     if open_sessions:
         return sorted(open_sessions, key=lambda item: (item.created_at, item.id))[0]
-    return sorted(sessions, key=lambda item: (item.created_at, item.id), reverse=True)[0]
+    return sorted(sessions, key=lambda item: (item.created_at, item.id), reverse=True)[
+        0
+    ]
 
 
 def _find_sessions_for_service(
@@ -730,7 +791,13 @@ def session_agenda(
     ).all()
 
     client_ids = list({client.id for _, client in appointments})
-    session_ids = list({appointment.session_id for appointment, _ in appointments if appointment.session_id})
+    session_ids = list(
+        {
+            appointment.session_id
+            for appointment, _ in appointments
+            if appointment.session_id
+        }
+    )
     sessions_by_id: dict[int, models.TreatmentSession] = {}
     sessions_by_client: dict[int, list[models.TreatmentSession]] = {}
     if session_ids:
@@ -753,7 +820,11 @@ def session_agenda(
 
     items: list[schemas.SessionAgendaItem] = []
     for appointment, client in appointments:
-        match = sessions_by_id.get(appointment.session_id) if appointment.session_id else None
+        match = (
+            sessions_by_id.get(appointment.session_id)
+            if appointment.session_id
+            else None
+        )
         if not match:
             sessions = sessions_by_client.get(client.id, [])
             match = _match_session_for_service(sessions, appointment.service_name)
@@ -809,7 +880,9 @@ def mark_session_attendance(
     if attended:
         appointment.status = "completed"
         if session:
-            session.completed_sessions = min(session.planned_sessions, session.completed_sessions + 1)
+            session.completed_sessions = min(
+                session.planned_sessions, session.completed_sessions + 1
+            )
             if session.completed_sessions >= session.planned_sessions:
                 session.status = "completed"
             elif session.completed_sessions > 0:
@@ -956,7 +1029,10 @@ def create_appointment(
 ) -> models.Appointment:
     appointment_type = payload.appointment_type.value
 
-    if appointment_type == schemas.AppointmentType.APPOINTMENT.value and not payload.client_id:
+    if (
+        appointment_type == schemas.AppointmentType.APPOINTMENT.value
+        and not payload.client_id
+    ):
         raise AppointmentValidationError("Client is required for appointment")
 
     if payload.client_id:
@@ -1004,8 +1080,13 @@ def create_appointment(
         notes=payload.notes,
     )
 
-    if appointment_type == schemas.AppointmentType.APPOINTMENT.value and payload.client_id:
-        session = get_or_create_session(db, client_id=payload.client_id, service_name=service_name)
+    if (
+        appointment_type == schemas.AppointmentType.APPOINTMENT.value
+        and payload.client_id
+    ):
+        session = get_or_create_session(
+            db, client_id=payload.client_id, service_name=service_name
+        )
         appointment.session_id = session.id if session else None
 
     db.add(appointment)
@@ -1032,7 +1113,7 @@ def update_appointment(
         appointment.client_id = payload.client_id
 
     # Explicit session_id override — skip auto-link when this is provided
-    explicit_session_id = payload.session_id if hasattr(payload, 'session_id') else None
+    explicit_session_id = payload.session_id if hasattr(payload, "session_id") else None
 
     if payload.service_id is not None:
         if payload.service_id:
@@ -1075,11 +1156,18 @@ def update_appointment(
         elif not payload.deleted:
             appointment.deleted_at = None
 
-    if appointment.appointment_type == schemas.AppointmentType.APPOINTMENT.value and not appointment.client_id:
+    if (
+        appointment.appointment_type == schemas.AppointmentType.APPOINTMENT.value
+        and not appointment.client_id
+    ):
         raise AppointmentValidationError("Client is required for appointment")
 
     if not appointment.service_name:
-        appointment.service_name = "Bloqueo" if appointment.appointment_type == "block" else appointment.service_name
+        appointment.service_name = (
+            "Bloqueo"
+            if appointment.appointment_type == "block"
+            else appointment.service_name
+        )
 
     if not appointment.deleted_at and has_appointment_conflict(
         db,
@@ -1092,8 +1180,9 @@ def update_appointment(
         raise AppointmentConflictError("Conflicto de horario para este profesional")
 
     should_link_session = (
-        explicit_session_id is None and  # don't auto-link if caller set session_id explicitly
-        appointment.appointment_type == schemas.AppointmentType.APPOINTMENT.value
+        explicit_session_id
+        is None  # don't auto-link if caller set session_id explicitly
+        and appointment.appointment_type == schemas.AppointmentType.APPOINTMENT.value
         and appointment.client_id is not None
         and appointment.service_name
         and appointment.deleted_at is None
@@ -1121,7 +1210,11 @@ def update_appointment(
     if appointment.deleted_at is not None and not was_deleted:
         if previous_session_id:
             session = db.get(models.TreatmentSession, previous_session_id)
-            if session and session.deleted_at is None and appointment.status == "completed":
+            if (
+                session
+                and session.deleted_at is None
+                and appointment.status == "completed"
+            ):
                 session.completed_sessions = max(0, session.completed_sessions - 1)
                 if session.completed_sessions >= session.planned_sessions:
                     session.status = "completed"
@@ -1144,7 +1237,10 @@ def get_admin_appointment(
     row = db.execute(
         select(models.Appointment, models.Client)
         .outerjoin(models.Client, models.Client.id == models.Appointment.client_id)
-        .where(models.Appointment.id == appointment_id, models.Appointment.deleted_at.is_(None))
+        .where(
+            models.Appointment.id == appointment_id,
+            models.Appointment.deleted_at.is_(None),
+        )
     ).first()
     if not row:
         return None
@@ -1193,7 +1289,9 @@ def search_appointments(
     if end_date:
         base = base.where(models.Appointment.appointment_date <= end_date)
     if professional_name:
-        base = base.where(models.Appointment.professional_name.ilike(f"%{professional_name}%"))
+        base = base.where(
+            models.Appointment.professional_name.ilike(f"%{professional_name}%")
+        )
     if client_id:
         base = base.where(models.Appointment.client_id == client_id)
     if appointment_type:
@@ -1284,7 +1382,9 @@ def search_sessions(
     if status:
         base = base.where(models.TreatmentSession.status == status)
     if treatment_name:
-        base = base.where(models.TreatmentSession.treatment_name.ilike(f"%{treatment_name}%"))
+        base = base.where(
+            models.TreatmentSession.treatment_name.ilike(f"%{treatment_name}%")
+        )
     if client_id is not None:
         base = base.where(models.TreatmentSession.client_id == client_id)
 
@@ -1292,7 +1392,9 @@ def search_sessions(
     total = db.scalar(count_query) or 0
 
     rows = db.execute(
-        base.order_by(models.TreatmentSession.created_at.desc(), models.TreatmentSession.id.desc())
+        base.order_by(
+            models.TreatmentSession.created_at.desc(), models.TreatmentSession.id.desc()
+        )
         .limit(limit)
         .offset(offset)
     ).all()
@@ -1328,7 +1430,9 @@ def search_consents(
     limit: int,
     offset: int,
 ) -> tuple[list[schemas.ConsentAdminRead], int]:
-    base = select(models.Consent, models.Client).join(models.Client, models.Client.id == models.Consent.client_id)
+    base = select(models.Consent, models.Client).join(
+        models.Client, models.Client.id == models.Consent.client_id
+    )
 
     if full_name:
         raw = full_name.strip()
@@ -1357,7 +1461,9 @@ def search_consents(
     total = db.scalar(count_query) or 0
 
     rows = db.execute(
-        base.order_by(models.Consent.signed_at.desc(), models.Consent.id.desc()).limit(limit).offset(offset)
+        base.order_by(models.Consent.signed_at.desc(), models.Consent.id.desc())
+        .limit(limit)
+        .offset(offset)
     ).all()
 
     items = [
@@ -1376,3 +1482,38 @@ def search_consents(
     ]
     return items, total
 
+
+# Email Settings CRUD
+def get_email_settings(db: Session) -> models.EmailSettings | None:
+    """Get email settings (singleton - only one record)"""
+    return db.scalar(select(models.EmailSettings).where(models.EmailSettings.id == 1))
+
+
+def upsert_email_settings(
+    db: Session, payload: schemas.EmailSettingsCreate
+) -> models.EmailSettings:
+    """Create or update email settings"""
+    settings = db.get(models.EmailSettings, 1)
+    if settings:
+        settings.smtp_host = payload.smtp_host
+        settings.smtp_port = payload.smtp_port
+        settings.smtp_user = payload.smtp_user
+        settings.smtp_password = payload.smtp_password
+        settings.from_email = payload.from_email
+        settings.from_name = payload.from_name
+        settings.enabled = payload.enabled
+    else:
+        settings = models.EmailSettings(
+            id=1,
+            smtp_host=payload.smtp_host,
+            smtp_port=payload.smtp_port,
+            smtp_user=payload.smtp_user,
+            smtp_password=payload.smtp_password,
+            from_email=payload.from_email,
+            from_name=payload.from_name,
+            enabled=payload.enabled,
+        )
+    db.add(settings)
+    db.commit()
+    db.refresh(settings)
+    return settings

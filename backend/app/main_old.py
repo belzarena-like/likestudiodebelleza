@@ -1,6 +1,6 @@
-from datetime import date, datetime, time
 import os
 import sys
+from datetime import date, datetime, time
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -35,7 +35,11 @@ def on_startup() -> None:
     if engine.dialect.name == "postgresql":
         with engine.begin() as conn:
             conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'LASER'"))
-            conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"))
+            conn.execute(
+                text(
+                    "ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"
+                )
+            )
     with SessionLocal() as db:
         crud.ensure_working_hours_defaults(db)
 
@@ -54,7 +58,9 @@ def health() -> dict[str, str]:
 
 
 @app.post("/clients", response_model=schemas.ClientRead)
-def create_or_update_client(payload: schemas.ClientCreate, db: Session = Depends(get_db)):
+def create_or_update_client(
+    payload: schemas.ClientCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.upsert_client(db, payload)
     except ValueError as exc:
@@ -62,14 +68,18 @@ def create_or_update_client(payload: schemas.ClientCreate, db: Session = Depends
 
 
 @app.post("/sessions", response_model=schemas.TreatmentSessionRead)
-def create_treatment_session(payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)):
+def create_treatment_session(
+    payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.create_session(db, payload)
 
 
 @app.post("/sessions/upsert", response_model=schemas.TreatmentSessionRead)
-def upsert_treatment_session(payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)):
+def upsert_treatment_session(
+    payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.upsert_session(db, payload)
@@ -95,8 +105,12 @@ def admin_search_clients(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_clients(db, query=query, with_consents=with_consents, limit=limit, offset=offset)
-    return schemas.AdminClientSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_clients(
+        db, query=query, with_consents=with_consents, limit=limit, offset=offset
+    )
+    return schemas.AdminClientSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.put("/admin/clients/{client_id}", response_model=schemas.ClientRead)
@@ -114,23 +128,34 @@ def admin_update_client(
     return updated
 
 
-@app.get("/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse)
+@app.get(
+    "/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse
+)
 def admin_search_client_profiles(
     query: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_client_profiles(db, query=query, limit=limit, offset=offset)
-    return schemas.AdminClientProfileSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_client_profiles(
+        db, query=query, limit=limit, offset=offset
+    )
+    return schemas.AdminClientProfileSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead | None)
+@app.get(
+    "/admin/client-profiles/{client_id}",
+    response_model=schemas.ClientProfileRead | None,
+)
 def admin_get_client_profile(
     client_id: int,
     db: Session = Depends(get_db),
 ):
-    return db.scalar(select(models.ClientProfile).where(models.ClientProfile.client_id == client_id))
+    return db.scalar(
+        select(models.ClientProfile).where(models.ClientProfile.client_id == client_id)
+    )
 
 
 @app.put("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead)
@@ -146,7 +171,9 @@ def admin_upsert_client_profile(
 
 
 @app.post("/appointments", response_model=schemas.AppointmentRead)
-def create_appointment(payload: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+def create_appointment(
+    payload: schemas.AppointmentCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.create_appointment(db, payload)
     except crud.AppointmentConflictError as exc:
@@ -213,10 +240,14 @@ def admin_search_appointments(
         limit=limit,
         offset=offset,
     )
-    return schemas.AppointmentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.AppointmentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead)
+@app.get(
+    "/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead
+)
 def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_admin_appointment(db, appointment_id)
     if not appointment:
@@ -239,7 +270,9 @@ def admin_search_services(
         limit=limit,
         offset=offset,
     )
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.post("/admin/services", response_model=schemas.ServiceRead)
@@ -272,7 +305,9 @@ def admin_get_working_hours(db: Session = Depends(get_db)):
 
 
 @app.put("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
-def admin_update_working_hours(payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)):
+def admin_update_working_hours(
+    payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)
+):
     try:
         items = crud.upsert_working_hours(db, payload.items)
     except ValueError as exc:
@@ -286,8 +321,12 @@ def public_services(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_services(db, query=None, active_only=True, limit=limit, offset=offset)
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_services(
+        db, query=None, active_only=True, limit=limit, offset=offset
+    )
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/public/availability", response_model=schemas.AvailabilityResponse)
@@ -331,8 +370,7 @@ def public_availability(
         )
 
     rows = db.execute(
-        select(models.Appointment.start_time, models.Appointment.end_time)
-        .where(
+        select(models.Appointment.start_time, models.Appointment.end_time).where(
             models.Appointment.appointment_date == appointment_date,
             models.Appointment.professional_name == professional_name,
             models.Appointment.status != "cancelled",
@@ -340,7 +378,10 @@ def public_availability(
         )
     ).all()
 
-    busy = [(row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute) for row in rows]
+    busy = [
+        (row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute)
+        for row in rows
+    ]
 
     def is_free(start: int, end: int) -> bool:
         for busy_start, busy_end in busy:
@@ -383,24 +424,29 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
         or working_hours.start_time is None
         or working_hours.end_time is None
     ):
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     open_start = working_hours.start_time.hour * 60 + working_hours.start_time.minute
     open_end = working_hours.end_time.hour * 60 + working_hours.end_time.minute
     if start_minutes < open_start or end_minutes > open_end:
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     end_time = time(end_minutes // 60, end_minutes % 60)
 
     client = db.scalar(
-        select(models.Client)
-        .where(
+        select(models.Client).where(
             models.Client.full_name == payload.full_name,
             models.Client.phone == payload.phone,
         )
     )
     if not client:
-        generated_id = f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        generated_id = (
+            f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        )
         client = crud.upsert_client(
             db,
             schemas.ClientCreate(
@@ -465,7 +511,9 @@ def admin_search_sessions(
         limit=limit,
         offset=offset,
     )
-    return schemas.TreatmentSessionSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.TreatmentSessionSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/session-agenda", response_model=schemas.SessionAgendaResponse)
@@ -497,7 +545,9 @@ def admin_session_attendance(
     }
 
 
-@app.delete("/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse)
+@app.delete(
+    "/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse
+)
 def admin_delete_session(
     session_id: int,
     db: Session = Depends(get_db),
@@ -518,7 +568,9 @@ def admin_session_history(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items = crud.get_session_history(db, session_id=session_id, limit=limit, offset=offset)
+    items = crud.get_session_history(
+        db, session_id=session_id, limit=limit, offset=offset
+    )
     return schemas.SessionAppointmentHistoryResponse(items=items)
 
 
@@ -567,7 +619,9 @@ def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)
 
 
 @app.put("/consents/{consent_id}", response_model=schemas.ConsentRead)
-def update_consent(consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
+def update_consent(
+    consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)
+):
     try:
         updated = crud.update_consent(db, consent_id, payload)
     except ValueError as exc:
@@ -607,7 +661,9 @@ def admin_search_consents(
         limit=limit,
         offset=offset,
     )
-    return schemas.ConsentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ConsentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/consents/{consent_id}", response_model=schemas.ConsentAdminDetailRead)
@@ -634,6 +690,7 @@ def admin_client_prefill(
         email=client.email,
     )
 
+
 # ── Training / Academy routes ─────────────────────────────────────────────────
 
 import hashlib
@@ -644,24 +701,26 @@ from datetime import timedelta
 try:
     import boto3
     from botocore.exceptions import ClientError as BotoClientError
+
     HAS_BOTO3 = True
 except ImportError:
     HAS_BOTO3 = False
 
 try:
     from passlib.context import CryptContext
+
     # Use argon2 instead of bcrypt - no 72-byte limit and more secure
     # Falls back to pbkdf2_sha256 if argon2 is not available
     pwd_context = CryptContext(
-        schemes=["argon2", "pbkdf2_sha256"], 
+        schemes=["argon2", "pbkdf2_sha256"],
         deprecated="auto",
-        argon2__rounds=4  # Balance between security and performance
+        argon2__rounds=4,  # Balance between security and performance
     )
     HAS_PASSLIB = True
 except ImportError:
     HAS_PASSLIB = False
 
-from fastapi import File, Form, UploadFile, Request
+from fastapi import File, Form, Request, UploadFile
 
 
 def _hash_password(plain: str) -> str:
@@ -679,29 +738,33 @@ def _verify_password(plain: str, hashed: str) -> bool:
 
 def _get_s3_client():
     from botocore.config import Config
-    
+
     # Configure client to use Signature Version 4
     config = Config(
-        signature_version='s3v4',
-        region_name=os.environ.get("AWS_REGION", "eu-north-1")
+        signature_version="s3v4", region_name=os.environ.get("AWS_REGION", "eu-north-1")
     )
-    
+
     return boto3.client(
         "s3",
         aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
         region_name=os.environ.get("AWS_REGION", "eu-north-1"),
-        config=config
+        config=config,
     )
 
 
-S3_BUCKET = os.environ.get("S3_TRAINING_BUCKET", "likestudio-training-022499031203-eu-north-1-an")
+S3_BUCKET = os.environ.get(
+    "S3_TRAINING_BUCKET", "likestudio-training-022499031203-eu-north-1-an"
+)
 S3_PRESIGN_EXPIRY = int(os.environ.get("S3_PRESIGN_EXPIRY_SECONDS", "3600"))
 
 
 # ── Admin: Training Sessions ──────────────────────────────────────────────────
 
-@app.get("/admin/training/sessions", response_model=schemas.TrainingSessionSearchResponse)
+
+@app.get(
+    "/admin/training/sessions", response_model=schemas.TrainingSessionSearchResponse
+)
 def admin_list_training_sessions(
     query: str | None = Query(default=None),
     category: str | None = Query(default=None),
@@ -718,12 +781,18 @@ def admin_list_training_sessions(
     if is_active is not None:
         q = q.where(models.TrainingSession.is_active == is_active)
     total = db.scalar(select(func.count()).select_from(q.subquery()))
-    items = db.scalars(q.order_by(models.TrainingSession.created_at.desc()).limit(limit).offset(offset)).all()
-    return schemas.TrainingSessionSearchResponse(items=list(items), total=total or 0, limit=limit, offset=offset)
+    items = db.scalars(
+        q.order_by(models.TrainingSession.created_at.desc()).limit(limit).offset(offset)
+    ).all()
+    return schemas.TrainingSessionSearchResponse(
+        items=list(items), total=total or 0, limit=limit, offset=offset
+    )
 
 
 @app.post("/admin/training/sessions", response_model=schemas.TrainingSessionRead)
-def admin_create_training_session(payload: schemas.TrainingSessionCreate, db: Session = Depends(get_db)):
+def admin_create_training_session(
+    payload: schemas.TrainingSessionCreate, db: Session = Depends(get_db)
+):
     session = models.TrainingSession(**payload.model_dump())
     db.add(session)
     db.commit()
@@ -731,26 +800,37 @@ def admin_create_training_session(payload: schemas.TrainingSessionCreate, db: Se
     return session
 
 
-@app.get("/admin/training/sessions/{session_id}", response_model=schemas.TrainingSessionWithVideos)
+@app.get(
+    "/admin/training/sessions/{session_id}",
+    response_model=schemas.TrainingSessionWithVideos,
+)
 def admin_get_training_session(session_id: int, db: Session = Depends(get_db)):
     session = db.get(models.TrainingSession, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Training session not found")
-    
+
     # Extract actual video objects from the join table, sorted by display order
     videos = [sv.video for sv in sorted(session.videos, key=lambda x: x.display_order)]
-    
-    user_access_count = db.scalar(
-        select(func.count()).where(models.TrainingUserAccess.training_session_id == session_id)
-    ) or 0
-    active_users = db.scalar(
-        select(func.count()).where(
-            models.TrainingUserAccess.training_session_id == session_id,
-            models.TrainingUserAccess.is_active == True,
-            models.TrainingUserAccess.access_expires_at > datetime.utcnow(),
+
+    user_access_count = (
+        db.scalar(
+            select(func.count()).where(
+                models.TrainingUserAccess.training_session_id == session_id
+            )
         )
-    ) or 0
-    
+        or 0
+    )
+    active_users = (
+        db.scalar(
+            select(func.count()).where(
+                models.TrainingUserAccess.training_session_id == session_id,
+                models.TrainingUserAccess.is_active == True,
+                models.TrainingUserAccess.access_expires_at > datetime.utcnow(),
+            )
+        )
+        or 0
+    )
+
     # Build the response manually to avoid Pydantic validation issues with the join table
     result = schemas.TrainingSessionWithVideos(
         id=session.id,
@@ -766,14 +846,18 @@ def admin_get_training_session(session_id: int, db: Session = Depends(get_db)):
         updated_at=session.updated_at,
         videos=[schemas.TrainingVideoRead.model_validate(v) for v in videos],
         user_access_count=user_access_count,
-        active_users=active_users
+        active_users=active_users,
     )
     return result
 
 
-@app.put("/admin/training/sessions/{session_id}", response_model=schemas.TrainingSessionRead)
+@app.put(
+    "/admin/training/sessions/{session_id}", response_model=schemas.TrainingSessionRead
+)
 def admin_update_training_session(
-    session_id: int, payload: schemas.TrainingSessionUpdate, db: Session = Depends(get_db)
+    session_id: int,
+    payload: schemas.TrainingSessionUpdate,
+    db: Session = Depends(get_db),
 ):
     session = db.get(models.TrainingSession, session_id)
     if not session:
@@ -797,9 +881,12 @@ def admin_delete_training_session(session_id: int, db: Session = Depends(get_db)
 
 # ── Admin: Videos in a Training Session ──────────────────────────────────────
 
+
 @app.post("/admin/training/sessions/{session_id}/videos")
 def admin_add_video_to_session(
-    session_id: int, payload: schemas.TrainingSessionVideoLink, db: Session = Depends(get_db)
+    session_id: int,
+    payload: schemas.TrainingSessionVideoLink,
+    db: Session = Depends(get_db),
 ):
     session = db.get(models.TrainingSession, session_id)
     if not session:
@@ -814,13 +901,17 @@ def admin_add_video_to_session(
     )
     db.add(link)
     # update total duration
-    session.total_duration_minutes = (session.total_duration_minutes or 0) + int((video.duration_seconds or 0) / 60)
+    session.total_duration_minutes = (session.total_duration_minutes or 0) + int(
+        (video.duration_seconds or 0) / 60
+    )
     db.commit()
     return {"linked": True}
 
 
 @app.delete("/admin/training/sessions/{session_id}/videos/{video_id}")
-def admin_remove_video_from_session(session_id: int, video_id: int, db: Session = Depends(get_db)):
+def admin_remove_video_from_session(
+    session_id: int, video_id: int, db: Session = Depends(get_db)
+):
     link = db.scalar(
         select(models.TrainingSessionVideo).where(
             models.TrainingSessionVideo.training_session_id == session_id,
@@ -832,14 +923,20 @@ def admin_remove_video_from_session(session_id: int, video_id: int, db: Session 
     video = db.get(models.TrainingVideo, video_id)
     session = db.get(models.TrainingSession, session_id)
     if session and video:
-        session.total_duration_minutes = max(0, (session.total_duration_minutes or 0) - int((video.duration_seconds or 0) / 60))
+        session.total_duration_minutes = max(
+            0,
+            (session.total_duration_minutes or 0)
+            - int((video.duration_seconds or 0) / 60),
+        )
     db.delete(link)
     db.commit()
     return {"removed": True}
 
 
 @app.put("/admin/training/sessions/{session_id}/videos/reorder")
-def admin_reorder_session_videos(session_id: int, order: list[dict], db: Session = Depends(get_db)):
+def admin_reorder_session_videos(
+    session_id: int, order: list[dict], db: Session = Depends(get_db)
+):
     """Accepts [{video_id: int, display_order: int}, ...]"""
     for item in order:
         link = db.scalar(
@@ -856,6 +953,7 @@ def admin_reorder_session_videos(session_id: int, order: list[dict], db: Session
 
 # ── Admin: Videos Library ─────────────────────────────────────────────────────
 
+
 @app.get("/admin/training/videos", response_model=list[schemas.TrainingVideoRead])
 def admin_list_videos(
     query: str | None = Query(default=None),
@@ -866,7 +964,13 @@ def admin_list_videos(
     q = select(models.TrainingVideo)
     if query:
         q = q.where(models.TrainingVideo.title.ilike(f"%{query}%"))
-    return list(db.scalars(q.order_by(models.TrainingVideo.created_at.desc()).limit(limit).offset(offset)).all())
+    return list(
+        db.scalars(
+            q.order_by(models.TrainingVideo.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        ).all()
+    )
 
 
 @app.post("/admin/training/videos/upload-url")
@@ -880,23 +984,26 @@ def admin_get_upload_url(
     s3 = _get_s3_client()
     ext = filename.rsplit(".", 1)[-1] if "." in filename else "mp4"
     s3_key = f"training-videos/{secrets.token_hex(16)}.{ext}"
-    
+
     # Generate presigned URL with ContentType in signature
     # Frontend must send exactly this Content-Type header
     url = s3.generate_presigned_url(
         "put_object",
-        Params={
-            "Bucket": S3_BUCKET, 
-            "Key": s3_key,
-            "ContentType": content_type
-        },
+        Params={"Bucket": S3_BUCKET, "Key": s3_key, "ContentType": content_type},
         ExpiresIn=3600,
     )
-    return {"upload_url": url, "s3_key": s3_key, "s3_bucket": S3_BUCKET, "content_type": content_type}
+    return {
+        "upload_url": url,
+        "s3_key": s3_key,
+        "s3_bucket": S3_BUCKET,
+        "content_type": content_type,
+    }
 
 
 @app.post("/admin/training/videos", response_model=schemas.TrainingVideoRead)
-def admin_create_video_record(payload: schemas.TrainingVideoCreate, db: Session = Depends(get_db)):
+def admin_create_video_record(
+    payload: schemas.TrainingVideoCreate, db: Session = Depends(get_db)
+):
     """After browser uploads to S3, call this to register the video in the DB."""
     video = models.TrainingVideo(**payload.model_dump())
     db.add(video)
@@ -906,7 +1013,9 @@ def admin_create_video_record(payload: schemas.TrainingVideoCreate, db: Session 
 
 
 @app.put("/admin/training/videos/{video_id}", response_model=schemas.TrainingVideoRead)
-def admin_update_video(video_id: int, payload: schemas.TrainingVideoCreate, db: Session = Depends(get_db)):
+def admin_update_video(
+    video_id: int, payload: schemas.TrainingVideoCreate, db: Session = Depends(get_db)
+):
     video = db.get(models.TrainingVideo, video_id)
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
@@ -935,22 +1044,39 @@ def admin_delete_video(video_id: int, db: Session = Depends(get_db)):
 
 # ── Admin: User Access ────────────────────────────────────────────────────────
 
-@app.get("/admin/training/sessions/{session_id}/users", response_model=schemas.TrainingUserAccessSearchResponse)
+
+@app.get(
+    "/admin/training/sessions/{session_id}/users",
+    response_model=schemas.TrainingUserAccessSearchResponse,
+)
 def admin_list_session_users(
     session_id: int,
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    q = select(models.TrainingUserAccess).where(models.TrainingUserAccess.training_session_id == session_id)
+    q = select(models.TrainingUserAccess).where(
+        models.TrainingUserAccess.training_session_id == session_id
+    )
     total = db.scalar(select(func.count()).select_from(q.subquery())) or 0
-    items = db.scalars(q.order_by(models.TrainingUserAccess.created_at.desc()).limit(limit).offset(offset)).all()
-    return schemas.TrainingUserAccessSearchResponse(items=list(items), total=total, limit=limit, offset=offset)
+    items = db.scalars(
+        q.order_by(models.TrainingUserAccess.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    ).all()
+    return schemas.TrainingUserAccessSearchResponse(
+        items=list(items), total=total, limit=limit, offset=offset
+    )
 
 
-@app.post("/admin/training/sessions/{session_id}/users", response_model=schemas.TrainingUserAccessRead)
+@app.post(
+    "/admin/training/sessions/{session_id}/users",
+    response_model=schemas.TrainingUserAccessRead,
+)
 def admin_create_user_access(
-    session_id: int, payload: schemas.TrainingUserAccessCreate, db: Session = Depends(get_db)
+    session_id: int,
+    payload: schemas.TrainingUserAccessCreate,
+    db: Session = Depends(get_db),
 ):
     session = db.get(models.TrainingSession, session_id)
     if not session:
@@ -963,8 +1089,12 @@ def admin_create_user_access(
         )
     )
     if existing:
-        raise HTTPException(status_code=400, detail="Username already exists for this session")
-    expiry_days = payload.access_days if payload.access_days else session.access_expiry_days
+        raise HTTPException(
+            status_code=400, detail="Username already exists for this session"
+        )
+    expiry_days = (
+        payload.access_days if payload.access_days else session.access_expiry_days
+    )
     access = models.TrainingUserAccess(
         training_session_id=session_id,
         username=payload.username,
@@ -1014,8 +1144,14 @@ def admin_delete_user_access(access_id: int, db: Session = Depends(get_db)):
 
 # ── Public: Student Login & Video Viewing ─────────────────────────────────────
 
+
 @app.post("/academy/login")
-def academy_login(username: str = Form(...), password: str = Form(...), session_id: int = Form(...), db: Session = Depends(get_db)):
+def academy_login(
+    username: str = Form(...),
+    password: str = Form(...),
+    session_id: int = Form(...),
+    db: Session = Depends(get_db),
+):
     access = db.scalar(
         select(models.TrainingUserAccess).where(
             models.TrainingUserAccess.training_session_id == session_id,
@@ -1050,7 +1186,9 @@ def _verify_academy_token(token: str, db: Session) -> models.TrainingUserAccess:
         parts = token.split(":")
         access_id, session_id_str, sig = int(parts[0]), int(parts[1]), parts[2]
         payload_str = f"{access_id}:{session_id_str}"
-        expected = hmac.new(secret.encode(), payload_str.encode(), hashlib.sha256).hexdigest()
+        expected = hmac.new(
+            secret.encode(), payload_str.encode(), hashlib.sha256
+        ).hexdigest()
         if not hmac.compare_digest(sig, expected):
             raise ValueError("bad sig")
     except Exception:
@@ -1064,7 +1202,9 @@ def _verify_academy_token(token: str, db: Session) -> models.TrainingUserAccess:
 
 
 @app.get("/academy/session/{session_id}")
-def academy_get_session(session_id: int, token: str = Query(...), db: Session = Depends(get_db)):
+def academy_get_session(
+    session_id: int, token: str = Query(...), db: Session = Depends(get_db)
+):
     access = _verify_academy_token(token, db)
     if access.training_session_id != session_id:
         raise HTTPException(status_code=403, detail="Sin acceso a este curso")
@@ -1093,7 +1233,12 @@ def academy_get_session(session_id: int, token: str = Query(...), db: Session = 
 
 
 @app.get("/academy/video/{video_id}/stream-url")
-def academy_get_stream_url(video_id: int, token: str = Query(...), db: Session = Depends(get_db), request: Request = None):
+def academy_get_stream_url(
+    video_id: int,
+    token: str = Query(...),
+    db: Session = Depends(get_db),
+    request: Request = None,
+):
     """Returns a short-lived pre-signed S3 GET URL. No download headers are set."""
     if not HAS_BOTO3:
         raise HTTPException(status_code=501, detail="S3 not configured")
@@ -1101,7 +1246,8 @@ def academy_get_stream_url(video_id: int, token: str = Query(...), db: Session =
     # verify video belongs to user's session
     link = db.scalar(
         select(models.TrainingSessionVideo).where(
-            models.TrainingSessionVideo.training_session_id == access.training_session_id,
+            models.TrainingSessionVideo.training_session_id
+            == access.training_session_id,
             models.TrainingSessionVideo.video_id == video_id,
         )
     )

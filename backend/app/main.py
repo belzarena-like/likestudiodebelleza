@@ -2,27 +2,32 @@
 Refactored main.py with proper separation of concerns.
 Training routes are now in controllers/training_controller.py
 """
-from datetime import date, datetime, time
+
 import os
 import sys
+from datetime import date, datetime, time
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 if __package__:
     from . import crud, models, schemas
+    from .controllers.training_controller import public_router as academy_router
+    from .controllers.training_controller import router as training_router
     from .database import Base, SessionLocal, engine
-    from .controllers.training_controller import router as training_router, public_router as academy_router
 else:
     sys.path.append(os.path.dirname(__file__))
     import crud  # type: ignore
     import models  # type: ignore
     import schemas  # type: ignore
+    from controllers.training_controller import public_router as academy_router
+    from controllers.training_controller import (
+        router as training_router,  # type: ignore
+    )
     from database import Base, SessionLocal, engine  # type: ignore
-    from controllers.training_controller import router as training_router, public_router as academy_router  # type: ignore
 
 app = FastAPI(title="Like Studio Backend", version="0.2.0")
 
@@ -45,7 +50,11 @@ def on_startup() -> None:
     if engine.dialect.name == "postgresql":
         with engine.begin() as conn:
             conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'LASER'"))
-            conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"))
+            conn.execute(
+                text(
+                    "ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"
+                )
+            )
     with SessionLocal() as db:
         crud.ensure_working_hours_defaults(db)
 
@@ -65,8 +74,11 @@ def health() -> dict[str, str]:
 
 # ── Client Routes ─────────────────────────────────────────────────────────────
 
+
 @app.post("/clients", response_model=schemas.ClientRead)
-def create_or_update_client(payload: schemas.ClientCreate, db: Session = Depends(get_db)):
+def create_or_update_client(
+    payload: schemas.ClientCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.upsert_client(db, payload)
     except ValueError as exc:
@@ -81,8 +93,12 @@ def admin_search_clients(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_clients(db, query=query, with_consents=with_consents, limit=limit, offset=offset)
-    return schemas.AdminClientSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_clients(
+        db, query=query, with_consents=with_consents, limit=limit, offset=offset
+    )
+    return schemas.AdminClientSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.put("/admin/clients/{client_id}", response_model=schemas.ClientRead)
@@ -119,23 +135,35 @@ def admin_client_prefill(
 
 # ── Client Profile Routes ─────────────────────────────────────────────────────
 
-@app.get("/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse)
+
+@app.get(
+    "/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse
+)
 def admin_search_client_profiles(
     query: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_client_profiles(db, query=query, limit=limit, offset=offset)
-    return schemas.AdminClientProfileSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_client_profiles(
+        db, query=query, limit=limit, offset=offset
+    )
+    return schemas.AdminClientProfileSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead | None)
+@app.get(
+    "/admin/client-profiles/{client_id}",
+    response_model=schemas.ClientProfileRead | None,
+)
 def admin_get_client_profile(
     client_id: int,
     db: Session = Depends(get_db),
 ):
-    return db.scalar(select(models.ClientProfile).where(models.ClientProfile.client_id == client_id))
+    return db.scalar(
+        select(models.ClientProfile).where(models.ClientProfile.client_id == client_id)
+    )
 
 
 @app.put("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead)
@@ -152,15 +180,20 @@ def admin_upsert_client_profile(
 
 # ── Treatment Session Routes ──────────────────────────────────────────────────
 
+
 @app.post("/sessions", response_model=schemas.TreatmentSessionRead)
-def create_treatment_session(payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)):
+def create_treatment_session(
+    payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.create_session(db, payload)
 
 
 @app.post("/sessions/upsert", response_model=schemas.TreatmentSessionRead)
-def upsert_treatment_session(payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)):
+def upsert_treatment_session(
+    payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.upsert_session(db, payload)
@@ -203,7 +236,9 @@ def admin_search_sessions(
         limit=limit,
         offset=offset,
     )
-    return schemas.TreatmentSessionSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.TreatmentSessionSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/session-agenda", response_model=schemas.SessionAgendaResponse)
@@ -235,7 +270,9 @@ def admin_session_attendance(
     }
 
 
-@app.delete("/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse)
+@app.delete(
+    "/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse
+)
 def admin_delete_session(
     session_id: int,
     db: Session = Depends(get_db),
@@ -256,7 +293,9 @@ def admin_session_history(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items = crud.get_session_history(db, session_id=session_id, limit=limit, offset=offset)
+    items = crud.get_session_history(
+        db, session_id=session_id, limit=limit, offset=offset
+    )
     return schemas.SessionAppointmentHistoryResponse(items=items)
 
 
@@ -289,8 +328,11 @@ def admin_create_session_history(
 
 # ── Appointment Routes ────────────────────────────────────────────────────────
 
+
 @app.post("/appointments", response_model=schemas.AppointmentRead)
-def create_appointment(payload: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+def create_appointment(
+    payload: schemas.AppointmentCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.create_appointment(db, payload)
     except crud.AppointmentConflictError as exc:
@@ -357,10 +399,14 @@ def admin_search_appointments(
         limit=limit,
         offset=offset,
     )
-    return schemas.AppointmentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.AppointmentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead)
+@app.get(
+    "/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead
+)
 def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_admin_appointment(db, appointment_id)
     if not appointment:
@@ -369,6 +415,7 @@ def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
 
 
 # ── Service Routes ────────────────────────────────────────────────────────────
+
 
 @app.get("/admin/services", response_model=schemas.ServiceSearchResponse)
 def admin_search_services(
@@ -385,7 +432,9 @@ def admin_search_services(
         limit=limit,
         offset=offset,
     )
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.post("/admin/services", response_model=schemas.ServiceRead)
@@ -417,11 +466,16 @@ def public_services(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_services(db, query=None, active_only=True, limit=limit, offset=offset)
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_services(
+        db, query=None, active_only=True, limit=limit, offset=offset
+    )
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 # ── Working Hours Routes ──────────────────────────────────────────────────────
+
 
 @app.get("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
 def admin_get_working_hours(db: Session = Depends(get_db)):
@@ -430,7 +484,9 @@ def admin_get_working_hours(db: Session = Depends(get_db)):
 
 
 @app.put("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
-def admin_update_working_hours(payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)):
+def admin_update_working_hours(
+    payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)
+):
     try:
         items = crud.upsert_working_hours(db, payload.items)
     except ValueError as exc:
@@ -439,6 +495,7 @@ def admin_update_working_hours(payload: schemas.WorkingHoursUpdate, db: Session 
 
 
 # ── Public Booking Routes ─────────────────────────────────────────────────────
+
 
 @app.get("/public/availability", response_model=schemas.AvailabilityResponse)
 def public_availability(
@@ -481,8 +538,7 @@ def public_availability(
         )
 
     rows = db.execute(
-        select(models.Appointment.start_time, models.Appointment.end_time)
-        .where(
+        select(models.Appointment.start_time, models.Appointment.end_time).where(
             models.Appointment.appointment_date == appointment_date,
             models.Appointment.professional_name == professional_name,
             models.Appointment.status != "cancelled",
@@ -490,7 +546,10 @@ def public_availability(
         )
     ).all()
 
-    busy = [(row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute) for row in rows]
+    busy = [
+        (row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute)
+        for row in rows
+    ]
 
     def is_free(start: int, end: int) -> bool:
         for busy_start, busy_end in busy:
@@ -505,7 +564,14 @@ def public_availability(
         if is_free(candidate, candidate + duration):
             hour = candidate // 60
             minute = candidate % 60
-            start_times.append(f"{hour:02d}:{minute:02d}")
+            time_str = f"{hour:02d}:{minute:02d}"
+
+            # For services >= 60 minutes, only allow hour slots (x:00)
+            # For services < 60 minutes, allow all 15-minute slots
+            if duration >= 60 and minute != 0:
+                continue
+
+            start_times.append(time_str)
 
     return schemas.AvailabilityResponse(
         date=appointment_date,
@@ -526,6 +592,27 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
     duration = service.duration_minutes or 60
     start_minutes = payload.start_time.hour * 60 + payload.start_time.minute
     end_minutes = start_minutes + duration
+
+    # Validate booking time rules: services >= 60 minutes must start on the hour
+    if duration >= 60 and payload.start_time.minute != 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Servicios de 1 hora o más solo pueden reservarse en horas completas (ej: 10:00, 11:00)",
+        )
+
+    # Validate 4-hour advance booking rule
+    now = datetime.utcnow()
+    appointment_datetime = datetime.combine(
+        payload.appointment_date, payload.start_time
+    )
+    hours_until_appointment = (appointment_datetime - now).total_seconds() / 3600
+
+    if hours_until_appointment < 4:
+        raise HTTPException(
+            status_code=400,
+            detail="Las reservas deben realizarse con al menos 4 horas de anticipación",
+        )
+
     working_hours = crud.get_working_hours_for_date(db, payload.appointment_date)
     if (
         not working_hours
@@ -533,24 +620,29 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
         or working_hours.start_time is None
         or working_hours.end_time is None
     ):
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     open_start = working_hours.start_time.hour * 60 + working_hours.start_time.minute
     open_end = working_hours.end_time.hour * 60 + working_hours.end_time.minute
     if start_minutes < open_start or end_minutes > open_end:
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     end_time = time(end_minutes // 60, end_minutes % 60)
 
     client = db.scalar(
-        select(models.Client)
-        .where(
+        select(models.Client).where(
             models.Client.full_name == payload.full_name,
             models.Client.phone == payload.phone,
         )
     )
     if not client:
-        generated_id = f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        generated_id = (
+            f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        )
         client = crud.upsert_client(
             db,
             schemas.ClientCreate(
@@ -587,10 +679,37 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
     except crud.AppointmentValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    # Send confirmation email if client has email
+    if client.email:
+        email_settings = crud.get_email_settings(db)
+        if email_settings and email_settings.enabled:
+            from app.services.email_service import EmailService, EmailSettings
+
+            settings = EmailSettings(
+                smtp_host=email_settings.smtp_host,
+                smtp_port=email_settings.smtp_port,
+                smtp_user=email_settings.smtp_user,
+                smtp_password=email_settings.smtp_password,
+                from_email=email_settings.from_email,
+                from_name=email_settings.from_name,
+                enabled=email_settings.enabled,
+            )
+            EmailService.send_appointment_confirmation(
+                settings=settings,
+                client_email=client.email,
+                client_name=client.full_name,
+                service_name=service.name,
+                appointment_date=payload.appointment_date,
+                start_time=payload.start_time.strftime("%H:%M"),
+                professional_name=payload.professional_name,
+                business_name="Like Studio",
+            )
+
     return schemas.PublicBookingResponse(appointment_id=appointment.id)
 
 
 # ── Consent Routes ────────────────────────────────────────────────────────────
+
 
 @app.post("/consents", response_model=schemas.ConsentRead)
 def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
@@ -610,7 +729,9 @@ def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)
 
 
 @app.put("/consents/{consent_id}", response_model=schemas.ConsentRead)
-def update_consent(consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
+def update_consent(
+    consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)
+):
     try:
         updated = crud.update_consent(db, consent_id, payload)
     except ValueError as exc:
@@ -650,7 +771,9 @@ def admin_search_consents(
         limit=limit,
         offset=offset,
     )
-    return schemas.ConsentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ConsentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/consents/{consent_id}", response_model=schemas.ConsentAdminDetailRead)
@@ -659,3 +782,87 @@ def admin_get_consent(consent_id: int, db: Session = Depends(get_db)):
     if not consent:
         raise HTTPException(status_code=404, detail="Consent not found")
     return consent
+
+
+@app.put("/consents/{consent_id}/signature")
+async def update_consent_signature(
+    consent_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)
+):
+    """Upload signature image for a consent - stores base64 in database."""
+    consent = db.get(models.Consent, consent_id)
+    if not consent:
+        raise HTTPException(status_code=404, detail="Consent not found")
+
+    # Validate file type
+    if file.content_type not in ["image/png", "image/jpeg"]:
+        raise HTTPException(
+            status_code=400, detail="Only PNG and JPEG images are allowed"
+        )
+
+    # Read file and convert to base64
+    content = await file.read()
+    import base64
+
+    base64_content = base64.b64encode(content).decode("utf-8")
+    mime_type = file.content_type
+
+    # Store base64 directly in database
+    consent.signature_image_path = base64_content
+    consent.signature_mime_type = mime_type
+    db.add(consent)
+    db.commit()
+    db.refresh(consent)
+
+    return {"signature_stored": True, "signature_mime_type": mime_type}
+
+
+# ── Email Settings Routes ─────────────────────────────────────────────────────
+
+
+@app.get("/admin/email-settings", response_model=schemas.EmailSettingsResponse)
+def admin_get_email_settings(db: Session = Depends(get_db)):
+    """Get email settings"""
+    settings = crud.get_email_settings(db)
+    if not settings:
+        return schemas.EmailSettingsResponse(
+            smtp_host="smtp.gmail.com",
+            smtp_port=587,
+            smtp_user="",
+            smtp_password="",
+            from_email="",
+            from_name="Like Studio",
+            enabled=False,
+        )
+    return schemas.EmailSettingsResponse(
+        smtp_host=settings.smtp_host,
+        smtp_port=settings.smtp_port,
+        smtp_user=settings.smtp_user,
+        smtp_password=settings.smtp_password,
+        from_email=settings.from_email,
+        from_name=settings.from_name,
+        enabled=settings.enabled,
+    )
+
+
+@app.put("/admin/email-settings", response_model=schemas.EmailSettingsRead)
+def admin_update_email_settings(
+    payload: schemas.EmailSettingsCreate,
+    db: Session = Depends(get_db),
+):
+    """Create or update email settings"""
+    settings = crud.upsert_email_settings(db, payload)
+    return settings
+
+
+@app.post("/admin/email-settings/test")
+def admin_test_email_settings(
+    payload: schemas.EmailSettingsCreate,
+):
+    """Test email settings by trying to connect"""
+    success, message = EmailService.test_connection(
+        smtp_host=payload.smtp_host,
+        smtp_port=payload.smtp_port,
+        smtp_user=payload.smtp_user,
+        smtp_password=payload.smtp_password,
+    )
+    return schemas.EmailTestResult(success=success, message=message)

@@ -7,8 +7,42 @@
   const submitBtn = form.querySelector('button[type="submit"]');
   const required  = form.querySelectorAll('input[type="checkbox"][required]');
   const consentId = new URLSearchParams(window.location.search).get('consent_id');
+  const isEditMode = new URLSearchParams(window.location.search).get('mode') === 'edit';
 
   document.getElementById('signed_at').valueAsDate = new Date();
+
+  // Load existing consent data if in edit mode
+  if (consentId && isEditMode && window.APP_CONFIG) {
+    fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/consents/${consentId}`, {
+      headers: { 'Authorization': 'Bearer ' + (window.LIKESTUDIO_ADMIN_TOKEN || '') }
+    })
+    .then(r => r.json())
+    .then(consent => {
+      if (consent.client_name) {
+        const parts = consent.client_name.split(' ');
+        document.getElementById('full_name').value = parts[0] || '';
+        document.getElementById('last_name').value = parts.slice(1).join(' ') || '';
+      }
+      if (consent.client_id_number) document.getElementById('dni').value = consent.client_id_number;
+      if (consent.client_phone) document.getElementById('phone').value = consent.client_phone;
+      if (consent.client_email) document.getElementById('email').value = consent.client_email;
+      if (consent.treatment_areas) document.getElementById('treatment').value = consent.treatment_areas;
+      if (consent.signed_at) document.getElementById('signed_at').value = consent.signed_at;
+      if (consent.therapist_name) document.getElementById('therapist_name').value = consent.therapist_name;
+      if (consent.signature_image_path && window.loadSignature) {
+        let signatureUrl = consent.signature_image_path;
+        if (!signatureUrl.startsWith('data:') && consent.signature_mime_type) {
+          signatureUrl = `data:${consent.signature_mime_type};base64,${signatureUrl}`;
+        } else if (!signatureUrl.startsWith('data:')) {
+          signatureUrl = `data:image/png;base64,${signatureUrl}`;
+        }
+        window.loadSignature(signatureUrl);
+      }
+      window.LIKESTUDIO_CONSENT_META = window.LIKESTUDIO_CONSENT_META || {};
+      window.LIKESTUDIO_CONSENT_META.client_id_number = consent.client_id_number;
+    })
+    .catch(err => console.error('Error loading consent:', err));
+  }
 
   // Load services into treatment select
   const treatmentSelect = document.getElementById('treatment');
@@ -36,12 +70,15 @@
     const idNumber   = data.get('dni').trim();
     const phone      = data.get('phone').trim();
     const treatment  = data.get('treatment').trim();
-    const signature  = data.get('signature_text').trim();
     const therapist  = data.get('therapist_name').trim();
     const existingId = (window.LIKESTUDIO_CONSENT_META && window.LIKESTUDIO_CONSENT_META.client_id_number) || '';
     const finalId    = idNumber || existingId || ('NO-DOC-' + Date.now());
 
-    if (!fullName || !phone || !signature || !therapist || !treatment) { message.textContent = 'Nombre, teléfono, profesional, tratamiento y firma son obligatorios.'; submitBtn.disabled = false; return; }
+    // Get signature from canvas
+    const signatureDataUrl = window.getSignatureData ? window.getSignatureData() : null;
+    
+    if (!fullName || !phone || !therapist || !treatment) { message.textContent = 'Nombre, teléfono, profesional y tratamiento son obligatorios.'; submitBtn.disabled = false; return; }
+    if (!signatureDataUrl) { message.textContent = 'La firma es obligatoria.'; submitBtn.disabled = false; return; }
 
     const payload = {
       consent_type: 'aesthetic_treatment', full_name: fullName, id_number: finalId,
@@ -59,14 +96,44 @@
       personalized_risks: null, case_particularities: null,
       acceptance_points: ['appointment_policy_accepted'],
       photos_allowed: false,
-      signed_at: data.get('signed_at'), therapist_name: therapist, signature_text: signature
+      signed_at: data.get('signed_at'), therapist_name: therapist,
+      signature_text: fullName  // Use full name as signature text fallback
     };
 
     try {
+      let consent;
       const url = `${window.APP_CONFIG.API_BASE_URL}/consents${consentId ? '/' + consentId : ''}`;
       const r   = await fetch(url, { method: consentId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!r.ok) throw new Error('No se pudo guardar.');
+      consent = await r.json();
+      
+      // Upload signature image
+      if (signatureDataUrl) {
+        const base64Data = signatureDataUrl.split(',')[1];
+        const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', blob, 'signature.png');
+        
+        await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents/${consent.id}/signature`, {
+          method: 'PUT',
+          body: formData
+        });
+      }
+      
       const saved = await r.json();
+      // Upload signature image
+      if (signatureDataUrl) {
+        const base64Data = signatureDataUrl.split(',')[1];
+        const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', blob, 'signature.png');
+        
+        await fetch(`${window.APP_CONFIG.API_BASE_URL}/consents/${saved.id}/signature`, {
+          method: 'PUT',
+          body: formData
+        });
+      }
+      
       const plannedSessions = parseInt(data.get('sessions'), 10);
       if (!isNaN(plannedSessions)) {
         await fetch(`${window.APP_CONFIG.API_BASE_URL}/sessions/upsert`, {
