@@ -21,6 +21,7 @@
       <a href="booking-draft.html">Agenda</a>
       <a href="services.html">Servicios</a>
       <a href="working-hours.html">Horario</a>
+      <a href="settings.html">Configuración</a>
       <a href="../index.html">Web publica</a>
       <a href="#" onclick="likestudioAdminLogout(); return false;">Cerrar sesion</a>
     </nav>
@@ -125,8 +126,8 @@
         </select>
       </div>
       <div class="form-grid-1">
-        <label for="signature_text">Firma (texto de confirmacion)</label>
-        <input id="signature_text" name="signature_text" placeholder="Escriba su nombre como firma" required />
+        <label for="signatureCanvas">Firma</label>
+        <canvas id="signatureCanvas" class="signature-canvas"></canvas>
       </div>
 
       <div class="form-actions form-grid-1">
@@ -143,6 +144,7 @@
   <script src="../static/js/consent-print.js"></script>
   <script src="../static/js/consent-prefill.js"></script>
   <script src="../static/js/site.js"></script>
+  <script src="../static/js/signature-pad.js"></script>
   <script src="js/consent-eliminacion-laser.js"></script>
 </body>
 </html>

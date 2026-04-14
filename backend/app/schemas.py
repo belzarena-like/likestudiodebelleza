@@ -22,6 +22,7 @@ class ClientRead(ClientCreate):
 
     model_config = {"from_attributes": True}
 
+
 class ClientUpdate(BaseModel):
     full_name: str = Field(min_length=2, max_length=180)
     id_number: str = Field(min_length=3, max_length=40)
@@ -336,6 +337,8 @@ class ConsentCreate(BaseModel):
     therapist_name: str = Field(min_length=2, max_length=180)
     signature_text: str = Field(min_length=2, max_length=220)
     signed_at: date
+    signature_image_path: str | None = Field(default=None, max_length=500)
+    signature_mime_type: str | None = Field(default=None, max_length=10)
 
 
 class ConsentRead(BaseModel):
@@ -350,10 +353,17 @@ class ConsentRead(BaseModel):
     photos_allowed: bool
     therapist_name: str
     signature_text: str
+    signature_image_path: str | None = None
+    signature_mime_type: str | None = None
     signed_at: date
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class SignatureUpdate(BaseModel):
+    signature_image_path: str | None = None
+    signature_mime_type: str | None = None
 
 
 class ConsentAdminRead(BaseModel):
@@ -391,6 +401,8 @@ class ConsentAdminDetailRead(BaseModel):
     photos_allowed: bool
     therapist_name: str
     signature_text: str
+    signature_image_path: str | None = None
+    signature_mime_type: str | None = None
     signed_at: date
     created_at: datetime
 
@@ -401,7 +413,10 @@ class AdminClientPrefillRead(BaseModel):
     id_number: str
     phone: str | None
     email: str | None
+
+
 # Training/Course Management Schemas
+
 
 class TrainingVideoCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=200)
@@ -414,43 +429,53 @@ class TrainingVideoCreate(BaseModel):
     mime_type: str = Field(default="video/mp4", max_length=100)
     is_public: bool = False
 
+
 class TrainingVideoRead(TrainingVideoCreate):
     id: int
     created_at: datetime
     updated_at: datetime
-    
+
     model_config = {"from_attributes": True}
+
 
 class TrainingSessionCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=200)
     description: str | None = None
     instructor_name: str = Field(..., min_length=2, max_length=180)
     category: str = Field(..., min_length=2, max_length=100)
-    difficulty_level: str = Field(default="beginner", pattern="^(beginner|intermediate|advanced)$")
+    difficulty_level: str = Field(
+        default="beginner", pattern="^(beginner|intermediate|advanced)$"
+    )
     access_expiry_days: int = Field(default=30, ge=1, le=365)
     is_active: bool = True
+
 
 class TrainingSessionRead(TrainingSessionCreate):
     id: int
     total_duration_minutes: int = 0
     created_at: datetime
     updated_at: datetime
-    
+
     model_config = {"from_attributes": True}
+
 
 class TrainingSessionUpdate(BaseModel):
     title: str | None = Field(None, min_length=2, max_length=200)
     description: str | None = None
     instructor_name: str | None = Field(None, min_length=2, max_length=180)
     category: str | None = Field(None, min_length=2, max_length=100)
-    difficulty_level: str | None = Field(None, pattern="^(beginner|intermediate|advanced)$")
+    difficulty_level: str | None = Field(
+        None, pattern="^(beginner|intermediate|advanced)$"
+    )
     access_expiry_days: int | None = Field(None, ge=1, le=365)
     is_active: bool | None = None
+
 
 class TrainingSessionVideoLink(BaseModel):
     training_session_id: int
     video_id: int
     display_order: int = 0
+
 
 class TrainingUserAccessCreate(BaseModel):
     training_session_id: int
@@ -459,6 +484,7 @@ class TrainingUserAccessCreate(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=180)
     email: str | None = Field(None, max_length=180)
     access_days: int = Field(30, ge=1, le=365)
+
 
 class TrainingUserAccessRead(BaseModel):
     id: int
@@ -473,8 +499,9 @@ class TrainingUserAccessRead(BaseModel):
     access_count: int
     created_at: datetime
     updated_at: datetime
-    
+
     model_config = {"from_attributes": True}
+
 
 class TrainingVideoViewLogCreate(BaseModel):
     video_id: int
@@ -483,10 +510,12 @@ class TrainingVideoViewLogCreate(BaseModel):
     ip_address: str | None = None
     user_agent: str | None = None
 
+
 class TrainingSessionWithVideos(TrainingSessionRead):
     videos: list[TrainingVideoRead] = []
     user_access_count: int = 0
     active_users: int = 0
+
 
 class TrainingSessionSearchResponse(BaseModel):
     items: list[TrainingSessionRead]
@@ -494,8 +523,59 @@ class TrainingSessionSearchResponse(BaseModel):
     limit: int
     offset: int
 
+
 class TrainingUserAccessSearchResponse(BaseModel):
     items: list[TrainingUserAccessRead]
     total: int
     limit: int
     offset: int
+
+
+# Email Settings Schemas
+class EmailSettingsCreate(BaseModel):
+    smtp_host: str = Field(default="smtp.gmail.com", max_length=200)
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_user: str = Field(..., max_length=200)
+    smtp_password: str = Field(..., max_length=200)
+    from_email: str = Field(..., max_length=200)
+    from_name: str = Field(default="Like Studio", max_length=100)
+    enabled: bool = False
+
+
+class EmailSettingsUpdate(BaseModel):
+    smtp_host: str | None = Field(default=None, max_length=200)
+    smtp_port: int | None = Field(default=None, ge=1, le=65535)
+    smtp_user: str | None = Field(default=None, max_length=200)
+    smtp_password: str | None = Field(default=None, max_length=200)
+    from_email: str | None = Field(default=None, max_length=200)
+    from_name: str | None = Field(default=None, max_length=100)
+    enabled: bool | None = None
+
+
+class EmailSettingsRead(BaseModel):
+    id: int
+    smtp_host: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
+    from_email: str
+    from_name: str
+    enabled: bool
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class EmailSettingsResponse(BaseModel):
+    smtp_host: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
+    from_email: str
+    from_name: str
+    enabled: bool
+
+
+class EmailTestResult(BaseModel):
+    success: bool
+    message: str

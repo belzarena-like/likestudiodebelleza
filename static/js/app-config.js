@@ -2,6 +2,7 @@
 //DONT FORGET TO CHANGE THE BASE URL FOR LOCAL DEVELOPMENT
 (function () {
   var defaultBase = "https://apis.listoapp.es/like_api";
+  defaultBase = "http://localhost:8000";
   
   // Check for overrides
   var override = window.LIKESTUDIO_API_BASE_URL;

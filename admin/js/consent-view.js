@@ -271,6 +271,24 @@ class ConsentViewController {
     // Consent details
     document.getElementById('v-photos').textContent = consent.photos_allowed ? 'Sí' : 'No';
     document.getElementById('v-signature').textContent = this.textOrDash(consent.signature_text);
+    
+    // Signature image
+    const signatureImg = document.getElementById('signature-img');
+    const signatureImagePath = consent.signature_image_path;
+    if (signatureImagePath) {
+      // Check if it's base64 (starts with data: or is raw base64)
+      if (signatureImagePath.startsWith('data:')) {
+        signatureImg.src = signatureImagePath;
+      } else if (consent.signature_mime_type) {
+        signatureImg.src = `data:${consent.signature_mime_type};base64,${signatureImagePath}`;
+      } else {
+        signatureImg.src = `data:image/png;base64,${signatureImagePath}`;
+      }
+      signatureImg.style.display = 'block';
+    } else {
+      signatureImg.style.display = 'none';
+    }
+    
     document.getElementById('v-treatment').textContent = this.textOrDash(consent.treatment_areas);
     document.getElementById('v-medical').textContent = this.formatJsonField(consent.medical_conditions);
     document.getElementById('v-risks').textContent = this.textOrDash(consent.personalized_risks);

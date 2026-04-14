@@ -2,9 +2,10 @@
 Refactored main.py with proper separation of concerns.
 Training routes are now in controllers/training_controller.py
 """
-from datetime import date, datetime, time
+
 import os
 import sys
+from datetime import date, datetime, time
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -14,15 +15,19 @@ from sqlalchemy.orm import Session
 
 if __package__:
     from . import crud, models, schemas
+    from .controllers.training_controller import public_router as academy_router
+    from .controllers.training_controller import router as training_router
     from .database import Base, SessionLocal, engine
-    from .controllers.training_controller import router as training_router, public_router as academy_router
 else:
     sys.path.append(os.path.dirname(__file__))
     import crud  # type: ignore
     import models  # type: ignore
     import schemas  # type: ignore
+    from controllers.training_controller import public_router as academy_router
+    from controllers.training_controller import (
+        router as training_router,  # type: ignore
+    )
     from database import Base, SessionLocal, engine  # type: ignore
-    from controllers.training_controller import router as training_router, public_router as academy_router  # type: ignore
 
 app = FastAPI(title="Like Studio Backend", version="0.2.0")
 
@@ -45,7 +50,11 @@ def on_startup() -> None:
     if engine.dialect.name == "postgresql":
         with engine.begin() as conn:
             conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'LASER'"))
-            conn.execute(text("ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"))
+            conn.execute(
+                text(
+                    "ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"
+                )
+            )
     with SessionLocal() as db:
         crud.ensure_working_hours_defaults(db)
 
@@ -65,8 +74,11 @@ def health() -> dict[str, str]:
 
 # ── Client Routes ─────────────────────────────────────────────────────────────
 
+
 @app.post("/clients", response_model=schemas.ClientRead)
-def create_or_update_client(payload: schemas.ClientCreate, db: Session = Depends(get_db)):
+def create_or_update_client(
+    payload: schemas.ClientCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.upsert_client(db, payload)
     except ValueError as exc:
@@ -81,8 +93,12 @@ def admin_search_clients(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_clients(db, query=query, with_consents=with_consents, limit=limit, offset=offset)
-    return schemas.AdminClientSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_clients(
+        db, query=query, with_consents=with_consents, limit=limit, offset=offset
+    )
+    return schemas.AdminClientSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.put("/admin/clients/{client_id}", response_model=schemas.ClientRead)
@@ -119,23 +135,35 @@ def admin_client_prefill(
 
 # ── Client Profile Routes ─────────────────────────────────────────────────────
 
-@app.get("/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse)
+
+@app.get(
+    "/admin/client-profiles", response_model=schemas.AdminClientProfileSearchResponse
+)
 def admin_search_client_profiles(
     query: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_client_profiles(db, query=query, limit=limit, offset=offset)
-    return schemas.AdminClientProfileSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_client_profiles(
+        db, query=query, limit=limit, offset=offset
+    )
+    return schemas.AdminClientProfileSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead | None)
+@app.get(
+    "/admin/client-profiles/{client_id}",
+    response_model=schemas.ClientProfileRead | None,
+)
 def admin_get_client_profile(
     client_id: int,
     db: Session = Depends(get_db),
 ):
-    return db.scalar(select(models.ClientProfile).where(models.ClientProfile.client_id == client_id))
+    return db.scalar(
+        select(models.ClientProfile).where(models.ClientProfile.client_id == client_id)
+    )
 
 
 @app.put("/admin/client-profiles/{client_id}", response_model=schemas.ClientProfileRead)
@@ -152,15 +180,20 @@ def admin_upsert_client_profile(
 
 # ── Treatment Session Routes ──────────────────────────────────────────────────
 
+
 @app.post("/sessions", response_model=schemas.TreatmentSessionRead)
-def create_treatment_session(payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)):
+def create_treatment_session(
+    payload: schemas.TreatmentSessionCreate, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.create_session(db, payload)
 
 
 @app.post("/sessions/upsert", response_model=schemas.TreatmentSessionRead)
-def upsert_treatment_session(payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)):
+def upsert_treatment_session(
+    payload: schemas.TreatmentSessionUpsert, db: Session = Depends(get_db)
+):
     if not db.get(models.Client, payload.client_id):
         raise HTTPException(status_code=404, detail="Client not found")
     return crud.upsert_session(db, payload)
@@ -203,7 +236,9 @@ def admin_search_sessions(
         limit=limit,
         offset=offset,
     )
-    return schemas.TreatmentSessionSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.TreatmentSessionSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/session-agenda", response_model=schemas.SessionAgendaResponse)
@@ -235,7 +270,9 @@ def admin_session_attendance(
     }
 
 
-@app.delete("/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse)
+@app.delete(
+    "/admin/sessions/{session_id}", response_model=schemas.SessionDeleteResponse
+)
 def admin_delete_session(
     session_id: int,
     db: Session = Depends(get_db),
@@ -256,7 +293,9 @@ def admin_session_history(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items = crud.get_session_history(db, session_id=session_id, limit=limit, offset=offset)
+    items = crud.get_session_history(
+        db, session_id=session_id, limit=limit, offset=offset
+    )
     return schemas.SessionAppointmentHistoryResponse(items=items)
 
 
@@ -289,8 +328,11 @@ def admin_create_session_history(
 
 # ── Appointment Routes ────────────────────────────────────────────────────────
 
+
 @app.post("/appointments", response_model=schemas.AppointmentRead)
-def create_appointment(payload: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+def create_appointment(
+    payload: schemas.AppointmentCreate, db: Session = Depends(get_db)
+):
     try:
         return crud.create_appointment(db, payload)
     except crud.AppointmentConflictError as exc:
@@ -357,10 +399,14 @@ def admin_search_appointments(
         limit=limit,
         offset=offset,
     )
-    return schemas.AppointmentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.AppointmentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
-@app.get("/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead)
+@app.get(
+    "/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead
+)
 def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_admin_appointment(db, appointment_id)
     if not appointment:
@@ -369,6 +415,7 @@ def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
 
 
 # ── Service Routes ────────────────────────────────────────────────────────────
+
 
 @app.get("/admin/services", response_model=schemas.ServiceSearchResponse)
 def admin_search_services(
@@ -385,7 +432,9 @@ def admin_search_services(
         limit=limit,
         offset=offset,
     )
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.post("/admin/services", response_model=schemas.ServiceRead)
@@ -417,11 +466,16 @@ def public_services(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    items, total = crud.search_services(db, query=None, active_only=True, limit=limit, offset=offset)
-    return schemas.ServiceSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    items, total = crud.search_services(
+        db, query=None, active_only=True, limit=limit, offset=offset
+    )
+    return schemas.ServiceSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 # ── Working Hours Routes ──────────────────────────────────────────────────────
+
 
 @app.get("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
 def admin_get_working_hours(db: Session = Depends(get_db)):
@@ -430,7 +484,9 @@ def admin_get_working_hours(db: Session = Depends(get_db)):
 
 
 @app.put("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
-def admin_update_working_hours(payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)):
+def admin_update_working_hours(
+    payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)
+):
     try:
         items = crud.upsert_working_hours(db, payload.items)
     except ValueError as exc:
@@ -439,6 +495,7 @@ def admin_update_working_hours(payload: schemas.WorkingHoursUpdate, db: Session 
 
 
 # ── Public Booking Routes ─────────────────────────────────────────────────────
+
 
 @app.get("/public/availability", response_model=schemas.AvailabilityResponse)
 def public_availability(
@@ -481,8 +538,7 @@ def public_availability(
         )
 
     rows = db.execute(
-        select(models.Appointment.start_time, models.Appointment.end_time)
-        .where(
+        select(models.Appointment.start_time, models.Appointment.end_time).where(
             models.Appointment.appointment_date == appointment_date,
             models.Appointment.professional_name == professional_name,
             models.Appointment.status != "cancelled",
@@ -490,7 +546,10 @@ def public_availability(
         )
     ).all()
 
-    busy = [(row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute) for row in rows]
+    busy = [
+        (row[0].hour * 60 + row[0].minute, row[1].hour * 60 + row[1].minute)
+        for row in rows
+    ]
 
     def is_free(start: int, end: int) -> bool:
         for busy_start, busy_end in busy:
@@ -533,24 +592,29 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
         or working_hours.start_time is None
         or working_hours.end_time is None
     ):
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     open_start = working_hours.start_time.hour * 60 + working_hours.start_time.minute
     open_end = working_hours.end_time.hour * 60 + working_hours.end_time.minute
     if start_minutes < open_start or end_minutes > open_end:
-        raise HTTPException(status_code=400, detail="Selected time is outside working hours")
+        raise HTTPException(
+            status_code=400, detail="Selected time is outside working hours"
+        )
 
     end_time = time(end_minutes // 60, end_minutes % 60)
 
     client = db.scalar(
-        select(models.Client)
-        .where(
+        select(models.Client).where(
             models.Client.full_name == payload.full_name,
             models.Client.phone == payload.phone,
         )
     )
     if not client:
-        generated_id = f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        generated_id = (
+            f"WEB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:6]}"
+        )
         client = crud.upsert_client(
             db,
             schemas.ClientCreate(
@@ -592,6 +656,7 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
 
 # ── Consent Routes ────────────────────────────────────────────────────────────
 
+
 @app.post("/consents", response_model=schemas.ConsentRead)
 def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
     try:
@@ -610,7 +675,9 @@ def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)
 
 
 @app.put("/consents/{consent_id}", response_model=schemas.ConsentRead)
-def update_consent(consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
+def update_consent(
+    consent_id: int, payload: schemas.ConsentCreate, db: Session = Depends(get_db)
+):
     try:
         updated = crud.update_consent(db, consent_id, payload)
     except ValueError as exc:
@@ -650,7 +717,9 @@ def admin_search_consents(
         limit=limit,
         offset=offset,
     )
-    return schemas.ConsentSearchResponse(items=items, total=total, limit=limit, offset=offset)
+    return schemas.ConsentSearchResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
 
 
 @app.get("/admin/consents/{consent_id}", response_model=schemas.ConsentAdminDetailRead)
