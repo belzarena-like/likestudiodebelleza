@@ -4,19 +4,22 @@
 
 import { clientService } from '../../src/services/client.service.js';
 import { Toast } from '../../src/ui/components/toast.js';
+import { BonusCreator } from '../../src/ui/components/bonus-creator.js';
 
 class ClientProfilesController {
   constructor() {
     this.LIMIT = 24;
     this.offset = 0;
     this.lastTotal = 0;
-
+    this.bonusCreator = null;
+ 
     // DOM elements
     this.form = document.getElementById('search-form');
     this.summary = document.getElementById('summary');
     this.grid = document.getElementById('profile-grid');
-
+ 
     this.initEventListeners();
+    this.initBonusCreator();
     this.load();
   }
 
@@ -53,6 +56,15 @@ class ClientProfilesController {
       const btn = e.target.closest('[data-save]');
       if (btn) {
         this.saveProfile(btn.closest('.profile-card'));
+      }
+    });
+
+    // Create bonus button
+    this.grid.addEventListener('click', (e) => {
+      const bonusBtn = e.target.closest('[data-create-bonus]');
+      if (bonusBtn) {
+        const clientId = parseInt(bonusBtn.dataset.createBonus);
+        this.bonusCreator.show(clientId);
       }
     });
   }
@@ -116,6 +128,7 @@ class ClientProfilesController {
         </div>
         <div class="form-actions">
           <button class="btn btn-primary btn-sm" data-save>Guardar</button>
+          <button class="btn btn-secondary btn-sm" data-create-bonus="${item.client_id}">Crear Bono</button>
         </div>
         <p class="profile-message" data-message></p>
       </article>`).join('');
@@ -132,50 +145,60 @@ class ClientProfilesController {
     document.getElementById('next').disabled = data.offset + data.limit >= data.total;
   }
 
-  async saveProfile(card) {
-    const clientId = card.dataset.clientId;
-    const idNumber = card.dataset.idNumber;
-    const email = card.dataset.email || null;
-    const msg = card.querySelector('[data-message]');
-    
-    const fullName = card.querySelector('[data-field="full_name"]').value.trim();
-    const phone = card.querySelector('[data-field="phone"]').value.trim();
-    const instagram = card.querySelector('[data-field="instagram"]').value.trim();
-    const shootType = card.querySelector('[data-field="shoot_type"]').value.trim();
-    const shootDate = card.querySelector('[data-field="shoot_date"]').value;
+async saveProfile(card) {
+  const clientId = card.dataset.clientId;
+  const idNumber = card.dataset.idNumber;
+  const email = card.dataset.email || null;
+  const msg = card.querySelector('[data-message]');
+  
+  const fullName = card.querySelector('[data-field="full_name"]').value.trim();
+  const phone = card.querySelector('[data-field="phone"]').value.trim();
+  const instagram = card.querySelector('[data-field="instagram"]').value.trim();
+  const shootType = card.querySelector('[data-field="shoot_type"]').value.trim();
+  const shootDate = card.querySelector('[data-field="shoot_date"]').value;
 
-    if (!fullName) {
-      msg.textContent = 'El nombre es obligatorio';
-      Toast.error('El nombre es obligatorio');
-      return;
-    }
-
-    msg.textContent = 'Guardando...';
-
-    try {
-      // Update client
-      await clientService.updateClient(clientId, {
-        full_name: fullName,
-        id_number: idNumber,
-        phone: phone || null,
-        email,
-      });
-
-      // Update profile
-      await clientService.upsertClientProfile(clientId, {
-        instagram: instagram || null,
-        shoot_type: shootType || null,
-        shoot_date: shootDate || null,
-      });
-
-      card.querySelector('[data-display-name]').textContent = fullName;
-      msg.textContent = '✓ Guardado';
-      Toast.success('Perfil actualizado');
-    } catch (error) {
-      msg.textContent = error.message || 'Error al guardar';
-      Toast.error('No se pudo guardar el perfil');
-    }
+  if (!fullName) {
+    msg.textContent = 'El nombre es obligatorio';
+    Toast.error('El nombre es obligatorio');
+    return;
   }
+
+  msg.textContent = 'Guardando...';
+
+  try {
+    // Update client
+    await clientService.updateClient(clientId, {
+      full_name: fullName,
+      id_number: idNumber,
+      phone: phone || null,
+      email,
+    });
+
+    // Update profile
+    await clientService.upsertClientProfile(clientId, {
+      instagram: instagram || null,
+      shoot_type: shootType || null,
+      shoot_date: shootDate || null,
+    });
+
+    card.querySelector('[data-display-name]').textContent = fullName;
+    msg.textContent = '✓ Guardado';
+    Toast.success('Perfil actualizado');
+  } catch (error) {
+    msg.textContent = error.message || 'Error al guardar';
+    Toast.error('No se pudo guardar el perfil');
+  }
+}
+
+async initBonusCreator() {
+  this.bonusCreator = new BonusCreator({
+    onSuccess: () => {
+      // Reload client data after creating a bonus
+      this.load();
+    }
+  });
+  await this.bonusCreator.init();
+}
 }
 
 // Initialize controller

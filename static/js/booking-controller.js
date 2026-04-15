@@ -35,6 +35,7 @@ class BookingController {
     this.message = document.getElementById('message');
     this.fullNameInput = document.getElementById('full-name');
     this.phoneInput = document.getElementById('phone');
+    this.emailInput = document.getElementById('email');
     this.instagramInput = document.getElementById('instagram');
     this.notesInput = document.getElementById('notes');
     this.form = document.getElementById('booking-form');
@@ -396,14 +397,15 @@ class BookingController {
       this.message.textContent = 'Completa servicio, profesional, fecha y horario.';
       return;
     }
-    if (!this.fullNameInput.value.trim() || !this.phoneInput.value.trim()) {
-      this.message.textContent = 'Nombre y telefono son obligatorios.';
+    if (!this.fullNameInput.value.trim() || !this.phoneInput.value.trim() || !this.emailInput.value.trim()) {
+      this.message.textContent = 'Nombre, teléfono y email son obligatorios.';
       return;
     }
 
     const payload = {
       full_name: this.fullNameInput.value.trim(),
       phone: this.phoneInput.value.trim(),
+      email: this.emailInput.value.trim(),
       instagram: this.instagramInput.value.trim() || null,
       professional_name: professional,
       service_id: parseInt(serviceId, 10),

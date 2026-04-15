@@ -8,6 +8,7 @@ import { appointmentService } from '../../src/services/appointment.service.js';
 import { storage } from '../../src/core/storage.js';
 import { Toast } from '../../src/ui/components/toast.js';
 import { Loading } from '../../src/ui/components/loading.js';
+import { BonusCreator } from '../../src/ui/components/bonus-creator.js';
 import { getStatusLabel, getStatusClass } from '../../src/utils/status-labels.js';
 
 class SessionsModernController {
@@ -18,10 +19,27 @@ class SessionsModernController {
     this.consentByAppt = {};
     this.searchTimeout = null;
     this.mode = 'agenda'; // 'agenda' or 'search'
+    this.bonusCreator = null;
+    this.currentSearchQuery = ''; // Track current search query
 
     this.initEventListeners();
     this.initializeDate();
+    this.initBonusCreator();
     this.load();
+  }
+
+  async initBonusCreator() {
+    this.bonusCreator = new BonusCreator({
+      onSuccess: () => {
+        // If in search mode, refresh the search; otherwise load agenda
+        if (this.mode === 'search' && this.currentSearchQuery) {
+          this.loadBySearch(this.currentSearchQuery);
+        } else {
+          this.load();
+        }
+      }
+    });
+    await this.bonusCreator.init();
   }
 
   initEventListeners() {
@@ -88,7 +106,8 @@ class SessionsModernController {
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   renderStats(items) {
-    const completed = items.filter(i => i.status === 'completed').length;
+    // Count both 'completed' (attended) and 'cancelled' (no-show) as done
+    const completed = items.filter(i => i.status === 'completed' || i.status === 'cancelled').length;
     const pending = items.length - completed;
     document.getElementById('stat-total').textContent = items.length;
     document.getElementById('stat-pending').textContent = pending;
@@ -115,16 +134,14 @@ class SessionsModernController {
     </div>`;
   }
 
-  buildHistoryHtml(sessionId, items, planned, completed, status, otherBonos) {
+  buildHistoryHtml(sessionId, items, planned, completed, status, otherBonos, clientId, treatment) {
     const last = items[0] || {};
     const isCompleted = status === 'completed' || (Number(planned) > 0 && Number(completed) >= Number(planned));
 
-    const bonusHtml = isCompleted ? `
-      <div class="bonus-form" data-bonus-form="${sessionId}">
+    const bonusHtml = isCompleted && clientId ? `
+      <div class="bonus-form">
         <span class="history-title">Crear nuevo bono</span>
-        <input type="number" min="1" value="${Number(planned) || 4}" name="bonus_sessions" class="filter-input" style="width:90px" />
-        <button class="btn btn-secondary btn-sm" data-bonus-create="${sessionId}">Crear bono</button>
-        <span class="history-msg" data-bonus-message></span>
+        <button class="btn btn-secondary btn-sm" data-bonus-create="${clientId}">Crear bono</button>
       </div>` : '';
 
     const looseSessions = (otherBonos || []).filter(b => b.appointments.length > 0);
@@ -142,7 +159,7 @@ class SessionsModernController {
                 <div class="history-item-meta">${appt.service_name || ''} · ${appt.professional_name}${appt.notes ? ` · ${appt.notes}` : ''}</div>
               </div>
               <div class="history-item-actions">
-                <span class="badge ${this.statusClass(appt.status)}">${this.statusLabel(appt.status)}</span>
+                <span class="badge ${getStatusClass(appt.status)}">${getStatusLabel(appt.status)}</span>
                 <button class="btn btn-secondary btn-sm"
                   data-merge-appt="${appt.id}"
                   data-merge-target="${sessionId}"
@@ -186,51 +203,69 @@ class SessionsModernController {
   async loadHistory(sessionId, panel) {
     panel.innerHTML = '<p class="history-empty">Cargando...</p>';
     const clientId = panel.dataset.clientId;
-    const treatment = decodeURIComponent(panel.dataset.treatment || '');
+    const clientName = panel.dataset.clientName;
+    const clientPhone = panel.dataset.clientPhone;
+
+    if (!clientId) {
+      panel.innerHTML = '<p class="history-empty">Sin información del cliente</p>';
+      return;
+    }
 
     try {
-      // Load current session appointments and all client appointments
-      const [currentData, allApptsData] = await Promise.all([
-        sessionService.getSessionHistory(sessionId, 50, 0),
-        clientId ? appointmentService.searchAppointments({ client_id: clientId, limit: 200, offset: 0 }) : Promise.resolve(null)
-      ]);
+      // Load all sessions for this client
+      const allSessionsData = await sessionService.searchSessions({ 
+        query: clientName || '', 
+        limit: 100, 
+        offset: 0,
+        client_id: clientId 
+      });
 
-      const currentItems = currentData.items || [];
+      const sessions = (allSessionsData.items || []).map(s => ({
+        appointment_id: null,
+        session_id: s.id,
+        client_id: s.client_id,
+        client_name: s.client_name,
+        client_phone: s.client_phone || '',
+        professional_name: s.professional_name || '',
+        service_name: s.treatment_name,
+        start_time: '',
+        end_time: '',
+        appointment_date: s.created_at || '',
+        status: s.status,
+        planned_sessions: s.planned_sessions,
+        completed_sessions: s.completed_sessions,
+        notes: s.notes || ''
+      }));
 
-      // Group all client appointments by session_id, exclude current session
-      let otherBonos = [];
-      if (allApptsData) {
-        const allAppts = allApptsData.items || [];
-        const bySession = {};
-        
-        for (const a of allAppts) {
-          const sid = a.session_id;
-          if (!sid || String(sid) === String(sessionId)) continue;
-          if (treatment && a.service_name !== treatment) continue;
-          if (!bySession[sid]) bySession[sid] = [];
-          bySession[sid].push(a);
-        }
-        
-        otherBonos = Object.entries(bySession).map(([sid, appts]) => ({
-          session: { id: sid },
-          appointments: appts.sort((a, b) => b.appointment_date.localeCompare(a.appointment_date))
-        }));
+      if (!sessions.length) {
+        panel.innerHTML = '<p class="history-empty">Sin bonos para este cliente</p>';
+        return;
       }
 
-      const html = this.buildHistoryHtml(sessionId, currentItems,
-        panel.dataset.planned, panel.dataset.completed, panel.dataset.status, otherBonos);
+      // Load appointments for each session
+      const appointmentMap = {};
+      for (const session of sessions) {
+        try {
+          const apptsData = await sessionService.getSessionHistory(session.session_id, 200, 0);
+          appointmentMap[session.session_id] = apptsData.items || [];
+        } catch (error) {
+          appointmentMap[session.session_id] = [];
+        }
+      }
+
+      // Render using search view layout
+      const html = this.buildSearchClientCard(
+        {
+          client_id: clientId,
+          client_name: clientName,
+          client_phone: clientPhone
+        },
+        sessions,
+        appointmentMap
+      );
+
       panel.innerHTML = html;
       this.historyCache[sessionId] = html;
-
-      // Update total sessions counter
-      const card = panel.closest('[data-card]');
-      if (card) {
-        const looseCompleted = otherBonos.reduce((sum, b) =>
-          sum + b.appointments.filter(a => a.status === 'completed').length, 0);
-        const total = currentItems.filter(a => a.status === 'completed').length + looseCompleted;
-        const counter = card.querySelector('[data-total-counter]');
-        if (counter) counter.textContent = `🗓 ${total} sesión${total !== 1 ? 'es' : ''}`;
-      }
     } catch (error) {
       panel.innerHTML = `<p class="history-empty">${error.message}</p>`;
     }
@@ -254,7 +289,7 @@ class SessionsModernController {
     };
 
     return `
-    <div class="client-card" data-card data-appointment-id="${aid}" data-session-id="${sid}">
+    <div class="client-card" data-card data-appointment-id="${aid}" data-session-id="${sid}" data-completed="${done}">
       <div class="client-card-header">
         <div class="client-info">
           <h2 class="client-name">${item.client_name}</h2>
@@ -280,11 +315,6 @@ class SessionsModernController {
               <span class="progress-text">${done}/${total}</span>
             </div>
           </div>
-          <div class="session-field">
-            <span class="session-field-label">Sesiones completadas</span>
-            <input type="number" class="filter-input" style="width:90px" min="0" max="${total}"
-                   value="${done}" data-field="completed" readonly />
-          </div>
         </div>
         <div class="session-field">
           <span class="session-field-label">Notas de la sesión</span>
@@ -308,10 +338,12 @@ class SessionsModernController {
         </div>
         <div class="history-panel-inner"
              data-history-panel="${sid}"
+             data-client-id="${item.client_id}"
+             data-client-name="${item.client_name}"
+             data-client-phone="${item.client_phone || ''}"
              data-planned="${total}"
              data-completed="${done}"
              data-status="${item.status}"
-             data-client-id="${item.client_id}"
              data-treatment="${encodeURIComponent(item.service_name)}">
         </div>
       </div>` : ''}
@@ -394,6 +426,7 @@ class SessionsModernController {
 
   async loadBySearch(query) {
     this.mode = 'search';
+    this.currentSearchQuery = query; // Store for refresh
     document.getElementById('sessions-list').innerHTML = `
       <div class="empty-state">
         <div class="loading-spinner"></div>
@@ -432,7 +465,36 @@ class SessionsModernController {
         return;
       }
 
-      document.getElementById('sessions-list').innerHTML = items.map(item => this.buildCard(item)).join('');
+      // Group sessions by client
+      const groupedByClient = {};
+      items.forEach(item => {
+        const key = item.client_id || `unknown-${item.client_name}`;
+        if (!groupedByClient[key]) {
+          groupedByClient[key] = {
+            client: item,
+            sessions: []
+          };
+        }
+        groupedByClient[key].sessions.push(item);
+      });
+
+      // Load appointments for each session and render
+      const htmlParts = [];
+      for (const group of Object.values(groupedByClient)) {
+        // Load appointments for each session in the group
+        const appointmentMap = {};
+        for (const session of group.sessions) {
+          try {
+            const apptsData = await sessionService.getSessionHistory(session.session_id, 200, 0);
+            appointmentMap[session.session_id] = apptsData.items || [];
+          } catch (error) {
+            appointmentMap[session.session_id] = [];
+          }
+        }
+        htmlParts.push(this.buildSearchClientCard(group.client, group.sessions, appointmentMap));
+      }
+      
+      document.getElementById('sessions-list').innerHTML = htmlParts.join('');
     } catch (error) {
       document.getElementById('sessions-list').innerHTML = `
         <div class="empty-state">
@@ -441,6 +503,132 @@ class SessionsModernController {
         </div>`;
       Toast.error('Error en la búsqueda');
     }
+  }
+
+  buildSearchClientCard(clientInfo, sessions, appointmentMap = {}) {
+    const sessionsHtml = sessions.map(s => {
+      const sid = s.session_id;
+      const appointments = appointmentMap[sid] || [];
+      const done = appointments.filter(a => a.status === 'completed' || a.status === 'cancelled').length;
+      // Use actual appointment count if registered, otherwise use planned_sessions
+      const total = Number(s.planned_sessions)> 0 ? Number(s.planned_sessions) :  appointments.length || 0;
+      const p = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      // Build appointments list for this bono
+      const appointmentsHtml = appointments.length > 0 ? `
+        <div class="search-bono-appointments">
+          <div class="search-appointments-header">
+            <span class="search-appointments-title">Sesiones registradas (${done}/${total})</span>
+          </div>
+          <div class="search-appointments-list">
+            ${appointments.map(appt => {
+              const statusColor = appt.status === 'completed' ? 'success' : appt.status === 'pending' ? 'warning' : appt.status === 'cancelled' ? 'danger' : 'secondary';
+              return `
+              <div class="search-appointment-item" data-appointment-id="${appt.id}">
+                <div class="search-appointment-details">
+                  <div class="search-appointment-datetime">
+                    ${appt.appointment_date} · ${appt.start_time}–${appt.end_time}
+                  </div>
+                  <div class="search-appointment-service">
+                    ${s.service_name}${appt.professional_name ? ' · ' + appt.professional_name : ''}${appt.notes ? ' · ' + appt.notes : ''}
+                  </div>
+                </div>
+                <div class="search-appointment-actions">
+                  <span class="badge badge-${statusColor}">${appt.status === 'completed' ? '✓ Completada' : appt.status === 'pending' ? 'Programada' : appt.status === 'cancelled' ? 'Cancelada' : appt.status}</span>
+                  ${appt.status !== 'completed' && appt.status !== 'cancelled' ? `<button class="btn btn-secondary btn-xs" data-search-appt-mark="${appt.id}" data-search-session="${sid}">Marcar completada</button>` : ''}
+                  <button class="btn btn-danger btn-xs" data-search-appt-delete="${appt.id}" data-search-session="${sid}">Eliminar</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : '<p class="search-appointments-empty">Sin sesiones registradas</p>';
+
+      // Add appointment form (only if not complete)
+      const today = new Date().toISOString().slice(0, 10);
+      const lastAppt = appointments[0] || {};
+      const isComplete = total > 0 && done >= total;
+      const addApptForm = !isComplete ? `
+        <div class="search-add-appointment-form">
+          <button class="btn btn-secondary btn-sm" data-search-add-appt-toggle="${sid}" style="width: 100%;">+ Agregar sesión pasada</button>
+          <form class="search-add-appt-form" data-search-add-appt-form="${sid}" hidden>
+            <div class="search-appt-form-row">
+              <div class="search-form-group">
+                <label class="filter-label">Fecha</label>
+                <input type="date" name="appointment_date" class="filter-input" value="${lastAppt.appointment_date || today}" required />
+              </div>
+              <div class="search-form-group">
+                <label class="filter-label">Inicio</label>
+                <input type="time" name="start_time" class="filter-input" value="${lastAppt.start_time || '10:00'}" required />
+              </div>
+              <div class="search-form-group">
+                <label class="filter-label">Fin</label>
+                <input type="time" name="end_time" class="filter-input" value="${lastAppt.end_time || '11:00'}" required />
+              </div>
+              <div class="search-form-group">
+                <label class="filter-label">Profesional</label>
+                <input type="text" name="professional_name" class="filter-input" value="${lastAppt.professional_name || ''}" required />
+              </div>
+              <div class="search-form-group">
+                <label class="filter-label">Notas</label>
+                <input type="text" name="notes" class="filter-input" placeholder="Notas opcionales..." />
+              </div>
+            </div>
+            <div class="search-appt-form-actions">
+              <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-search-add-appt-cancel="${sid}">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      ` : '';
+
+      return `
+      <div class="search-session-card" data-session-id="${sid}">
+        <div class="search-session-header" data-toggle-session="${sid}">
+          <div class="search-session-info">
+            <div class="search-session-title">${s.service_name}</div>
+            <div class="search-session-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div>
+              <span class="progress-text">${done}/${total}</span>
+            </div>
+          </div>
+          <span class="badge badge-${s.status === 'completed' ? 'success' : s.status === 'planned' ? 'primary' : 'secondary'}">${s.status}</span>
+        </div>
+        <div class="search-session-details" data-details="${sid}" hidden>
+          <div class="search-session-body">
+            ${appointmentsHtml}
+            ${addApptForm}
+            ${!isComplete ? `<div class="session-field">
+              <span class="session-field-label">Notas del bono</span>
+              <textarea class="notes-textarea" data-field="notes" placeholder="Notas de la sesión...">${s.notes || ''}</textarea>
+            </div>` : ''}
+          </div>
+          <div class="search-session-actions">
+            <span class="card-msg" data-msg></span>
+            ${!isComplete ? `<button class="btn btn-secondary btn-sm" data-search-save-session="${sid}">Guardar</button>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="search-client-card" data-client-id="${clientInfo.client_id}">
+      <div class="search-client-header">
+        <div class="search-client-info">
+          <h2 class="search-client-name">${clientInfo.client_name}</h2>
+          <div class="search-client-meta">
+            <span class="search-client-meta-item">📞 ${clientInfo.client_phone || 'Sin teléfono'}</span>
+            <span class="search-client-meta-item">🗓 ${sessions.length} bono${sessions.length !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        <div class="search-client-actions">
+          <button class="btn btn-primary btn-sm" data-search-create-bono="${clientInfo.client_id}">+ Crear Bono</button>
+        </div>
+      </div>
+      <div class="search-sessions-list">
+        ${sessionsHtml}
+      </div>
+    </div>`;
   }
 
   // ── Event Handlers ─────────────────────────────────────────────────────────
@@ -496,6 +684,113 @@ class SessionsModernController {
   }
 
   async handleCardClick(e) {
+    // Search results - Create bono
+    const searchBonusBtn = e.target.closest('[data-search-create-bono]');
+    if (searchBonusBtn) {
+      const clientId = parseInt(searchBonusBtn.dataset.searchCreateBono);
+      this.bonusCreator.show(clientId);
+      return;
+    }
+
+    // Search results - Toggle session details
+    const toggleSession = e.target.closest('[data-toggle-session]');
+    if (toggleSession) {
+      const sessionId = toggleSession.dataset.toggleSession;
+      const detailsEl = toggleSession.closest('[data-session-id]').querySelector(`[data-details="${sessionId}"]`);
+      if (detailsEl) {
+        detailsEl.toggleAttribute('hidden');
+      }
+      return;
+    }
+
+    // Search results - Toggle add appointment form
+    const toggleAddApptBtn = e.target.closest('[data-search-add-appt-toggle]');
+    if (toggleAddApptBtn) {
+      const sessionId = toggleAddApptBtn.dataset.searchAddApptToggle;
+      const form = toggleAddApptBtn.closest('[data-session-id]').querySelector(`[data-search-add-appt-form="${sessionId}"]`);
+      if (form) {
+        form.toggleAttribute('hidden');
+      }
+      return;
+    }
+
+    // Search results - Cancel add appointment form
+    const cancelAddApptBtn = e.target.closest('[data-search-add-appt-cancel]');
+    if (cancelAddApptBtn) {
+      const sessionId = cancelAddApptBtn.dataset.searchAddApptCancel;
+      const form = cancelAddApptBtn.closest('[data-session-id]').querySelector(`[data-search-add-appt-form="${sessionId}"]`);
+      if (form) {
+        form.setAttribute('hidden', '');
+      }
+      return;
+    }
+
+    // Search results - Mark appointment as complete
+    const markApptBtn = e.target.closest('[data-search-appt-mark]');
+    if (markApptBtn) {
+      const apptId = markApptBtn.dataset.searchApptMark;
+      const sessionId = markApptBtn.dataset.searchSession;
+      markApptBtn.textContent = 'Guardando...';
+      markApptBtn.disabled = true;
+      try {
+        await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null });
+        Toast.success('Sesión marcada como completada');
+        // Reload search to refresh appointments
+        if (this.currentSearchQuery) {
+          await this.loadBySearch(this.currentSearchQuery);
+        }
+      } catch (error) {
+        markApptBtn.textContent = 'Marcar completada';
+        markApptBtn.disabled = false;
+        Toast.error('Error al marcar sesión como completada');
+      }
+      return;
+    }
+
+    // Search results - Delete appointment
+    const deleteApptBtn = e.target.closest('[data-search-appt-delete]');
+    if (deleteApptBtn) {
+      if (!confirm('¿Eliminar esta sesión del historial?')) return;
+      const apptId = deleteApptBtn.dataset.searchApptDelete;
+      const sessionId = deleteApptBtn.dataset.searchSession;
+      deleteApptBtn.textContent = 'Eliminando...';
+      deleteApptBtn.disabled = true;
+      try {
+        await appointmentService.deleteAppointment(apptId);
+        Toast.success('Sesión eliminada');
+        // Reload search to refresh appointments
+        if (this.currentSearchQuery) {
+          await this.loadBySearch(this.currentSearchQuery);
+        }
+      } catch (error) {
+        deleteApptBtn.textContent = 'Eliminar';
+        deleteApptBtn.disabled = false;
+        Toast.error('Error al eliminar sesión');
+      }
+      return;
+    }
+
+    // Search results - Save session (bono notes)
+    const saveSessBtn = e.target.closest('[data-search-save-session]');
+    if (saveSessBtn) {
+      const sessionId = saveSessBtn.dataset.searchSaveSession;
+      const card = saveSessBtn.closest('[data-session-id]');
+      const notes = card.querySelector('[data-field="notes"]').value || null;
+      const msgEl = card.querySelector('[data-msg]');
+      
+      msgEl.textContent = 'Guardando...';
+      try {
+        await sessionService.updateSession(sessionId, { notes });
+        msgEl.textContent = '✓ Guardado';
+        Toast.success('Sesión actualizada');
+      } catch (error) {
+        msgEl.textContent = error.message || 'Error al guardar';
+        Toast.error('Error al guardar sesión');
+      }
+      return;
+    }
+
+    // Original agenda card click handling
     const card = e.target.closest('[data-card]');
     if (!card) return;
 
@@ -582,12 +877,45 @@ class SessionsModernController {
     // Bonus create
     const bonusBtn = e.target.closest('[data-bonus-create]');
     if (bonusBtn) {
-      await this.handleBonusCreate(card, bonusBtn.dataset.bonusCreate);
+      const clientId = parseInt(bonusBtn.dataset.bonusCreate);
+      this.bonusCreator.show(clientId);
       return;
     }
   }
 
   async handleFormSubmit(e) {
+    // Handle search add appointment form
+    const searchAddApptForm = e.target.closest('[data-search-add-appt-form]');
+    if (searchAddApptForm) {
+      e.preventDefault();
+      const sessionId = searchAddApptForm.dataset.searchAddApptForm;
+      const formData = new FormData(searchAddApptForm);
+      
+      const payload = {
+        appointment_date: formData.get('appointment_date'),
+        start_time: formData.get('start_time'),
+        end_time: formData.get('end_time'),
+        professional_name: formData.get('professional_name'),
+        notes: formData.get('notes') || null,
+        status: 'completed'
+      };
+
+      try {
+        await sessionService.createSessionAppointment(sessionId, payload);
+        Toast.success('Sesión guardada');
+        searchAddApptForm.setAttribute('hidden', '');
+        searchAddApptForm.reset();
+        // Reload search to refresh appointments
+        if (this.currentSearchQuery) {
+          await this.loadBySearch(this.currentSearchQuery);
+        }
+      } catch (error) {
+        Toast.error(error.message || 'Error al guardar sesión');
+      }
+      return;
+    }
+
+    // Handle history form (original functionality)
     const form = e.target.closest('[data-history-form]');
     if (!form) return;
     
@@ -665,9 +993,9 @@ class SessionsModernController {
 
       // If there's a session, increment completed count (lost session counts as completed)
       if (sessionId) {
-        const card = document.querySelector(`[data-session-id="${sessionId}"]`);
+        const card = document.querySelector(`[data-card][data-session-id="${sessionId}"]`);
         if (card) {
-          const currentCompleted = parseInt(card.querySelector('[data-field="completed"]').value) || 0;
+          const currentCompleted = parseInt(card.dataset.completed) || 0;
           await sessionService.updateSession(sessionId, { 
             completed_sessions: currentCompleted + 1 
           });
@@ -757,7 +1085,7 @@ class SessionsModernController {
     btn.disabled = true;
 
     try {
-      await appointmentService.updateAppointment(apptId, { status: 'completed' });
+      await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null });
       Toast.success('Sesión marcada como completada');
       
       if (sessionId) {
@@ -813,41 +1141,6 @@ class SessionsModernController {
       btn.textContent = 'Añadir a este bono';
       btn.disabled = false;
       Toast.error('Error al mover sesión');
-    }
-  }
-
-  async handleBonusCreate(card, sessionId) {
-    const panel = card.querySelector(`[data-history-panel="${sessionId}"]`);
-    const bform = card.querySelector(`[data-bonus-form="${sessionId}"]`);
-    const bmsg = bform ? bform.querySelector('[data-bonus-message]') : null;
-    const planned = parseInt(bform.querySelector('[name="bonus_sessions"]').value);
-    const clientId = parseInt(panel.dataset.clientId);
-    const treatment = decodeURIComponent(panel.dataset.treatment || '');
-
-    if (!clientId || !treatment || isNaN(planned) || planned < 1) {
-      if (bmsg) bmsg.textContent = 'Datos incompletos';
-      Toast.error('Datos incompletos');
-      return;
-    }
-
-    if (bmsg) bmsg.textContent = 'Creando...';
-
-    try {
-      await sessionService.createSession({
-        client_id: clientId,
-        treatment_name: treatment,
-        planned_sessions: planned,
-        completed_sessions: 0,
-        status: 'planned',
-        notes: null
-      });
-      
-      if (bmsg) bmsg.textContent = '✓ Bono creado';
-      Toast.success('Bono creado');
-      await this.load();
-    } catch (error) {
-      if (bmsg) bmsg.textContent = error.message;
-      Toast.error('Error al crear bono');
     }
   }
 }

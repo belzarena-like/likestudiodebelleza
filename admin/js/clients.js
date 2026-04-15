@@ -3,10 +3,12 @@
  */
 
 import { clientService } from '../../src/services/client.service.js';
+import { sessionService } from '../../src/services/session.service.js';
 import { Toast } from '../../src/ui/components/toast.js';
 import { Modal } from '../../src/ui/components/modal.js';
 import { Loading } from '../../src/ui/components/loading.js';
 import { Form } from '../../src/ui/components/form.js';
+import { BonusCreator } from '../../src/ui/components/bonus-creator.js';
 import { getStatusLabel, getStatusClass } from '../../src/utils/status-labels.js';
 
 class ClientsController {
@@ -17,6 +19,7 @@ class ClientsController {
     this.editingId = null;
     this.clientsById = {};
     this.expandedClientId = null;
+    this.bonusCreator = null;
 
     // DOM elements
     this.form = document.getElementById('search-form');
@@ -27,7 +30,19 @@ class ClientsController {
     this.clientForm = document.getElementById('client-form');
 
     this.initEventListeners();
+    this.initBonusCreator();
     this.load();
+  }
+
+  async initBonusCreator() {
+    this.bonusCreator = new BonusCreator({
+      onSuccess: () => {
+        if (this.expandedClientId) {
+          this.loadHistory(this.expandedClientId);
+        }
+      }
+    });
+    await this.bonusCreator.init();
   }
 
   initEventListeners() {
@@ -90,6 +105,15 @@ class ClientsController {
       if (editBtn) {
         e.stopPropagation();
         this.startEdit(clientId);
+        return;
+      }
+
+      // Create bonus button
+      const bonusBtn = e.target.closest('[data-create-bonus]');
+      if (bonusBtn) {
+        e.stopPropagation();
+        const cid = parseInt(bonusBtn.dataset.createBonus);
+        this.bonusCreator.show(cid);
         return;
       }
     });
@@ -319,6 +343,9 @@ class ClientsController {
             <span class="history-section-count">${sessions.length}</span>
           </div>
           <div class="history-section-actions">
+            <button class="btn btn-primary btn-sm" data-create-bonus="${client.id}">
+              + Crear Bono
+            </button>
             <a href="sessions.html?query=${sessionQuery}" class="btn btn-secondary btn-sm" target="_blank">
               Ver Todas →
             </a>
