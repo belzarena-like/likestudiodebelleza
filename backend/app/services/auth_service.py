@@ -1,63 +1,100 @@
-"""Authentication service for password hashing and token verification."""
+"""Authentication service for admin users."""
 
-import hashlib
-import hmac
 import os
+from datetime import datetime, timedelta
+from typing import Optional
 
-try:
-    from passlib.context import CryptContext
+import jwt
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
-    # Use argon2 instead of bcrypt - no 72-byte limit and more secure
-    # Falls back to pbkdf2_sha256 if argon2 is not available
-    pwd_context = CryptContext(
-        schemes=["argon2", "pbkdf2_sha256"],
-        deprecated="auto",
-        argon2__rounds=4,  # Balance between security and performance
+if __package__:
+    from ..models import AdminUser
+else:
+    from models import AdminUser  # type: ignore
+
+# Password hashing with argon2
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+
+# JWT configuration
+SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_key_change_in_production_use_secrets_token_hex_32")
+ALGORITHM = "HS256"
+TOKEN_EXPIRE_HOURS = 24
+
+
+def hash_password(password: str) -> str:
+    """Hash a password using argon2."""
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash."""
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def create_access_token(username: str, expires_delta: Optional[timedelta] = None) -> tuple[str, datetime]:
+    """Create a JWT access token."""
+    if expires_delta is None:
+        expires_delta = timedelta(hours=TOKEN_EXPIRE_HOURS)
+    
+    expire = datetime.utcnow() + expires_delta
+    to_encode = {
+        "sub": username,
+        "exp": expire,
+        "iat": datetime.utcnow()
+    }
+    
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt, expire
+
+
+def verify_token(token: str) -> Optional[str]:
+    """Verify a JWT token and return the username if valid."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        return username
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+def authenticate_user(db: Session, username: str, password: str) -> Optional[AdminUser]:
+    """Authenticate a user by username and password."""
+    user = db.query(AdminUser).filter(AdminUser.username == username).first()
+    if not user or not user.is_active:
+        return None
+    if not verify_password(password, user.password_hash):
+        return None
+    return user
+
+
+def create_admin_user(
+    db: Session,
+    username: str,
+    password: str,
+    full_name: str,
+    email: Optional[str] = None
+) -> AdminUser:
+    """Create a new admin user."""
+    # Check if user already exists
+    existing = db.query(AdminUser).filter(AdminUser.username == username).first()
+    if existing:
+        raise ValueError(f"User {username} already exists")
+    
+    hashed_password = hash_password(password)
+    user = AdminUser(
+        username=username,
+        password_hash=hashed_password,
+        full_name=full_name,
+        email=email,
+        is_active=True
     )
-    HAS_PASSLIB = True
-except ImportError:
-    HAS_PASSLIB = False
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
-
-class AuthService:
-    """Service for authentication operations."""
-
-    def __init__(self):
-        self.secret = os.environ.get("ACADEMY_SECRET", "changeme-in-production")
-        self.has_passlib = HAS_PASSLIB
-
-    def hash_password(self, plain: str) -> str:
-        """Hash a password."""
-        if self.has_passlib:
-            return pwd_context.hash(plain)
-        # fallback: sha256 (not for production without passlib)
-        return hashlib.sha256(plain.encode()).hexdigest()
-
-    def verify_password(self, plain: str, hashed: str) -> bool:
-        """Verify a password against its hash."""
-        if self.has_passlib:
-            return pwd_context.verify(plain, hashed)
-        return hashlib.sha256(plain.encode()).hexdigest() == hashed
-
-    def generate_token(self, access_id: int, session_id: int) -> str:
-        """Generate a signed token for academy access."""
-        payload_str = f"{access_id}:{session_id}"
-        sig = hmac.new(
-            self.secret.encode(), payload_str.encode(), hashlib.sha256
-        ).hexdigest()
-        return f"{payload_str}:{sig}"
-
-    def verify_token(self, token: str) -> tuple[int, int]:
-        """Verify and decode a token. Returns (access_id, session_id)."""
-        try:
-            parts = token.split(":")
-            access_id, session_id_str, sig = int(parts[0]), int(parts[1]), parts[2]
-            payload_str = f"{access_id}:{session_id_str}"
-            expected = hmac.new(
-                self.secret.encode(), payload_str.encode(), hashlib.sha256
-            ).hexdigest()
-            if not hmac.compare_digest(sig, expected):
-                raise ValueError("bad sig")
-            return access_id, session_id_str
-        except Exception as e:
-            raise ValueError(f"Invalid token: {e}")

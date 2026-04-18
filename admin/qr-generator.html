@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador QR | Like Studio Admin</title>
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+</head>
+<body>
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
+  
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Generador de Códigos QR</h1>
+    <p class="page-subtitle">Crea códigos QR para compartir enlaces fácilmente.</p>
+    
+    <!-- Two-column layout -->
+    <div class="qr-generator-layout">
+      <!-- Left: Generator Form -->
+      <div class="qr-generator-form">
+        <form id="qr-form" class="form-grid">
+          <div class="form-field form-grid-full">
+            <label for="qr-content">Contenido</label>
+            <textarea id="qr-content" name="content" rows="4" required 
+              placeholder="https://likestudiodebelleza.com o texto a codificar..."></textarea>
+            <small>URL o texto que se codificará en el QR</small>
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-title">Título (opcional)</label>
+            <input id="qr-title" name="title" placeholder="Ej: Perfil de cliente" />
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-description">Descripción (opcional)</label>
+            <textarea id="qr-description" name="description" rows="2"></textarea>
+          </div>
+          
+          <div class="form-grid-full">
+            <h3>Personalización</h3>
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-size">Tamaño (píxeles)</label>
+            <input type="number" id="qr-size" name="size" value="300" min="100" max="2000" />
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-format">Formato</label>
+            <select id="qr-format" name="format">
+              <option value="png">PNG</option>
+              <option value="svg">SVG</option>
+              <option value="jpg">JPG</option>
+            </select>
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-color">Color</label>
+            <input type="color" id="qr-color" name="color" value="#000000" />
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-bg-color">Color de fondo</label>
+            <input type="color" id="qr-bg-color" name="background_color" value="#FFFFFF" />
+          </div>
+          
+          <div class="form-field">
+            <label for="qr-error-correction">Corrección de errores</label>
+            <select id="qr-error-correction" name="error_correction">
+              <option value="L">Baja (7%)</option>
+              <option value="M" selected>Media (15%)</option>
+              <option value="Q">Alta (25%)</option>
+              <option value="H">Máxima (30%)</option>
+            </select>
+          </div>
+          
+          <div class="form-field form-grid-full">
+            <label class="checkbox-label">
+              <input type="checkbox" id="qr-add-logo" name="add_logo" />
+              Agregar logo de la aplicación al centro del QR
+            </label>
+            <small>Incrusta el logo de Like Studio en el centro del código QR</small>
+          </div>
+          
+          <div class="form-field" id="logo-size-container" style="display: none;">
+            <label for="qr-logo-size">Tamaño del logo (%)</label>
+            <input type="range" id="qr-logo-size" name="logo_size" min="10" max="30" value="20" step="5" />
+            <div class="range-value">
+              <span id="logo-size-value">20%</span>
+            </div>
+            <small>Tamaño relativo del logo en porcentaje del QR</small>
+          </div>
+          
+          <div class="form-field" id="logo-position-container" style="display: none;">
+            <label for="qr-logo-position">Posición del logo</label>
+            <select id="qr-logo-position" name="logo_position">
+              <option value="center">Centro</option>
+              <option value="top-left">Esquina superior izquierda</option>
+              <option value="top-right">Esquina superior derecha</option>
+              <option value="bottom-left">Esquina inferior izquierda</option>
+              <option value="bottom-right">Esquina inferior derecha</option>
+            </select>
+            <small>Posición del logo dentro del código QR</small>
+          </div>
+          
+          <!-- Quick templates -->
+          <div class="form-grid-full">
+            <h3>Plantillas rápidas</h3>
+            <div class="qr-templates">
+              <button type="button" class="btn btn-sm btn-secondary" data-template="client-profile">
+                Perfil de cliente
+              </button>
+              <button type="button" class="btn btn-sm btn-secondary" data-template="appointment">
+                Cita reservada
+              </button>
+              <button type="button" class="btn btn-sm btn-secondary" data-template="service-info">
+                Información de servicio
+              </button>
+              <button type="button" class="btn btn-sm btn-secondary" data-template="payment">
+                Enlace de pago
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-actions form-grid-full">
+            <button type="submit" class="btn btn-primary">Generar</button>
+            <button type="button" class="btn btn-secondary" id="reset-form">Limpiar</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Right: Preview & Results -->
+      <div class="qr-preview-section">
+        <div class="qr-preview-card">
+          <h3>Vista previa</h3>
+          <div id="qr-preview" class="qr-preview-placeholder">
+            <p>El código QR aparecerá aquí</p>
+          </div>
+          <div id="qr-details" class="qr-details" style="display: none;">
+            <h4>Información del QR</h4>
+            <p><strong>Código:</strong> <span id="qr-code-value"></span></p>
+            <p><strong>Escaneos:</strong> <span id="qr-scan-count">0</span></p>
+            <p><strong>Creado:</strong> <span id="qr-created-at"></span></p>
+          </div>
+          <div class="qr-actions" id="qr-actions" style="display: none;">
+            <button class="btn btn-success" id="download-qr">Descargar</button>
+            <button class="btn btn-secondary" id="copy-link">Copiar enlace</button>
+            <button class="btn btn-info" id="share-qr">Compartir</button>
+          </div>
+        </div>
+        
+        <!-- Generated QR Codes List -->
+        <div class="qr-history">
+          <h3>QR Generados Recientemente</h3>
+          <div id="qr-history-list" class="qr-history-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- QR Codes Management Table -->
+    <div class="admin-table-wrap" style="margin-top: 3rem;">
+      <h2>Todos los Códigos QR</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Contenido</th>
+            <th>Título</th>
+            <th>Escaneos</th>
+            <th>Creado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="qr-table-body"></tbody>
+      </table>
+    </div>
+  </main>
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script type="module" src="./js/qr-generator.js"></script>
+</body>
+</html>

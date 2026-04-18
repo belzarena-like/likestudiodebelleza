@@ -4,17 +4,25 @@ Training routes are now in controllers/training_controller.py
 """
 
 import os
+import smtplib
 import sys
+import csv
+import io
 from datetime import date, datetime, time
+from email.mime.text import MIMEText
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response, RedirectResponse
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 if __package__:
     from . import crud, models, schemas
+    from .services.payment_service import PaymentService
+    from .services.qr_service import QRCodeService
+    from .services.auth_service import authenticate_user, create_access_token, verify_token
     from .controllers.training_controller import public_router as academy_router
     from .controllers.training_controller import router as training_router
     from .database import Base, SessionLocal, engine
@@ -23,6 +31,9 @@ else:
     import crud  # type: ignore
     import models  # type: ignore
     import schemas  # type: ignore
+    from services.payment_service import PaymentService  # type: ignore
+    from services.qr_service import QRCodeService  # type: ignore
+    from services.auth_service import authenticate_user, create_access_token, verify_token  # type: ignore
     from controllers.training_controller import public_router as academy_router
     from controllers.training_controller import (
         router as training_router,  # type: ignore
@@ -72,6 +83,71 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# ── Authentication Dependency ─────────────────────────────────────────────────
+
+def get_admin_user(
+    authorization: str | None = Header(None),
+    db: Session = Depends(get_db)
+) -> models.AdminUser:
+    """Dependency to verify admin authentication token."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+    
+    # Extract token from "Bearer <token>"
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
+    
+    token = parts[1]
+    username = verify_token(token)
+    if not username:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    user = db.query(models.AdminUser).filter(
+        models.AdminUser.username == username,
+        models.AdminUser.is_active == True
+    ).first()
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found or inactive")
+    
+    return user
+
+
+# ── Admin Authentication Routes ───────────────────────────────────────────────
+
+@app.post("/admin/login", response_model=schemas.AdminLoginResponse)
+def admin_login(
+    payload: schemas.AdminLoginRequest,
+    db: Session = Depends(get_db)
+):
+    """Authenticate admin user and return JWT token."""
+    user = authenticate_user(db, payload.username, payload.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    token, expires_at = create_access_token(user.username)
+    expires_in = int((expires_at - datetime.utcnow()).total_seconds())
+    
+    return schemas.AdminLoginResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_in=expires_in
+    )
+
+
+@app.get("/admin/verify-token", response_model=schemas.AdminTokenVerify)
+def verify_admin_token(
+    user: models.AdminUser = Depends(get_admin_user)
+):
+    """Verify that the current token is valid."""
+    return schemas.AdminTokenVerify(
+        valid=True,
+        username=user.username,
+        expires_at=None  # Token expiry is in the JWT itself
+    )
+
+
 # ── Client Routes ─────────────────────────────────────────────────────────────
 
 
@@ -92,6 +168,7 @@ def admin_search_clients(
     limit: int = Query(default=200, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_clients(
         db, query=query, with_consents=with_consents, limit=limit, offset=offset
@@ -106,6 +183,7 @@ def admin_update_client(
     client_id: int,
     payload: schemas.ClientUpdate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     try:
         updated = crud.update_client(db, client_id, payload)
@@ -120,6 +198,7 @@ def admin_update_client(
 def admin_client_prefill(
     id_number: str = Query(min_length=3, max_length=40),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     client = crud.get_client_by_id_number(db, id_number)
     if not client:
@@ -144,6 +223,7 @@ def admin_search_client_profiles(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_client_profiles(
         db, query=query, limit=limit, offset=offset
@@ -160,6 +240,7 @@ def admin_search_client_profiles(
 def admin_get_client_profile(
     client_id: int,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     return db.scalar(
         select(models.ClientProfile).where(models.ClientProfile.client_id == client_id)
@@ -171,6 +252,7 @@ def admin_upsert_client_profile(
     client_id: int,
     payload: schemas.ClientProfileUpsert,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     if not db.get(models.Client, client_id):
         raise HTTPException(status_code=404, detail="Client not found")
@@ -204,6 +286,7 @@ def admin_update_session(
     session_id: int,
     payload: schemas.TreatmentSessionUpdate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     updated = crud.update_session(db, session_id, payload)
     if not updated:
@@ -223,6 +306,7 @@ def admin_search_sessions(
     limit: int = Query(default=25, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_sessions(
         db,
@@ -245,6 +329,7 @@ def admin_search_sessions(
 def admin_session_agenda(
     appointment_date: date = Query(alias="date"),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items = crud.session_agenda(db, appointment_date=appointment_date)
     return schemas.SessionAgendaResponse(items=items)
@@ -254,6 +339,7 @@ def admin_session_agenda(
 def admin_session_attendance(
     payload: schemas.SessionAttendanceUpdate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     try:
         appointment, session = crud.mark_session_attendance(
@@ -276,6 +362,7 @@ def admin_session_attendance(
 def admin_delete_session(
     session_id: int,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     session = crud.soft_delete_session(db, session_id)
     if not session:
@@ -292,6 +379,7 @@ def admin_session_history(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items = crud.get_session_history(
         db, session_id=session_id, limit=limit, offset=offset
@@ -307,6 +395,7 @@ def admin_create_session_history(
     session_id: int,
     payload: schemas.SessionAppointmentCreate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     try:
         appointment = crud.create_session_history_appointment(
@@ -386,6 +475,7 @@ def admin_search_appointments(
     limit: int = Query(default=200, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_appointments(
         db,
@@ -407,7 +497,11 @@ def admin_search_appointments(
 @app.get(
     "/admin/appointments/{appointment_id}", response_model=schemas.AppointmentAdminRead
 )
-def admin_get_appointment(appointment_id: int, db: Session = Depends(get_db)):
+def admin_get_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
     appointment = crud.get_admin_appointment(db, appointment_id)
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
@@ -424,6 +518,7 @@ def admin_search_services(
     limit: int = Query(default=200, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_services(
         db,
@@ -438,7 +533,11 @@ def admin_search_services(
 
 
 @app.post("/admin/services", response_model=schemas.ServiceRead)
-def admin_create_service(payload: schemas.ServiceCreate, db: Session = Depends(get_db)):
+def admin_create_service(
+    payload: schemas.ServiceCreate,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
     try:
         return crud.create_service(db, payload)
     except ValueError as exc:
@@ -450,6 +549,7 @@ def admin_update_service(
     service_id: int,
     payload: schemas.ServiceUpdate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     try:
         updated = crud.update_service(db, service_id, payload)
@@ -478,14 +578,19 @@ def public_services(
 
 
 @app.get("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
-def admin_get_working_hours(db: Session = Depends(get_db)):
+def admin_get_working_hours(
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
     items = crud.list_working_hours(db)
     return schemas.WorkingHoursResponse(items=items)
 
 
 @app.put("/admin/working-hours", response_model=schemas.WorkingHoursResponse)
 def admin_update_working_hours(
-    payload: schemas.WorkingHoursUpdate, db: Session = Depends(get_db)
+    payload: schemas.WorkingHoursUpdate,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     try:
         items = crud.upsert_working_hours(db, payload.items)
@@ -649,9 +754,16 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
                 full_name=payload.full_name,
                 id_number=generated_id,
                 phone=payload.phone,
-                email=None,
+                email=payload.email,
             ),
         )
+    else:
+        # Update existing client's email if provided
+        if payload.email and not client.email:
+            client.email = payload.email
+            db.add(client)
+            db.commit()
+            db.refresh(client)
 
     if payload.instagram:
         crud.upsert_client_profile(
@@ -713,7 +825,13 @@ def public_booking(payload: schemas.PublicBookingCreate, db: Session = Depends(g
 
 @app.post("/consents", response_model=schemas.ConsentRead)
 def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)):
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        # Log the incoming payload for debugging
+        logger.info(f"Creating consent - Client: {payload.full_name}, ID: {payload.id_number}, Type: {payload.consent_type}")
+        
         client = crud.upsert_client(
             db,
             schemas.ClientCreate(
@@ -723,9 +841,19 @@ def create_consent(payload: schemas.ConsentCreate, db: Session = Depends(get_db)
                 email=payload.email,
             ),
         )
+        logger.info(f"Client upserted - ID: {client.id}, Name: {client.full_name}")
+        
+        consent = crud.create_consent(db, payload, client.id)
+        logger.info(f"Consent created - ID: {consent.id}, Client ID: {consent.client_id}")
+        
+        return consent
     except ValueError as exc:
+        logger.error(f"ValueError creating consent: {str(exc)} - Payload: {payload.dict()}")
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return crud.create_consent(db, payload, client.id)
+    except Exception as exc:
+        logger.error(f"Unexpected error creating consent: {str(exc)} - Payload: {payload.dict()}")
+        raise HTTPException(status_code=500, detail="Internal server error") from exc
+
 
 
 @app.put("/consents/{consent_id}", response_model=schemas.ConsentRead)
@@ -759,6 +887,7 @@ def admin_search_consents(
     limit: int = Query(default=25, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     items, total = crud.search_consents(
         db,
@@ -777,7 +906,11 @@ def admin_search_consents(
 
 
 @app.get("/admin/consents/{consent_id}", response_model=schemas.ConsentAdminDetailRead)
-def admin_get_consent(consent_id: int, db: Session = Depends(get_db)):
+def admin_get_consent(
+    consent_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
     consent = crud.get_admin_consent(db, consent_id)
     if not consent:
         raise HTTPException(status_code=404, detail="Consent not found")
@@ -820,7 +953,10 @@ async def update_consent_signature(
 
 
 @app.get("/admin/email-settings", response_model=schemas.EmailSettingsResponse)
-def admin_get_email_settings(db: Session = Depends(get_db)):
+def admin_get_email_settings(
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
     """Get email settings"""
     settings = crud.get_email_settings(db)
     if not settings:
@@ -848,15 +984,282 @@ def admin_get_email_settings(db: Session = Depends(get_db)):
 def admin_update_email_settings(
     payload: schemas.EmailSettingsCreate,
     db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     """Create or update email settings"""
     settings = crud.upsert_email_settings(db, payload)
     return settings
 
 
+# Payment Routes
+@app.post("/payments", response_model=schemas.PaymentRead)
+def create_payment(payload: schemas.PaymentCreate, db: Session = Depends(get_db)):
+    """Create a new payment record"""
+    try:
+        return PaymentService.create_payment(db, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+@app.get("/admin/payments", response_model=schemas.PaymentSearchResponse)
+def admin_search_payments(
+    start_date: date | None = Query(default=None),
+    end_date: date | None = Query(default=None),
+    client_id: int | None = Query(default=None),
+    service_id: int | None = Query(default=None),
+    payment_type: schemas.PaymentType | None = Query(default=None),
+    payment_method: schemas.PaymentMethod | None = Query(default=None),
+    recipient: schemas.PaymentRecipient | None = Query(default=None),
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Search payments with filters (admin only)"""
+    return PaymentService.search_payments(
+        db, start_date, end_date, client_id, service_id,
+        payment_type, payment_method, recipient, limit, offset
+    )
+
+@app.get("/admin/payments/export")
+def export_payments_csv(
+    start_date: date | None = Query(default=None),
+    end_date: date | None = Query(default=None),
+    client_id: int | None = Query(default=None),
+    service_id: int | None = Query(default=None),
+    payment_type: schemas.PaymentType | None = Query(default=None),
+    payment_method: schemas.PaymentMethod | None = Query(default=None),
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Export payments to CSV format"""
+    # Get all payments without pagination
+    result = PaymentService.search_payments(
+        db, start_date, end_date, client_id, service_id,
+        payment_type, payment_method, limit=10000, offset=0
+    )
+    
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    
+    # Write header
+    writer.writerow([
+        'ID', 'Fecha', 'Tipo', 'Método', 'Importe (€)', 'Descripción', 
+        'Cliente', 'Servicio', 'Número de referencia', 'Notas', 'Creado'
+    ])
+    
+    # Write data rows
+    for payment in result.items:
+        writer.writerow([
+            payment.id,
+            payment.payment_date,
+            'Ingreso' if payment.payment_type == schemas.PaymentType.income else 'Gasto',
+            payment.payment_method.value,
+            f"{payment.amount:.2f}".replace('.', ','),
+            payment.description,
+            payment.client_full_name if payment.client else '',
+            payment.service_name if payment.service else '',
+            payment.reference_number or '',
+            payment.notes or '',
+            payment.created_at.strftime('%Y-%m-%d %H:%M:%S') if payment.created_at else ''
+        ])
+    
+    # Prepare response
+    csv_content = output.getvalue()
+    output.close()
+    
+    # Generate filename with date range
+    if start_date and end_date:
+        filename = f"pagos_{start_date}_{end_date}.csv"
+    elif start_date:
+        filename = f"pagos_{start_date}.csv"
+    elif end_date:
+        filename = f"pagos_hasta_{end_date}.csv"
+    else:
+        filename = f"pagos_completo_{date.today()}.csv"
+    
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@app.get("/admin/payments/summary", response_model=schemas.PaymentSummaryResponse)
+def get_payment_summary(
+    start_date: date = Query(default=date.today().replace(day=1)),
+    end_date: date = Query(default=date.today()),
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Get payment summary grouped by service"""
+    if start_date > end_date:
+        raise HTTPException(status_code=400, detail="Start date must be before end date")
+    
+    return PaymentService.get_summary_by_service(db, start_date, end_date)
+
+@app.get("/admin/payments/chart-data")
+def get_payment_chart_data(
+    start_date: date = Query(default=date.today().replace(day=1)),
+    end_date: date = Query(default=date.today()),
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Get payment chart data for dashboard"""
+    if start_date > end_date:
+        raise HTTPException(status_code=400, detail="Start date must be before end date")
+    
+    return PaymentService.get_chart_data(db, start_date, end_date)
+
+@app.put("/admin/payments/{payment_id}", response_model=schemas.PaymentRead)
+def update_payment(
+    payment_id: int,
+    payload: schemas.PaymentUpdate,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Update a payment record"""
+    try:
+        return PaymentService.update_payment(db, payment_id, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+@app.delete("/admin/payments/{payment_id}")
+def delete_payment(
+    payment_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Soft delete a payment record"""
+    try:
+        PaymentService.delete_payment(db, payment_id)
+        return {"message": "Payment deleted successfully"}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+# QR Code Routes
+@app.post("/qr/generate", response_model=schemas.QRCodeRead)
+def generate_qr_code(payload: schemas.QRCodeCreate, db: Session = Depends(get_db)):
+    """Generate a new QR code"""
+    try:
+        qr_code = QRCodeService.generate_qr_code(db, payload)
+        response = schemas.QRCodeRead.model_validate(qr_code)
+        response.image_url = f"/qr/{qr_code.code}/image"
+        
+        # Include base64 image data for immediate display
+        if qr_code.image_data:
+            response.image_data = qr_code.image_data
+            response.image_mime_type = f"image/{qr_code.format}" if qr_code.format != "svg" else "image/svg+xml"
+        
+        return response
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+@app.get("/qr/{code}/image")
+def get_qr_code_image(code: str, db: Session = Depends(get_db)):
+    """Get QR code image"""
+    try:
+        image_bytes, mime_type = QRCodeService.get_qr_code_image(db, code)
+        return Response(content=image_bytes, media_type=mime_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+@app.get("/api/qr/{code}/image")
+def get_public_qr_image(code: str, db: Session = Depends(get_db)):
+    """Get QR code image (public endpoint)"""
+    try:
+        image_bytes, mime_type = QRCodeService.get_qr_code_image(db, code)
+        return Response(content=image_bytes, media_type=mime_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+@app.get("/api/qr/{code}/info")
+def get_public_qr_info(code: str, db: Session = Depends(get_db)):
+    """Get public QR code information (no authentication required)"""
+    try:
+        qr_code = QRCodeService.get_qr_code_info(db, code)
+        if not qr_code:
+            raise HTTPException(status_code=404, detail="QR code not found or expired")
+        return qr_code
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+@app.get("/api/qr/{code}")
+def get_qr_code_info(
+    code: str, 
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Get QR code information (for scanning)"""
+    qr_code = QRCodeService.get_qr_code_info(db, code)
+    if not qr_code:
+        raise HTTPException(status_code=404, detail="QR code not found or expired")
+    
+    # Record scan
+    scan_payload = schemas.QRCodeScanCreate(
+        qr_code_id=qr_code.id,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+        referrer=request.headers.get("referer"),
+    )
+    
+    try:
+        QRCodeService.record_scan(db, scan_payload)
+    except:
+        pass  # Don't fail if scan recording fails
+    
+    # Redirect if content is a URL
+    if qr_code.content.startswith(("http://", "https://")):
+        return RedirectResponse(url=qr_code.content)
+    
+    # Return content for text QR codes
+    return {
+        "code": qr_code.code,
+        "content": qr_code.content,
+        "title": qr_code.title,
+        "created_at": qr_code.created_at,
+        "scan_count": qr_code.use_count,
+        "image_data" : qr_code.image_data,
+        "image_mime_type" : qr_code.image_mime_type,
+    }
+
+@app.post("/qr/scans", response_model=schemas.QRCodeScanRead)
+def record_qr_scan(payload: schemas.QRCodeScanCreate, db: Session = Depends(get_db)):
+    """Record a QR code scan (for API clients)"""
+    try:
+        return QRCodeService.record_scan(db, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+@app.get("/admin/qr-codes", response_model=schemas.QRCodeSearchResponse)
+def admin_search_qr_codes(
+    query: str | None = Query(default=None),
+    client_id: int | None = Query(default=None),
+    service_id: int | None = Query(default=None),
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Search QR codes (admin only)"""
+    return QRCodeService.search_qr_codes(db, query, client_id, service_id, limit, offset)
+
+@app.delete("/admin/qr-codes/{qr_code_id}")
+def delete_qr_code(
+    qr_code_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Delete a QR code"""
+    try:
+        QRCodeService.delete_qr_code(db, qr_code_id)
+        return {"message": "QR code deleted successfully"}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
 @app.post("/admin/email-settings/test")
 def admin_test_email_settings(
     payload: schemas.EmailSettingsCreate,
+    _: models.AdminUser = Depends(get_admin_user),
 ):
     """Test email settings by trying to connect"""
     success, message = EmailService.test_connection(
@@ -865,4 +1268,19 @@ def admin_test_email_settings(
         smtp_user=payload.smtp_user,
         smtp_password=payload.smtp_password,
     )
+    if success:
+        # Also try to send a test email to verify from_email works
+        if payload.from_email:
+            test_msg = MIMEText("This is a test email from Like Studio", 'plain')
+            test_msg['Subject'] = "Test Email"
+            test_msg['From'] = f"{payload.from_name} <{payload.from_email}>"
+            test_msg['To'] = payload.smtp_user
+            try:
+                with smtplib.SMTP(payload.smtp_host, payload.smtp_port) as server:
+                    server.starttls()
+                    server.login(payload.smtp_user, payload.smtp_password)
+                    server.send_message(test_msg)
+            except Exception as e:
+                return schemas.EmailTestResult(success=False, message=f"Connection OK but failed to send test email: {str(e)}")
+    
     return schemas.EmailTestResult(success=success, message=message)

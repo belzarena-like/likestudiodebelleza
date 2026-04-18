@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css?v=5" />
+  <link rel="stylesheet" href="../css/admin-common.css?v=5" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+</head>
+<body>
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-subtitle">Listado completo de clientes. Puedes editar datos o crear nuevos.</p>
+
+    <div class="admin-toolbar">
+      <button id="new-client" class="btn btn-primary" type="button">+ Nuevo cliente</button>
+    </div>
+
+    <form id="search-form" class="admin-filters">
+      <div class="admin-filter-field wide">
+        <label class="filter-label" for="query">Nombre o teléfono</label>
+        <input class="filter-input" id="query" name="query" placeholder="Buscar..." />
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <button class="btn btn-secondary" type="button" id="reset">Limpiar</button>
+      </div>
+    </form>
+
+    <p id="summary" class="admin-summary">Cargando...</p>
+
+    <div class="admin-table-wrap">
+      <div id="clients-list" class="clients-list"></div>
+    </div>
+
+    <div class="admin-pagination">
+      <button id="prev" class="btn btn-secondary" type="button">← Anterior</button>
+      <button id="next" class="btn btn-secondary" type="button">Siguiente →</button>
+    </div>
+  </main>
+
+  <!-- Client modal -->
+  <div class="modal-overlay" id="client-modal" aria-hidden="true">
+    <div class="modal-card modal-brand" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Nuevo cliente</h2>
+        <button id="modal-close" class="btn btn-secondary btn-sm" type="button">✕ Cerrar</button>
+      </div>
+      <form id="client-form" class="form-grid">
+        <div class="form-field">
+          <label for="f-full-name">Nombre completo</label>
+          <input id="f-full-name" name="f-full-name" required />
+        </div>
+        <div class="form-field">
+          <label for="f-id-number">DNI/NIE</label>
+          <input id="f-id-number" name="f-id-number" required />
+        </div>
+        <div class="form-field">
+          <label for="f-phone">Teléfono</label>
+          <input id="f-phone" name="f-phone" />
+        </div>
+        <div class="form-field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="f-email" type="email" />
+        </div>
+        <div class="form-field">
+          <label for="f-instagram">Instagram</label>
+          <input id="f-instagram" name="f-instagram" placeholder="@usuario" />
+        </div>
+        <div class="form-actions form-grid-full">
+          <button id="submit-btn" class="btn btn-primary" type="submit">Guardar</button>
+          <button class="btn btn-secondary" type="reset">Limpiar</button>
+        </div>
+        <p id="form-message" class="form-message form-grid-full"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script type="module" src="js/clients.js" defer></script>
+</body>
+</html>

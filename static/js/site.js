@@ -12,6 +12,18 @@
     });
   }
 
+  // Mobile submenu toggle
+  var menuItems = document.querySelectorAll(".menu-item > a");
+  menuItems.forEach(function (item) {
+    item.addEventListener("click", function (e) {
+      if (window.innerWidth <= 900) {
+        e.preventDefault();
+        var parent = item.parentElement;
+        parent.classList.toggle("is-open");
+      }
+    });
+  });
+
   var reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window && reveals.length > 0) {
     var observer = new IntersectionObserver(

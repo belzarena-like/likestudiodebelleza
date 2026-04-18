@@ -89,7 +89,7 @@ class EmailService:
             <style>
                 body {{ font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
+                .header {{ background: linear-gradient(135deg, rgba(14, 16, 20, 0.82) 0%, #4a5568 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
                 .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
                 .details {{ background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }}
                 .detail-row {{ display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }}

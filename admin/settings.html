@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuración | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+  <style>
+    .settings-section { margin-bottom: 2rem; padding: 1.5rem; background: var(--bg-card, #111827); border-radius: 8px; }
+    .settings-section h2 { margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border, #1e2a3a); border-radius: 6px;  color: var(--text-primary, #e7edf8); }
+    .form-group input:focus { outline: none; border-color: var(--accent, #7c6af7); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .toggle-group { display: flex; align-items: center; gap: 0.5rem; }
+    .toggle-group input[type="checkbox"] { width: auto; }
+    .help-text { font-size: 0.875rem; color: var(--text-secondary, #8a96b0); margin-top: 0.25rem; }
+    .help-box { background: #1a2235; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.875rem; }
+    .help-box h4 { margin: 0 0 0.5rem; color: var(--accent, #7c6af7); }
+    .help-box ol { margin: 0; padding-left: 1.25rem; }
+    .help-box li { margin-bottom: 0.5rem; color: var(--text-secondary, #8a96b0); }
+    .test-result { padding: 1rem; border-radius: 6px; margin-top: 1rem; }
+    .test-result.success { background: rgba(52, 211, 153, 0.1); border: 1px solid #34d399; color: #34d399; }
+    .test-result.error { background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; }
+    .btn-test { margin-left: 0.5rem; }
+  </style>
+</head>
+<body>
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
+
+  <main class="admin-page-main narrow">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Configuración</h1>
+
+    <div class="settings-section">
+      <h2>📧 Configuración de Correo Electrónico (Gmail)</h2>
+      <p class="page-subtitle">Configura el servidor SMTP para enviar correos de confirmación de citas.</p>
+      
+      <div class="help-box">
+        <h4>🔑 Cómo obtener la contraseña de aplicación de Gmail:</h4>
+        <ol>
+          <li>Ve a <strong>Mi Cuenta Google</strong> → Seguridad</li>
+          <li>Activa la <strong>Verificación en 2 pasos</strong> (obligatorio)</li>
+          <li>Busca <strong>Contraseñas de aplicación</strong> en "Cómo iniciar sesión en Google"</li>
+          <li>Crea una nueva contraseña: selecciona "Otra" y ponle un nombre (ej: "Like Studio")</li>
+          <li>Copia la contraseña de 16 caracteres que te dan</li>
+          <li>Usa esa contraseña en el campo "Contraseña de aplicación" abajo</li>
+        </ol>
+      </div>
+
+      <form id="email-settings-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="smtp_host">Servidor SMTP</label>
+            <input type="text" id="smtp_host" name="smtp_host" value="smtp.gmail.com" readonly />
+          </div>
+          <div class="form-group">
+            <label for="smtp_port">Puerto SMTP</label>
+            <input type="number" id="smtp_port" name="smtp_port" value="587" readonly />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="smtp_user">Correo Gmail (tu correo completo)</label>
+          <input type="email" id="smtp_user" name="smtp_user" placeholder="tucorreo@gmail.com" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="smtp_password">Contraseña de aplicación (16 caracteres)</label>
+          <input type="password" id="smtp_password" name="smtp_password" placeholder="xxxx xxxx xxxx xxxx" required />
+          <p class="help-text">Usa la contraseña de aplicación, NO tu contraseña habitual de Gmail.</p>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="from_email">Correo remitente</label>
+            <input type="email" id="from_email" name="from_email" placeholder="tucorreo@gmail.com" required />
+          </div>
+          <div class="form-group">
+            <label for="from_name">Nombre del remitente</label>
+            <input type="text" id="from_name" name="from_name" value="Like Studio" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <div class="toggle-group">
+            <input type="checkbox" id="enabled" name="enabled" />
+            <label for="enabled">Habilitar envío de correos</label>
+          </div>
+        </div>
+        
+        <div class="admin-toolbar">
+          <button class="btn btn-primary" type="submit">Guardar configuración</button>
+          <button class="btn btn-secondary btn-test" type="button" id="test-btn">Probar conexión</button>
+          <span id="status" class="status-pill"></span>
+        </div>
+        
+        <div id="test-result"></div>
+      </form>
+    </div>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script>
+    (function() {
+      const form = document.getElementById('email-settings-form');
+      const testBtn = document.getElementById('test-btn');
+      const status = document.getElementById('status');
+      const testResult = document.getElementById('test-result');
+      
+      // Load current settings
+      fetch(window.APP_CONFIG.API_BASE_URL + '/admin/email-settings', {
+        headers: { 'Authorization': 'Bearer ' + window.LIKESTUDIO_ADMIN_TOKEN }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.smtp_user) document.getElementById('smtp_user').value = data.smtp_user;
+        if (data.smtp_password) document.getElementById('smtp_password').value = data.smtp_password;
+        if (data.from_email) document.getElementById('from_email').value = data.from_email;
+        if (data.from_name) document.getElementById('from_name').value = data.from_name;
+        document.getElementById('enabled').checked = data.enabled;
+      })
+      .catch(e => console.error('Error loading settings:', e));
+      
+      // Save settings
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        status.textContent = 'Guardando...';
+        status.className = 'status-pill loading';
+        
+        const payload = {
+          smtp_host: document.getElementById('smtp_host').value,
+          smtp_port: parseInt(document.getElementById('smtp_port').value),
+          smtp_user: document.getElementById('smtp_user').value,
+          smtp_password: document.getElementById('smtp_password').value,
+          from_email: document.getElementById('from_email').value,
+          from_name: document.getElementById('from_name').value,
+          enabled: document.getElementById('enabled').checked,
+        };
+        
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/email-settings', {
+            method: 'PUT',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + window.LIKESTUDIO_ADMIN_TOKEN 
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!r.ok) throw new Error('Error guardando');
+          status.textContent = '✓ Guardado';
+          status.className = 'status-pill success';
+          setTimeout(() => status.textContent = '', 3000);
+        } catch (err) {
+          status.textContent = 'Error';
+          status.className = 'status-pill error';
+        }
+      });
+      
+      // Test connection
+      testBtn.addEventListener('click', async () => {
+        testResult.innerHTML = '';
+        testBtn.disabled = true;
+        testBtn.textContent = 'Probando...';
+        
+        const payload = {
+          smtp_host: document.getElementById('smtp_host').value,
+          smtp_port: parseInt(document.getElementById('smtp_port').value),
+          smtp_user: document.getElementById('smtp_user').value,
+          smtp_password: document.getElementById('smtp_password').value,
+        };
+        
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/email-settings/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await r.json();
+          testResult.innerHTML = data.success 
+            ? '<div class="test-result success">✓ ' + data.message + '</div>'
+            : '<div class="test-result error">✗ ' + data.message + '</div>';
+        } catch (err) {
+          testResult.innerHTML = '<div class="test-result error">✗ Error de conexión</div>';
+        }
+        
+        testBtn.disabled = false;
+        testBtn.textContent = 'Probar conexión';
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Like Studio QR Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(135deg, rgba(14, 16, 20, 0.82) 0%, #4a5568 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .qr-container {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 28px 32px 24px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo { margin-bottom: 12px; }
+    .logo img { max-width: 100px; height: auto; }
+
+    .qr-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 4px;
+    }
+
+    .qr-description {
+      font-size: 14px;
+      color: #718096;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .qr-image-container {
+      padding: 14px;
+      background: #f7fafc;
+      border-radius: 16px;
+      margin-bottom: 14px;
+    }
+
+    .qr-image { max-width: 260px; width: 100%; height: auto; border-radius: 8px; }
+
+    .redirect-message {
+      background: #c6f6d5;
+      color: #22543d;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .redirect-link {
+      display: inline-block;
+      margin-top: 4px;
+      color: #38a169;
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .redirect-link:hover { text-decoration: underline; }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary  { background: #4299e1; color: white; }
+    .btn-primary:hover  { background: #3182ce; transform: translateY(-1px); }
+    .btn-secondary { background: #e2e8f0; color: #4a5568; }
+    .btn-secondary:hover { background: #cbd5e0; transform: translateY(-1px); }
+    .btn-success  { background: #38a169; color: white; }
+    .btn-success:hover  { background: #2f855a; transform: translateY(-1px); }
+
+    .loading { padding: 30px; color: #4a5568; }
+
+    .error {
+      background: #fed7d7;
+      color: #742a2a;
+      padding: 18px;
+      border-radius: 12px;
+      margin: 16px 0;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      body {
+        background: none;
+        display: block;
+        padding: 0;
+      }
+
+      .qr-container {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+
+      .redirect-message,
+      .action-buttons,
+      #loading,
+      #error {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .qr-container { padding: 20px; }
+      .action-buttons { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="qr-container">
+    <div class="logo">
+      <img id="qr-logo" src="assets/imgs/logo.png" alt="Like Studio Logo">
+    </div>
+
+    <div id="loading" class="loading">
+      <p>🔍 Cargando información del código QR...</p>
+    </div>
+
+    <div id="qr-content" style="display: none;">
+
+      <!-- Title & description: below logo, above QR -->
+      <div id="qr-title" class="qr-title" style="display:none;"></div>
+      <div id="qr-description" class="qr-description" style="display:none;"></div>
+
+      <div class="qr-image-container">
+        <img id="qr-image" class="qr-image" alt="Código QR">
+      </div>
+
+      <div id="redirect-section" class="redirect-message">
+        <p>Este código QR te redirigirá a:</p>
+        <a id="redirect-link" class="redirect-link" href="#" target="_blank">Cargando...</a>
+      </div>
+
+      <div class="action-buttons">
+        <button id="go-now" class="btn btn-primary">Ir ahora</button>
+        <button id="share-qr" class="btn btn-success">Compartir</button>
+        <button id="print-qr" class="btn btn-secondary">🖨️ Imprimir</button>
+      </div>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+      <p id="error-message">Error cargando el código QR.</p>
+      <button onclick="window.location.href='index.html'" class="btn btn-secondary" style="margin-top: 12px;">Volver al inicio</button>
+    </div>
+  </div>
+
+  <script src="../static/js/app-config.js"></script>
+  <script type="module">
+    import { apiClient } from '/src/core/api-client.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const qrCode = urlParams.get('code');
+
+    const loadingEl      = document.getElementById('loading');
+    const contentEl      = document.getElementById('qr-content');
+    const errorEl        = document.getElementById('error');
+    const errorMsgEl     = document.getElementById('error-message');
+    const qrImageEl      = document.getElementById('qr-image');
+    const qrTitleEl      = document.getElementById('qr-title');
+    const qrDescEl       = document.getElementById('qr-description');
+    const redirectLinkEl = document.getElementById('redirect-link');
+    const goNowBtn       = document.getElementById('go-now');
+    const shareBtn       = document.getElementById('share-qr');
+    const printBtn       = document.getElementById('print-qr');
+
+    let qrData = null;
+
+    function showError(message) {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      errorMsgEl.textContent = message;
+    }
+
+    function showContent() {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      errorEl.style.display = 'none';
+    }
+
+    async function loadQRData() {
+      try {
+        const response = await apiClient.get(`/api/qr/${qrCode}/info`);
+        if (!response) throw new Error('QR code not found or expired');
+        qrData = response;
+        updateUI();
+      } catch (error) {
+        console.error('Error loading QR data:', error);
+        showError(error.message || 'No se pudo cargar el código QR. Puede que haya expirado o no exista.');
+      }
+    }
+
+    function updateUI() {
+      if (!qrData) return;
+
+      // QR image
+      if (qrData.image_data && qrData.image_mime_type) {
+        qrImageEl.src = `data:${qrData.image_mime_type};base64,${qrData.image_data}`;
+      } else {
+        const baseUrl = window.APP_CONFIG?.API_BASE_URL || 'http://127.0.0.1:8000';
+        qrImageEl.src = `${baseUrl}/api/qr/${qrData.code}/image`;
+      }
+
+      qrImageEl.onerror = () => {
+        if (qrData.image_url) {
+          const baseUrl = window.APP_CONFIG?.API_BASE_URL || 'http://127.0.0.1:8000';
+          qrImageEl.src = qrData.image_url.startsWith('/')
+            ? `${baseUrl}${qrData.image_url}`
+            : qrData.image_url;
+        }
+      };
+
+      // Title
+      if (qrData.title) {
+        qrTitleEl.textContent = qrData.title;
+        qrTitleEl.style.display = 'block';
+      }
+
+      // Description
+      if (qrData.description) {
+        qrDescEl.textContent = qrData.description;
+        qrDescEl.style.display = 'block';
+      }
+
+      // Redirect link
+      redirectLinkEl.textContent = qrData.content;
+      redirectLinkEl.href = qrData.content;
+
+      // Go now
+      goNowBtn.onclick = () => { window.location.href = qrData.content; };
+
+      // Share
+      shareBtn.onclick = async () => {
+        const shareData = {
+          title: qrData.title || 'Código QR Like Studio',
+          text: qrData.description || 'Escanea este código QR',
+          url: window.location.href
+        };
+        if (navigator.share) {
+          try { await navigator.share(shareData); } catch {}
+        } else {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+          } catch {
+            const ta = document.createElement('textarea');
+            ta.value = window.location.href;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          alert('Enlace copiado al portapapeles');
+        }
+      };
+
+      // Print — opens a clean popup with only logo + title + description + QR
+      printBtn.onclick = () => {
+        const logoSrc = document.getElementById('qr-logo').src;
+        const qrSrc   = qrImageEl.src;
+        const title   = qrData.title || '';
+        const desc    = qrData.description || '';
+
+        const win = window.open('', '_blank', 'width=400,height=600');
+        win.document.write(`
+  <!doctype html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Imprimir QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      @page { margin: 10mm; }
+      body {
+        font-family: 'Manrope', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+      img.logo { max-width: 70px; margin-bottom: 6px; }
+      h1 { font-size: 13px; font-weight: 700; color: #1a202c; margin-bottom: 3px; }
+      p.desc { font-size: 11px; color: #718096; line-height: 1.4; max-width: 200px; margin-bottom: 8px; }
+      img.qr { max-width: 160px; width: 100%; }
+    </style>
+  </head>
+  <body>
+    <img class="logo" src="${logoSrc}" alt="Like Studio">
+    ${title ? `<h1>${title}</h1>` : ''}
+    ${desc  ? `<p class="desc">${desc}</p>` : ''}
+    <img class="qr" src="${qrSrc}" alt="QR Code">
+    <script>
+      window.onload = () => { window.print(); window.close(); }
+    <\/script>
+  </body>
+  </html>
+`);
+        win.document.close();
+      };
+
+      showContent();
+    }
+
+    loadQRData();
+  </script>
+</body>
+</html>

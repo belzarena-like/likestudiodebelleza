@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva Online | Like Studio Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css" />
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('embed') === '1') {
+        document.documentElement.classList.add('is-embed');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="assets/imgs/logo.png" alt="Like Studio logo" />
+      <span>Studio Academy</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
+    <nav class="menu" data-menu>
+      <a href="index.html">Inicio</a>
+      <a href="index.html#services">Servicios</a>
+      <a href="reserva.html">Reserva online</a>
+      <a href="gallery.html">Galeria</a>
+      <a href="index.html#academy">Academia</a>
+      <a href="index.html#contact">Contacto</a>
+      <a class="btn btn-sm" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
+    </nav>
+  </header>
+
+  <main class="section">
+    <p class="eyebrow">Reservas</p>
+    <h1>Reserva tu cita online</h1>
+    <p class="lead">Selecciona el servicio, profesional y horario disponible. La duracion se calcula automaticamente.</p>
+
+    <div class="booking-panel">
+      <form id="booking-form" class="form-grid">
+        <div>
+          <label for="service">Servicio</label>
+          <select id="service" required>
+            <option value="">Seleccionar...</option>
+          </select>
+          <p class="booking-info" id="service-duration"></p>
+        </div>
+        <div>
+          <label for="professional">Profesional</label>
+          <select id="professional" required>
+            <option value="">Seleccionar...</option>
+            <option>Josemi</option>
+            <option>Liege</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Fecha</label>
+          <input id="date" type="date" required />
+          <div id="calendar" class="booking-calendar"></div>
+        </div>
+        <div>
+          <label>Horario disponible</label>
+          <div id="slots" class="booking-slots"></div>
+          <input type="hidden" id="start-time" required />
+          <p class="booking-info" id="slot-message">Selecciona servicio, profesional y fecha para ver horarios.</p>
+          <p class="booking-info" id="suggestion-message"></p>
+          <div id="suggestions" class="booking-slots"></div>
+          <p class="booking-info" style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af;">
+            💡 Los horarios mostrados garantizan que el servicio termine antes del cierre. Servicios de 1h o más solo permiten reservas en horas completas (ej: 10:00, 11:00). Se requiere reservar con al menos 4 horas de anticipación.
+          </p>
+        </div>
+        <div>
+          <label for="full-name">Nombre y apellidos</label>
+          <input id="full-name" required />
+        </div>
+        <div>
+          <label for="phone">Telefono</label>
+          <input id="phone" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" required />
+        </div>
+        <div>
+          <label for="instagram">Instagram (opcional)</label>
+          <input id="instagram" />
+        </div>
+        <div class="form-grid-1">
+          <label for="notes">Notas</label>
+          <textarea id="notes" placeholder="Alguna observacion?"></textarea>
+        </div>
+        <div class="form-grid-1 booking-summary" id="summary">
+          Selecciona un horario para ver el resumen.
+        </div>
+        <div class="form-actions form-grid-1">
+          <button class="btn" type="submit">Confirmar reserva</button>
+        </div>
+        <p id="message" class="form-note form-grid-1"></p>
+      </form>
+    </div>
+  </main>
+
+  <script src="static/js/app-config.js"></script>
+  <script src="static/js/site.js"></script>
+  <script src="static/js/booking-controller.js"></script>
+</body>
+</html>

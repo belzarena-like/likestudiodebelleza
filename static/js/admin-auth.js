@@ -1,10 +1,55 @@
 ﻿(function () {
-  var AUTH_KEY = "likestudio_admin_auth";
-  var USERNAME = "likestudio";
-  var PASSWORD = "liegeJosemi2026";
+  var AUTH_KEY = "likestudio_admin_auth_v3";
+  var AUTH_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  var API_BASE = window.location.origin.includes('localhost') 
+    ? 'http://localhost:8000'
+    : window.location.origin;
+
+  function now() {
+    return Date.now();
+  }
+
+  function writeSession(token, expiresIn) {
+    localStorage.setItem(
+      AUTH_KEY,
+      JSON.stringify({
+        token: token,
+        expires_at: now() + (expiresIn * 1000),
+        created_at: now()
+      })
+    );
+  }
+
+  function getSession() {
+    var raw = localStorage.getItem(AUTH_KEY);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
 
   function isAuthenticated() {
-    return sessionStorage.getItem(AUTH_KEY) === "ok";
+    var session = getSession();
+    if (!session || !session.token) {
+      return false;
+    }
+    
+    // Check if token has expired
+    if (Number(session.expires_at) <= now()) {
+      localStorage.removeItem(AUTH_KEY);
+      return false;
+    }
+    
+    return true;
+  }
+
+  function getToken() {
+    var session = getSession();
+    return session ? session.token : null;
   }
 
   function createOverlay() {
@@ -43,20 +88,59 @@
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      if (user.value === USERNAME && pass.value === PASSWORD) {
-        sessionStorage.setItem(AUTH_KEY, "ok");
+      
+      // Disable button during request
+      var button = form.querySelector("button");
+      button.disabled = true;
+      button.style.opacity = "0.6";
+      error.textContent = "Autenticando...";
+
+      // Send login request to backend
+      fetch(API_BASE + "/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: user.value,
+          password: pass.value
+        })
+      })
+      .then(function(response) {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Invalid credentials");
+        }
+      })
+      .then(function(data) {
+        // Store token and expiry
+        writeSession(data.access_token, data.expires_in);
+        error.textContent = "";
         overlay.remove();
-        return;
-      }
-      error.textContent = "Credenciales incorrectas.";
+      })
+      .catch(function(err) {
+        error.textContent = "Credenciales incorrectas o error de conexion.";
+        button.disabled = false;
+        button.style.opacity = "1";
+      });
     });
   }
 
   window.likestudioAdminLogout = function () {
-    sessionStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_KEY);
     window.location.reload();
   };
 
+  window.likestudioGetAuthToken = function () {
+    return getToken();
+  };
+
+  window.likestudioIsAuthenticated = function () {
+    return isAuthenticated();
+  };
+
+  // Mount auth gate when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", mountAuthGate);
   } else {

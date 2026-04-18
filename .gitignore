@@ -14,6 +14,27 @@ migrate_working_dir/
 .firebase**
 .firebase/supermarket-tracker-app
 .firebase/supermarket-tracker-app/hosting/**
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+.venv/
+
 # IntelliJ related
 *.iml
 *.ipr

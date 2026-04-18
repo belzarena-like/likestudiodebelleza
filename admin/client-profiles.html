@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfiles CRM | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+</head>
+<body>
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Perfiles CRM</h1>
+    <p class="page-subtitle">Tarjetas editables con Instagram, tipo de sesión y fecha.</p>
+
+    <form id="search-form" class="admin-filters">
+      <div class="admin-filter-field wide">
+        <label class="filter-label" for="query">Buscar</label>
+        <input class="filter-input" id="query" name="query" placeholder="Nombre, teléfono o Instagram..." />
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <button class="btn btn-secondary" type="button" id="reset">Limpiar</button>
+      </div>
+    </form>
+
+    <p id="summary" class="admin-summary">Cargando...</p>
+    <div id="profile-grid" class="profile-grid"></div>
+
+    <div class="admin-pagination" style="margin-top:1.5rem">
+      <button id="prev" class="btn btn-secondary" type="button">← Anterior</button>
+      <button id="next" class="btn btn-secondary" type="button">Siguiente →</button>
+    </div>
+  </main>
+
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script type="module" src="js/client-profiles.js"></script>
+</body>
+</html>

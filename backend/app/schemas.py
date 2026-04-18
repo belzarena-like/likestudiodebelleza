@@ -1,7 +1,7 @@
-﻿from datetime import date, datetime, time
+from datetime import date, datetime, time
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 if __package__:
     from .models import ConsentType
@@ -135,6 +135,7 @@ class AvailabilityResponse(BaseModel):
 class PublicBookingCreate(BaseModel):
     full_name: str = Field(min_length=2, max_length=180)
     phone: str = Field(min_length=3, max_length=40)
+    email: str = Field(min_length=3, max_length=180)
     instagram: str | None = Field(default=None, max_length=120)
     professional_name: str = Field(min_length=2, max_length=180)
     service_id: int
@@ -579,3 +580,171 @@ class EmailSettingsResponse(BaseModel):
 class EmailTestResult(BaseModel):
     success: bool
     message: str
+
+
+# Payment Schemas
+
+class PaymentType(str, Enum):
+    INCOME = "income"
+    EXPENSE = "expense"
+
+class PaymentMethod(str, Enum):
+    CASH = "cash"
+    CARD = "card"
+    TRANSFER = "transfer"
+    OTHER = "other"
+
+class PaymentRecipient(str, Enum):
+    LIEGE = "liege"
+    JOSEMI = "josemi"
+    COMPANY = "company"
+
+class PaymentCreate(BaseModel):
+    amount: float = Field(gt=0, description="Payment amount")
+    payment_date: date = Field(default_factory=date.today)
+    payment_type: PaymentType
+    payment_method: PaymentMethod
+    recipient: PaymentRecipient | None = None
+    client_id: int | None = None
+    service_id: int | None = None
+    appointment_id: int | None = None
+    description: str | None = ""
+    notes: str | None = None
+    reference_number: str | None = None
+    
+    model_config = ConfigDict(validate_default=True)
+    
+
+class PaymentUpdate(BaseModel):
+    amount: float | None = Field(default=None, gt=0)
+    payment_date: date | None = None
+    payment_type: PaymentType | None = None
+    payment_method: PaymentMethod | None = None
+    recipient: PaymentRecipient | None = None
+    description: str | None = Field(default=None, min_length=0, max_length=500)
+    notes: str | None = None
+    reference_number: str | None = Field(default=None, max_length=100)
+
+class PaymentRead(PaymentCreate):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime | None = None
+    
+    # Optional relationship data
+    client_name: str | None = None
+    service_name: str | None = None
+    appointment_date: date | None = None
+    
+    model_config = {"from_attributes": True}
+
+class PaymentSearchResponse(BaseModel):
+    items: list[PaymentRead]
+    total: int
+    limit: int
+    offset: int
+    summary: dict[str, float]
+
+class PaymentSummaryItem(BaseModel):
+    service_id: int | None
+    service_name: str | None
+    payment_type: PaymentType
+    payment_method: PaymentMethod
+    month: str  # YYYY-MM
+    total_amount: float
+    payment_count: int
+    avg_amount: float
+
+class PaymentSummaryResponse(BaseModel):
+    items: list[PaymentSummaryItem]
+    period_start: date
+    period_end: date
+    summary: dict[str, float]
+
+# QR Code Schemas
+
+class QRCodeCreate(BaseModel):
+    content: str = Field(min_length=1, max_length=2000)
+    title: str | None = Field(default=None, max_length=200)
+    description: str | None = None
+    
+    # Optional configuration
+    size: int = Field(default=300, ge=100, le=2000)
+    format: str = Field(default="png", pattern="^(png|svg|jpg)$")
+    error_correction: str = Field(default="M", pattern="^[LMQH]$")
+    color: str = Field(default="#000000", pattern="^#[0-9A-Fa-f]{6}$")
+    background_color: str = Field(default="#FFFFFF", pattern="^#[0-9A-Fa-f]{6}$")
+    
+    # Logo overlay options
+    add_logo: bool = Field(default=False)
+    logo_size: int | None = Field(default=None, ge=20, le=100)
+    logo_position: str | None = Field(default="center", pattern="^(center|top-left|top-right|bottom-left|bottom-right)$")
+    
+    # Optional relationships
+    client_id: int | None = None
+    appointment_id: int | None = None
+    service_id: int | None = None
+    
+    # Expiration
+    expires_at: datetime | None = None
+
+class QRCodeUpdate(BaseModel):
+    title: str | None = Field(default=None, max_length=200)
+    description: str | None = None
+    expires_at: datetime | None = None
+    add_logo: bool | None = None
+    logo_size: int | None = None
+    logo_position: str | None = None
+
+class QRCodeRead(QRCodeCreate):
+    id: int
+    code: str
+    use_count: int
+    last_used_at: datetime | None = None
+    created_at: datetime
+    updated_at: datetime
+    image_url: str | None = None
+    image_data: str | None = None
+    image_mime_type: str | None = None
+    
+    model_config = {"from_attributes": True}
+class QRCodeScanCreate(BaseModel):
+    qr_code_id: int
+    ip_address: str | None = None
+    user_agent: str | None = None
+    referrer: str | None = None
+    client_id: int | None = None
+
+class QRCodeScanRead(QRCodeScanCreate):
+    id: int
+    scanned_at: datetime
+    
+    model_config = {"from_attributes": True}
+
+class QRCodeSearchResponse(BaseModel):
+    items: list[QRCodeRead]
+    total: int
+    limit: int
+    offset: int
+
+
+# Payment Schemas
+
+
+# Admin Authentication Schemas
+
+class AdminLoginRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=100)
+    password: str = Field(min_length=6, max_length=100)
+
+
+class AdminLoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int  # seconds
+
+
+class AdminTokenVerify(BaseModel):
+    valid: bool
+    username: str | None = None
+    expires_at: datetime | None = None

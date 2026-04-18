@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Payment Modal</title>
+  <link rel="stylesheet" href="./css/site.css" />
+  <link rel="stylesheet" href="./css/admin-common.css" />
+</head>
+<body style="padding: 2rem; background: #f3f4f6;">
+  <h1>Test Payment Modal</h1>
+  <p>Prueba del modal de pago integrado</p>
+  
+  <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+    <button id="test-modal-1" class="btn btn-primary">Abrir Modal de Pago (Cliente 1)</button>
+    <button id="test-modal-2" class="btn btn-success">Abrir Modal de Pago (Cliente 2 con Servicio)</button>
+  </div>
+  
+  <script type="module">
+    import { PaymentModal } from './src/ui/components/payment-modal.js';
+    import { Toast } from './src/ui/components/toast.js';
+    
+    document.getElementById('test-modal-1').addEventListener('click', () => {
+      PaymentModal.createAndOpen({
+        client_id: 1,
+        payment_date: new Date().toISOString().split('T')[0],
+        payment_type: 'income',
+        payment_method: 'cash'
+      }, {
+        onSuccess: (payment) => {
+          Toast.success('Pago creado: ' + payment.id);
+          console.log('Payment created:', payment);
+        }
+      });
+    });
+    
+    document.getElementById('test-modal-2').addEventListener('click', () => {
+      PaymentModal.createAndOpen({
+        client_id: 2,
+        service_id: 3,
+        appointment_id: 456,
+        payment_date: new Date().toISOString().split('T')[0],
+        payment_type: 'income',
+        payment_method: 'card',
+        amount: 75.50
+      }, {
+        onSuccess: (payment) => {
+          Toast.success('Pago con servicio creado');
+          console.log('Payment with service:', payment);
+        }
+      });
+    });
+  </script>
+  
+  <button id="test-modal-2" style="margin-top: 1rem;">Abrir Modal con Servicio</button>
+</body>
+</html>

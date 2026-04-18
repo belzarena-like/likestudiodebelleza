@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagos | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css?v=5" />
+  <link rel="stylesheet" href="../css/admin-common.css?v=5" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+  <!-- Add Chart.js for graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">Control de Pagos</h1>
+    <p class="page-subtitle">Gestiona ingresos y gastos del estudio.</p>
+    
+    <!-- Filters First -->
+    <form id="search-form" class="admin-filters">
+      <div class="admin-filter-field">
+        <label for="month-filter">Mes</label>
+        <input type="month" id="month-filter" name="month_filter" />
+      </div>
+      <div class="admin-filter-field">
+        <label for="start-date">Desde</label>
+        <input type="date" id="start-date" name="start_date" />
+      </div>
+      <div class="admin-filter-field">
+        <label for="end-date">Hasta</label>
+        <input type="date" id="end-date" name="end_date" />
+      </div>
+      <div class="admin-filter-field">
+        <label for="payment-type">Tipo</label>
+        <select id="payment-type" name="payment_type">
+          <option value="">Todos</option>
+          <option value="income">Ingresos</option>
+          <option value="expense">Gastos</option>
+        </select>
+      </div>
+      <div class="admin-filter-field">
+        <label for="payment-method">Método</label>
+        <select id="payment-method" name="payment_method">
+          <option value="">Todos</option>
+          <option value="cash">Efectivo</option>
+          <option value="card">Tarjeta</option>
+          <option value="transfer">Transferencia</option>
+          <option value="other">Otro</option>
+        </select>
+      </div>
+      <div class="admin-filter-field">
+        <label for="recipient">Destinatario</label>
+        <select id="recipient" name="recipient">
+          <option value="">Todos</option>
+          <option value="liege">Liege</option>
+          <option value="josemi">Josemi</option>
+          <option value="company">Empresa</option>
+        </select>
+      </div>
+      <div class="admin-filter-field wide">
+        <label for="service">Servicio</label>
+        <select id="service" name="service_id">
+          <option value="">Todos los servicios</option>
+          <!-- Dynamically populated -->
+        </select>
+      </div>
+      <div class="admin-filter-field wide">
+        <label for="client">Cliente</label>
+        <div class="ls-autocomplete-wrap">
+          <input type="text" id="client-filter" name="client_search" placeholder="Buscar cliente..." />
+          <input type="hidden" id="client-filter-id" name="client_id" />
+          <div id="client-results" class="ls-autocomplete-dropdown" style="display:none"></div>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <button class="btn btn-secondary" type="button" id="reset">Limpiar</button>
+        <button class="btn btn-success" type="button" id="export">Exportar CSV</button>
+      </div>
+    </form>
+    
+    <!-- Summary Cards (shown after filtering) -->
+    <div id="results-section" style="display: none;">
+      <div class="summary-cards">
+        <div class="summary-card income">
+          <h3>Ingresos Totales</h3>
+          <p id="total-income">€0.00</p>
+          <small id="income-period">Período seleccionado</small>
+        </div>
+        <div class="summary-card expense">
+          <h3>Gastos Totales</h3>
+          <p id="total-expenses">€0.00</p>
+          <small id="expenses-period">Período seleccionado</small>
+        </div>
+        <div class="summary-card net">
+          <h3>Neto</h3>
+          <p id="net-amount">€0.00</p>
+          <small id="net-period">Período seleccionado</small>
+        </div>
+      </div>
+      
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <div class="chart-container chart-large">
+          <h3>Tendencia Histórica</h3>
+          <canvas id="historical-trend-chart"></canvas>
+        </div>
+        <div class="chart-container chart-small">
+          <h3>Métodos de Pago</h3>
+          <canvas id="payments-by-method-chart"></canvas>
+        </div>
+      </div>
+    
+      <!-- Add Payment Button -->
+      <div class="admin-toolbar">
+      <button id="new-payment" class="btn btn-primary" type="button">+ Nuevo Pago</button>
+      <button id="new-expense" class="btn btn-warning" type="button">+ Nuevo Gasto</button>
+    </div>
+    
+    <!-- Summary Stats -->
+    <p id="summary" class="admin-summary">Cargando...</p>
+    
+    <!-- Payments Table -->
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Servicio</th>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Método</th>
+            <th>Destinatario</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    
+      <!-- Pagination -->
+      <div class="admin-pagination">
+        <button id="prev" class="btn btn-secondary" type="button">← Anterior</button>
+        <button id="next" class="btn btn-secondary" type="button">Siguiente →</button>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="payment-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Nuevo pago</h2>
+        <button id="modal-close" class="btn btn-secondary btn-sm" type="button">✕ Cerrar</button>
+      </div>
+      <form id="payment-form" class="form-grid">
+        <input type="hidden" id="payment-id" />
+        
+        <div class="form-field">
+          <label for="payment-amount">Importe (€)</label>
+          <input type="number" id="payment-amount" name="amount" step="0.01" min="0.01" required />
+        </div>
+        <div class="form-field">
+          <label for="payment-date">Fecha</label>
+          <input type="date" id="payment-date" name="payment_date" required />
+        </div>
+        
+        <div class="form-field">
+          <label for="payment-type">Tipo</label>
+          <select id="payment-type-select" name="payment_type" required>
+            <option value="income">Ingreso</option>
+            <option value="expense">Gasto</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="payment-method-select">Método</label>
+          <select id="payment-method-select" name="payment_method" required>
+            <option value="cash">Efectivo</option>
+            <option value="card">Tarjeta</option>
+            <option value="transfer">Transferencia</option>
+            <option value="other">Otro</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="payment-recipient">Destinatario (opcional)</label>
+          <select id="payment-recipient" name="recipient">
+            <option value="">Seleccionar...</option>
+            <option value="liege">Liege</option>
+            <option value="josemi">Josemi</option>
+            <option value="company">Empresa</option>
+          </select>
+        </div>
+        
+        <div class="form-field form-grid-full">
+          <label for="payment-description">Descripción</label>
+          <input type="text" id="payment-description" name="description"  />
+        </div>
+        
+        <div class="form-field">
+          <label for="payment-service">Servicio (opcional)</label>
+          <select id="payment-service" name="service_id">
+            <option value="">Seleccionar servicio...</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="payment-client">Cliente (opcional)</label>
+          <div class="ls-autocomplete-wrap">
+            <input type="text" id="payment-client" name="client_search" placeholder="Buscar cliente..." autocomplete="off" />
+            <input type="hidden" id="payment-client-id" name="client_id" />
+            <div id="client-results" class="ls-autocomplete-dropdown" style="display: none;"></div>
+          </div>
+        </div>
+        
+        <div class="form-field form-grid-full">
+          <label for="payment-notes">Notas (opcional)</label>
+          <textarea id="payment-notes" name="notes" rows="2"></textarea>
+        </div>
+        
+        <div class="form-field form-grid-full">
+          <label for="payment-reference">Número de referencia (opcional)</label>
+          <input type="text" id="payment-reference" name="reference_number" />
+        </div>
+        <div class="form-actions form-grid-full">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-secondary" id="cancel-payment">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-widgets.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script type="module" src="./js/payments.js"></script>
+</body>
+</html>

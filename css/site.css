@@ -14,7 +14,17 @@
 
 * {
   box-sizing: border-box;
+  /* Styled scrollbars — Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #2a354a #0e1014;
 }
+
+/* Styled scrollbars — WebKit/Blink */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: #0e1014; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #2a354a; border-radius: 10px; border: 2px solid #0e1014; }
+::-webkit-scrollbar-thumb:hover { background: #3a4a60; }
+::-webkit-scrollbar-corner { background: #0e1014; }
 
 html,
 body {
@@ -90,8 +100,8 @@ a {
 
 .brand-logo {
   width: 65px;
-  height: 40px;
-  border-radius: 80%;
+  background: white;
+  border-radius: 23%;
   object-fit: cover;
   border: 1px solid #334058;
 }
@@ -100,6 +110,71 @@ a {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+/* Submenu styles */
+.menu-item {
+  position: relative;
+}
+
+.menu-item > a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menu-item-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.menu-item:hover .menu-item-arrow {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: var(--bg-card, #111827);
+  border: 1px solid var(--line, #1e2a3a);
+  border-radius: 8px;
+  padding: 8px 0;
+  min-width: 200px;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.menu-item:hover .submenu {
+  display: flex;
+}
+
+.submenu a {
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.submenu a:hover {
+  background: rgba(124, 106, 247, 0.1);
+  color: var(--accent, #7c6af7);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .menu a {
@@ -462,7 +537,7 @@ a {
 }
 
 .form-wrap {
-  width: min(980px, 100% - 2rem);
+  width: min(1400px, 100% - 2rem);
   margin: 2.2rem auto 4rem;
   background: #141922;
   border: 1px solid var(--line);
@@ -491,7 +566,7 @@ input,
 textarea,
 select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #2f3a4f;
   font: inherit;
@@ -577,6 +652,65 @@ textarea {
   gap: 8px;
 }
 
+.consent-daylist {
+  display: grid;
+  gap: 12px;
+}
+
+.consent-daylist-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.consent-daylist-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.consent-daylist-controls label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.consent-daylist-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.consent-daylist-items .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .topbar {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .menu {
+    gap: 10px;
+  }
+
+  .form-wrap {
+    width: min(100% - 1.5rem, 1400px);
+    margin: 1.6rem auto 3rem;
+  }
+
+  .btn {
+    padding: 10px 18px;
+  }
+
+  .legal-box {
+    padding: 12px 14px;
+  }
+}
+
 @media (max-width: 900px) {
   .menu-toggle {
     display: inline-block;
@@ -600,6 +734,49 @@ textarea {
     display: flex;
   }
 
+  /* Mobile submenu styles */
+  .menu-item {
+    position: relative;
+  }
+
+  .menu-item > a {
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+
+  .submenu {
+    position: static;
+    margin-top: 4px;
+    margin-left: 12px;
+    border-left: 2px solid var(--line);
+    padding-left: 8px;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .menu-item:hover .submenu {
+    display: none;
+  }
+
+  .menu-item.is-open .submenu {
+    display: flex;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .topbar-actions {
+    order: 3;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .menu-toggle {
+    order: 1;
+  }
+
   .split,
   .cards-3,
   .cards-2,
@@ -607,6 +784,17 @@ textarea {
   .reviews-wrap,
   .trust-strip,
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-wrap {
+    width: 100%;
+    margin: 1rem auto 2rem;
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .check-grid {
     grid-template-columns: 1fr;
   }
 
@@ -636,5 +824,208 @@ textarea {
 
   .map-frame {
     height: 220px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Booking Panel Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.is-embed body {
+  background: #0f141d;
+}
+
+.is-embed .topbar,
+.is-embed .bg-orb {
+  display: none;
+}
+
+.is-embed .section {
+  padding: 20px 0 26px;
+}
+
+.is-embed .booking-panel {
+  box-shadow: none;
+}
+
+.booking-panel {
+  background: #121822;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: clamp(18px, 4vw, 30px);
+  box-shadow: var(--shadow);
+}
+
+.booking-steps {
+  display: grid;
+  gap: 16px;
+}
+
+.booking-info {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.booking-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.booking-slots button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #171d28;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-slots button:hover {
+  border-color: var(--brand);
+  background: #1f2937;
+}
+
+.booking-slots button.is-active {
+  background: linear-gradient(135deg, var(--brand), #be3535);
+  border-color: transparent;
+  color: #fff;
+}
+
+.booking-summary {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: #0f141d;
+  color: #d9e1ee;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Booking Calendar Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.booking-calendar {
+  margin-top: 12px;
+  background: #0f141d;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.calendar-month {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.calendar-nav button {
+  background: #171d28;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav button:hover:not(:disabled) {
+  background: #1f2937;
+  border-color: var(--brand);
+}
+
+.calendar-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 8px 4px;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #171d28;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.calendar-day:hover:not(.is-disabled):not(.is-past) {
+  background: #1f2937;
+  border-color: var(--brand);
+  transform: scale(1.05);
+}
+
+.calendar-day.is-today {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.calendar-day.is-selected {
+  background: linear-gradient(135deg, var(--brand), #be3535);
+  border-color: transparent;
+  color: #fff;
+}
+
+.calendar-day.is-past,
+.calendar-day.is-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: #0f141d;
+}
+
+.calendar-day.is-empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .booking-calendar {
+    padding: 12px;
+  }
+  
+  .calendar-day {
+    font-size: 0.875rem;
+  }
+  
+  .calendar-day-header {
+    font-size: 0.7rem;
+    padding: 6px 2px;
   }
 }

@@ -1,4 +1,4 @@
-﻿from datetime import date, datetime, time
+from datetime import date, datetime, time
 from enum import Enum
 
 from sqlalchemy import (
@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     Date,
     DateTime,
+    Numeric,
 )
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import (
@@ -21,6 +22,26 @@ if __package__:
     from .database import Base
 else:
     from database import Base  # type: ignore
+
+
+class AdminUser(Base):
+    __tablename__ = "admin_users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    full_name: Mapped[str] = mapped_column(String(180), nullable=False)
+    email: Mapped[str | None] = mapped_column(String(180))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
 
 
 class ConsentType(str, Enum):
@@ -388,3 +409,112 @@ class TrainingVideoViewLog(Base):
     user_access: Mapped[TrainingUserAccess] = relationship()
     video: Mapped[TrainingVideo] = relationship()
     training_session: Mapped[TrainingSession] = relationship()
+
+
+# Payment and QR Code Models
+
+class PaymentType(str, Enum):
+    INCOME = "income"
+    EXPENSE = "expense"
+
+class PaymentMethod(str, Enum):
+    CASH = "cash"
+    CARD = "card"
+    TRANSFER = "transfer"
+    OTHER = "other"
+
+class PaymentRecipient(str, Enum):
+    LIEGE = "liege"
+    JOSEMI = "josemi"
+    COMPANY = "company"
+
+class Payment(Base):
+    __tablename__ = "payments"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    payment_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    payment_type: Mapped[PaymentType] = mapped_column(SQLEnum(PaymentType), nullable=False)
+    payment_method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod), nullable=False)
+    recipient: Mapped[PaymentRecipient | None] = mapped_column(SQLEnum(PaymentRecipient), nullable=True, index=True)
+    
+    # Relationships (all optional)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), nullable=True, index=True)
+    service_id: Mapped[int | None] = mapped_column(ForeignKey("services.id"), nullable=True, index=True)
+    appointment_id: Mapped[int | None] = mapped_column(ForeignKey("appointments.id"), nullable=True, index=True)
+    
+    # Descriptive fields
+    description: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    notes: Mapped[str | None] = mapped_column(Text)
+    reference_number: Mapped[str | None] = mapped_column(String(100), unique=True)
+    
+    # Tracking
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
+    
+    # Relationships
+    client: Mapped[Client | None] = relationship()
+    service: Mapped[Service | None] = relationship()
+    appointment: Mapped[Appointment | None] = relationship()
+
+class QRCode(Base):
+    __tablename__ = "qr_codes"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    code: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str | None] = mapped_column(String(200))
+    description: Mapped[str | None] = mapped_column(Text)
+    
+    # QR Configuration
+    size: Mapped[int] = mapped_column(Integer, default=300)
+    format: Mapped[str] = mapped_column(String(10), default="png")
+    error_correction: Mapped[str] = mapped_column(String(1), default="M")
+    color: Mapped[str] = mapped_column(String(7), default="#000000")
+    background_color: Mapped[str] = mapped_column(String(7), default="#FFFFFF")
+    add_logo: Mapped[bool] = mapped_column(Boolean, default=False)
+    logo_size: Mapped[int | None] = mapped_column(Integer)
+    logo_position: Mapped[str | None] = mapped_column(String(20))
+    
+    # Usage tracking
+    use_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime)
+    
+    # Relationships
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), nullable=True, index=True)
+    appointment_id: Mapped[int | None] = mapped_column(ForeignKey("appointments.id"), nullable=True, index=True)
+    service_id: Mapped[int | None] = mapped_column(ForeignKey("services.id"), nullable=True, index=True)
+    
+    # Storage
+    image_data: Mapped[str | None] = mapped_column(Text)
+    image_path: Mapped[str | None] = mapped_column(String(500))
+    
+    # Metadata
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
+    
+    # Relationships
+    client: Mapped[Client | None] = relationship()
+    appointment: Mapped[Appointment | None] = relationship()
+    service: Mapped[Service | None] = relationship()
+    scans: Mapped[list["QRCodeScan"]] = relationship(back_populates="qr_code")
+
+class QRCodeScan(Base):
+    __tablename__ = "qr_code_scans"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    qr_code_id: Mapped[int] = mapped_column(ForeignKey("qr_codes.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    # Scan details
+    scanned_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    ip_address: Mapped[str | None] = mapped_column(String(45))
+    user_agent: Mapped[str | None] = mapped_column(Text)
+    referrer: Mapped[str | None] = mapped_column(String(500))
+    
+    # Optional user context
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), nullable=True, index=True)
+    
+    qr_code: Mapped[QRCode] = relationship(back_populates="scans")
+    client: Mapped[Client | None] = relationship()
