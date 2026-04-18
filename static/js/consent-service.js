@@ -53,9 +53,21 @@
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Consent save failed:', response.status, errorText);
-        throw new Error(`No se pudo guardar el consentimiento (${response.status})`);
+        let errorMessage = 'No se pudo guardar el consentimiento';
+        try {
+          const errorData = await response.json();
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          }
+        } catch (e) {
+          // If JSON parsing fails, try text
+          const errorText = await response.text();
+          if (errorText) {
+            errorMessage = errorText;
+          }
+        }
+        console.error('Consent save failed:', response.status, errorMessage);
+        throw new Error(errorMessage);
       }
 
       consent = await response.json();
@@ -140,7 +152,7 @@
       throw new Error('API configuration not found');
     }
 
-    const token = window.LIKESTUDIO_ADMIN_TOKEN || '';
+    const token = window.likestudioGetAuthToken() || '';
     const response = await fetch(
       `${window.APP_CONFIG.API_BASE_URL}/admin/consents/${consentId}`,
       {

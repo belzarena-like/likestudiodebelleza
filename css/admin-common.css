@@ -1119,46 +1119,41 @@ body.modal-open { overflow: hidden; }
 }
 
 .summary-card {
-  padding: 1.5rem;
-  border-radius: 12px;
-  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  background: var(--bg-card, #111827);
+  border: 1px solid var(--border, #1e2a3a);
+  color: var(--text-primary, #e7edf8);
 }
 
-.summary-card.income {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
+.summary-card.income { background: var(--bg-card, #111827); }
+.summary-card.expense { background: var(--bg-card, #111827); }
+.summary-card.net { background: var(--bg-card, #111827); }
 
-.summary-card.expense {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.summary-card.net {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
-
-.summary-card.net-positive {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.summary-card.net-negative {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
+.summary-card.net-positive { background: var(--bg-card, #111827); }
+.summary-card.net-negative { background: var(--bg-card, #111827); }
 
 .summary-card h3 {
-  margin: 0 0 0.5rem;
-  font-size: 0.9rem;
-  opacity: 0.9;
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #6b7a99);
+  opacity: 1;
 }
 
 .summary-card p {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
+  color: var(--text-primary, #e7edf8);
 }
 
 .summary-card small {
-  font-size: 0.8rem;
-  opacity: 0.8;
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7a99);
+  opacity: 1;
 }
 
 .charts-section {
@@ -1417,16 +1412,24 @@ body.modal-open { overflow: hidden; }
 
 /* LikeStudio Autocomplete Styles */
 .ls-autocomplete-wrap { 
-  position: relative; 
-  display: block; 
+  position: relative !important; 
+  display: block;
+  width: 100%;
+  z-index: 1;
+}
+
+.ls-autocomplete-wrap input {
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .ls-autocomplete-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 9999;
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10000 !important;
   background: #111827;
   border: 1px solid #1e2a3a;
   border-radius: 10px;

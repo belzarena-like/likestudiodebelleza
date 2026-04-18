@@ -12,16 +12,21 @@ from datetime import date, datetime, time
 from email.mime.text import MIMEText
 from uuid import uuid4
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, RedirectResponse
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
+# Load environment variables from .env file
+load_dotenv()
+
 if __package__:
     from . import crud, models, schemas
     from .services.payment_service import PaymentService
     from .services.qr_service import QRCodeService
+    from .services.email_service import EmailService
     from .services.auth_service import authenticate_user, create_access_token, verify_token
     from .controllers.training_controller import public_router as academy_router
     from .controllers.training_controller import router as training_router
@@ -176,6 +181,19 @@ def admin_search_clients(
     return schemas.AdminClientSearchResponse(
         items=items, total=total, limit=limit, offset=offset
     )
+
+
+@app.get("/admin/clients/{client_id}", response_model=schemas.ClientRead)
+def admin_get_client(
+    client_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Get a single client by ID"""
+    client = db.get(models.Client, client_id)
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
 
 
 @app.put("/admin/clients/{client_id}", response_model=schemas.ClientRead)
@@ -1009,6 +1027,7 @@ def admin_search_payments(
     payment_type: schemas.PaymentType | None = Query(default=None),
     payment_method: schemas.PaymentMethod | None = Query(default=None),
     recipient: schemas.PaymentRecipient | None = Query(default=None),
+    status_filter: str | None = Query(default=None),
     limit: int = Query(default=200, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
@@ -1017,7 +1036,7 @@ def admin_search_payments(
     """Search payments with filters (admin only)"""
     return PaymentService.search_payments(
         db, start_date, end_date, client_id, service_id,
-        payment_type, payment_method, recipient, limit, offset
+        payment_type, payment_method, recipient, status_filter, limit, offset
     )
 
 @app.get("/admin/payments/export")
@@ -1053,12 +1072,12 @@ def export_payments_csv(
         writer.writerow([
             payment.id,
             payment.payment_date,
-            'Ingreso' if payment.payment_type == schemas.PaymentType.income else 'Gasto',
+            'Ingreso' if payment.payment_type == schemas.PaymentType.INCOME else 'Gasto',
             payment.payment_method.value,
             f"{payment.amount:.2f}".replace('.', ','),
             payment.description,
-            payment.client_full_name if payment.client else '',
-            payment.service_name if payment.service else '',
+            payment.client_name or '',
+            payment.service_name or '',
             payment.reference_number or '',
             payment.notes or '',
             payment.created_at.strftime('%Y-%m-%d %H:%M:%S') if payment.created_at else ''
@@ -1135,6 +1154,18 @@ def delete_payment(
         return {"message": "Payment deleted successfully"}
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+@app.post("/admin/payments/{payment_id}/confirm", response_model=schemas.PaymentRead)
+def confirm_tentative_payment(
+    payment_id: int,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Confirm a tentative payment"""
+    try:
+        return PaymentService.confirm_tentative_payment(db, payment_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 # QR Code Routes
 @app.post("/qr/generate", response_model=schemas.QRCodeRead)

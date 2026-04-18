@@ -3,9 +3,14 @@
  */
 
 (function() {
-  var API_BASE = window.location.origin.includes('localhost') 
-    ? 'http://localhost:8000'
-    : window.location.origin;
+  /**
+   * Get API base URL from global config
+   */
+  function getApiBase() {
+    return (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) 
+      ? window.APP_CONFIG.API_BASE_URL 
+      : 'http://localhost:8000';
+  }
 
   /**
    * Make an authenticated API request
@@ -27,7 +32,7 @@
 
     var fetchOptions = Object.assign({}, options, { headers: headers });
 
-    return fetch(API_BASE + endpoint, fetchOptions)
+    return fetch(getApiBase() + endpoint, fetchOptions)
       .then(function(response) {
         // If 401, token expired - redirect to login
         if (response.status === 401) {

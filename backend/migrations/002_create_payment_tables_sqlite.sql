@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS payments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     amount DECIMAL(10, 2) NOT NULL,
     payment_date DATE NOT NULL,
-    payment_type TEXT NOT NULL CHECK (payment_type IN ('income', 'expense')),
-    payment_method TEXT NOT NULL CHECK (payment_method IN ('cash', 'card', 'transfer', 'other')),
+    payment_type TEXT NOT NULL CHECK (payment_type IN ('INCOME', 'EXPENSE')),
+    payment_method TEXT NOT NULL CHECK (payment_method IN ('CASH', 'CARD', 'TRANSFER', 'OTHER', 'COUPON')),
     
     -- Optional relationships
     client_id INTEGER REFERENCES clients(id),

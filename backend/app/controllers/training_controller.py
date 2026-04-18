@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import SessionLocal
-from ..services.auth_service import AuthService
+from ..services import auth_service
 from ..services.s3_service import S3Service
 from ..services.training_service import TrainingService
 
@@ -13,7 +13,6 @@ router = APIRouter(prefix="/admin/training", tags=["training"])
 public_router = APIRouter(prefix="/academy", tags=["academy"])
 
 training_service = TrainingService()
-auth_service = AuthService()
 s3_service = S3Service()
 
 
@@ -275,7 +274,7 @@ def academy_login(
 def verify_academy_token(token: str, db: Session):
     """Verify academy token and return user access."""
     try:
-        access_id, session_id = auth_service.verify_token(token)
+        access_id, session_id = auth_service.verify_academy_token(token)
     except ValueError:
         raise HTTPException(status_code=401, detail="Token inválido")
 

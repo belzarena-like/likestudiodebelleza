@@ -82,7 +82,9 @@ window.LikeStudioWidgets = window.LikeStudioWidgets || {};
     params.set('offset', String(offset));
     if (activeOnly) params.set('active_only', 'true');
     const url = `${base}/admin/services?${params.toString()}`;
-    return fetch(url)
+    return fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+    })
       .then((response) => (response.ok ? response.json() : null))
       .then((payload) => (payload && Array.isArray(payload.items) ? payload.items : []))
       .catch(() => []);
@@ -248,7 +250,9 @@ window.LikeStudioWidgets = window.LikeStudioWidgets || {};
       params.set('query', query);
       params.set('limit', String(limit));
       params.set('offset', '0');
-      fetch(`${base}/admin/clients?${params.toString()}`)
+      fetch(`${base}/admin/clients?${params.toString()}`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      })
         .then((r) => (r.ok ? r.json() : null))
         .then((payload) => {
           if (current !== requestId) return;

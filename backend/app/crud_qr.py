@@ -50,7 +50,7 @@ def create_qr_code(db: Session, payload: schemas.QRCodeCreate) -> models.QRCode:
         color=payload.color,
         background_color=payload.background_color,
         add_logo=payload.add_logo,
-        logo_size=payload.logo_size,
+        logo_size_percent=payload.logo_size,
         logo_position=payload.logo_position,
         client_id=payload.client_id,
         appointment_id=payload.appointment_id,
@@ -160,7 +160,7 @@ def get_qr_code_image(db: Session, code: str) -> Tuple[bytes, str]:
             color=qr_code.color,
             background_color=qr_code.background_color,
             add_logo=qr_code.add_logo,
-            logo_size=qr_code.logo_size,
+            logo_size_percent=qr_code.logo_size,
             logo_position=qr_code.logo_position,
         )
         image_bytes, mime_type = generate_qr_image(payload)

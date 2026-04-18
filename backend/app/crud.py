@@ -142,7 +142,8 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
             )
             if phone_owner and phone_owner.id != existing.id:
                 raise ValueError(
-                    f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})"
+                    f"El teléfono {payload.phone} ya está registrado para el cliente '{phone_owner.full_name}'. "
+                    f"Por favor, verifica el número de teléfono o usa el cliente existente."
                 )
         existing.full_name = payload.full_name
         existing.phone = normalized_phone
@@ -157,7 +158,27 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
             select(models.Client).where(models.Client.phone == normalized_phone)
         )
         if phone_owner:
-            # Phone exists for another client
+            # Phone exists - check if it's the same person
+            # Match by name (case-insensitive) or ID number
+            same_name = phone_owner.full_name.strip().lower() == payload.full_name.strip().lower()
+            same_id = (
+                payload.id_number and 
+                phone_owner.id_number and 
+                str(phone_owner.id_number).strip().upper() == str(payload.id_number).strip().upper()
+            )
+            
+            # If name or ID matches, it's the same person - reuse the client
+            if same_name or same_id:
+                # Update the existing client with new information
+                phone_owner.full_name = payload.full_name
+                if payload.id_number and not str(payload.id_number).startswith("NO-DOC-"):
+                    phone_owner.id_number = payload.id_number
+                phone_owner.email = str(payload.email) if payload.email else None
+                db.add(phone_owner)
+                db.commit()
+                db.refresh(phone_owner)
+                return phone_owner
+            
             # If the id_number is auto-generated (NO-DOC-*) or missing, use the existing client
             is_auto_id = not payload.id_number or str(payload.id_number).startswith(
                 "NO-DOC-"
@@ -175,9 +196,11 @@ def upsert_client(db: Session, payload: schemas.ClientCreate) -> models.Client:
                 db.commit()
                 db.refresh(phone_owner)
                 return phone_owner
-            # Real id_number conflict
+            
+            # Different person with same phone - error
             raise ValueError(
-                f"Phone already exists for client: {phone_owner.full_name} (ID: {phone_owner.id})"
+                f"El teléfono {payload.phone} ya está registrado para el cliente '{phone_owner.full_name}'. "
+                f"Por favor, verifica el número de teléfono o usa el cliente existente."
             )
 
     client = models.Client(
@@ -214,7 +237,10 @@ def update_client(
                 select(models.Client).where(models.Client.phone == normalized_phone)
             )
             if existing_phone and existing_phone.id != client.id:
-                raise ValueError("Phone already exists")
+                raise ValueError(
+                    f"El teléfono {payload.phone} ya está registrado para otro cliente. "
+                    f"Por favor, verifica el número de teléfono."
+                )
         client.phone = normalized_phone
 
     client.full_name = payload.full_name

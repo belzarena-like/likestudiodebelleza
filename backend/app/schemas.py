@@ -589,15 +589,23 @@ class PaymentType(str, Enum):
     EXPENSE = "expense"
 
 class PaymentMethod(str, Enum):
-    CASH = "cash"
-    CARD = "card"
-    TRANSFER = "transfer"
-    OTHER = "other"
+    CASH = "CASH"
+    CARD = "CARD"
+    TRANSFER = "TRANSFER"
+    COUPON = "COUPON"
+    OTHER = "OTHER"
 
 class PaymentRecipient(str, Enum):
     LIEGE = "liege"
     JOSEMI = "josemi"
     COMPANY = "company"
+
+class PaymentPartCreate(BaseModel):
+    amount: float = Field(gt=0, description="Payment part amount")
+    payment_date: date
+    payment_method: PaymentMethod
+    description: str | None = None
+    notes: str | None = None
 
 class PaymentCreate(BaseModel):
     amount: float = Field(gt=0, description="Payment amount")
@@ -611,6 +619,12 @@ class PaymentCreate(BaseModel):
     description: str | None = ""
     notes: str | None = None
     reference_number: str | None = None
+    
+    # New fields for enhancements
+    is_split: bool = False
+    split_parts: list[PaymentPartCreate] | None = None
+    is_tentative: bool = False
+    coupon_code: str | None = Field(default=None, max_length=100)
     
     model_config = ConfigDict(validate_default=True)
     
@@ -630,6 +644,12 @@ class PaymentRead(PaymentCreate):
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None = None
+    
+    # New fields for enhancements
+    payment_group_id: str | None = None
+    parent_payment_id: int | None = None
+    confirmed_at: datetime | None = None
+    child_parts: list["PaymentRead"] = []
     
     # Optional relationship data
     client_name: str | None = None

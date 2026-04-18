@@ -107,9 +107,9 @@
     </div>
   </main>
 
+  <script src="../static/js/app-config.js"></script>
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/admin-api.js"></script>
-  <script src="../static/js/app-config.js"></script>
   <script src="../static/js/site.js"></script>
   <script src="../static/js/menu-component.js"></script>
   <script>
@@ -121,7 +121,7 @@
       
       // Load current settings
       fetch(window.APP_CONFIG.API_BASE_URL + '/admin/email-settings', {
-        headers: { 'Authorization': 'Bearer ' + window.LIKESTUDIO_ADMIN_TOKEN }
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
       })
       .then(r => r.json())
       .then(data => {
@@ -154,7 +154,7 @@
             method: 'PUT',
             headers: { 
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + window.LIKESTUDIO_ADMIN_TOKEN 
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken() 
             },
             body: JSON.stringify(payload)
           });
@@ -179,12 +179,18 @@
           smtp_port: parseInt(document.getElementById('smtp_port').value),
           smtp_user: document.getElementById('smtp_user').value,
           smtp_password: document.getElementById('smtp_password').value,
+          from_email: document.getElementById('from_email').value,
+          from_name: document.getElementById('from_name').value,
+          enabled: false
         };
         
         try {
           const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/email-settings/test', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+            },
             body: JSON.stringify(payload)
           });
           const data = await r.json();

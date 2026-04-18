@@ -18,11 +18,8 @@ export class ClientService {
   }
   
   async getClientById(clientId) {
-    const response = await apiClient.get('/admin/clients', { id: clientId });
-    if (response && response.items && response.items.length > 0) {
-      return response.items[0];
-    }
-    return null;
+    // Use the direct GET endpoint
+    return await apiClient.get(`/admin/clients/${clientId}`);
   }
 
   async createClient(clientData) {

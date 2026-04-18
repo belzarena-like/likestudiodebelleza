@@ -16,6 +16,11 @@ export class ApiClient {
    * Make a GET request
    */
   async get(endpoint, params = {}) {
+    // Ensure auth is ready
+    if (window.waitForAuth) {
+      await window.waitForAuth();
+    }
+    
     const url = new URL(this.baseURL + endpoint);
     Object.keys(params).forEach(key => {
       if (params[key] !== null && params[key] !== undefined) {
@@ -58,6 +63,11 @@ export class ApiClient {
    * Make a POST request
    */
   async post(endpoint, data = {}) {
+    // Ensure auth is ready
+    if (window.waitForAuth) {
+      await window.waitForAuth();
+    }
+    
     const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'POST',
@@ -85,6 +95,11 @@ export class ApiClient {
    * Make a PUT request
    */
   async put(endpoint, data = {}) {
+    // Ensure auth is ready
+    if (window.waitForAuth) {
+      await window.waitForAuth();
+    }
+    
     const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'PUT',
@@ -99,6 +114,11 @@ export class ApiClient {
    * Make a DELETE request
    */
   async delete(endpoint) {
+    // Ensure auth is ready
+    if (window.waitForAuth) {
+      await window.waitForAuth();
+    }
+    
     const url = new URL(this.baseURL + endpoint);
     const response = await fetch(url, {
       method: 'DELETE',
@@ -143,15 +163,37 @@ export class ApiClient {
    * Get default headers
    */
   _getHeaders() {
-    return {
+    const headers = {
       'Content-Type': 'application/json',
     };
+
+    // Add authentication token if available
+    if (typeof window.likestudioGetAuthToken === 'function') {
+      try {
+        const token = window.likestudioGetAuthToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+      } catch (e) {
+        console.error('Error getting auth token:', e);
+      }
+    }
+
+    return headers;
   }
 
   /**
    * Handle API response
    */
   async _handleResponse(response) {
+    // If 401, token expired - logout
+    if (response.status === 401) {
+      if (window.likestudioAdminLogout) {
+        window.likestudioAdminLogout();
+      }
+      throw new ApiError('Session expired', response.status, { detail: 'Session expired' });
+    }
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
       throw new ApiError(error.detail || 'Request failed', response.status, error);

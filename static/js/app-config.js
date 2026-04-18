@@ -2,7 +2,11 @@
 //DONT FORGET TO CHANGE THE BASE URL FOR LOCAL DEVELOPMENT
 (function () {
   var defaultBase = "https://apis.listoapp.es/like_api";
-  //defaultBase = "http://127.0.0.1:8000";
+  
+  // For local development, detect if we're on localhost/127.0.0.1 and use backend on port 8000
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    defaultBase = "http://" + window.location.hostname + ":8000";
+  }
   
   // Check for overrides
   var override = window.LIKESTUDIO_API_BASE_URL;

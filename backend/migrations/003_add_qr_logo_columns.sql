@@ -9,6 +9,7 @@ ALTER TABLE IF EXISTS qr_codes
 ADD COLUMN IF NOT EXISTS add_logo BOOLEAN NOT NULL DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS logo_data TEXT,
 ADD COLUMN IF NOT EXISTS logo_path VARCHAR(500),
+ADD COLUMN IF NOT EXISTS logo_position VARCHAR(500),
 ADD COLUMN IF NOT EXISTS logo_size_percent INTEGER DEFAULT 20 CHECK (logo_size_percent > 0 AND logo_size_percent <= 100);
 
 -- Create index for logo queries

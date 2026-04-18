@@ -106,7 +106,8 @@ class ClientsController {
       const editBtn = e.target.closest('[data-edit-id]');
       if (editBtn) {
         e.stopPropagation();
-        this.startEdit(clientId);
+        const editClientId = parseInt(editBtn.dataset.editId);
+        this.startEdit(editClientId);
         return;
       }
 
@@ -273,7 +274,9 @@ class ClientsController {
 
   async fetchPayments(clientId) {
     try {
-      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/payments?client_id=${clientId}&limit=50`);
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/payments?client_id=${clientId}&limit=50`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      });
       if (!response.ok) return [];
       const data = await response.json();
       return data.items || [];
@@ -284,7 +287,9 @@ class ClientsController {
 
   async fetchConsents(clientId) {
     try {
-      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/clients/${clientId}/consents`);
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/clients/${clientId}/consents`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      });
       if (!response.ok) return [];
       return await response.json();
     } catch (error) {
@@ -294,7 +299,9 @@ class ClientsController {
 
   async fetchSessions(clientId) {
     try {
-      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/sessions?client_id=${clientId}&limit=100`);
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/sessions?client_id=${clientId}&limit=100`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      });
       if (!response.ok) return [];
       const data = await response.json();
       return data.items || [];
@@ -305,7 +312,9 @@ class ClientsController {
 
   async fetchAppointments(clientId) {
     try {
-      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/appointments?client_id=${clientId}&limit=100`);
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/appointments?client_id=${clientId}&limit=100`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      });
       if (!response.ok) return [];
       const data = await response.json();
       return data.items || [];

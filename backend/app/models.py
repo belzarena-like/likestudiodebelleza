@@ -418,10 +418,11 @@ class PaymentType(str, Enum):
     EXPENSE = "expense"
 
 class PaymentMethod(str, Enum):
-    CASH = "cash"
-    CARD = "card"
-    TRANSFER = "transfer"
-    OTHER = "other"
+    CASH = "CASH"
+    CARD = "CARD"
+    TRANSFER = "TRANSFER"
+    COUPON = "COUPON"
+    OTHER = "OTHER"
 
 class PaymentRecipient(str, Enum):
     LIEGE = "liege"
@@ -437,6 +438,18 @@ class Payment(Base):
     payment_type: Mapped[PaymentType] = mapped_column(SQLEnum(PaymentType), nullable=False)
     payment_method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod), nullable=False)
     recipient: Mapped[PaymentRecipient | None] = mapped_column(SQLEnum(PaymentRecipient), nullable=True, index=True)
+    
+    # Split payment support
+    is_split: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    payment_group_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    parent_payment_id: Mapped[int | None] = mapped_column(ForeignKey("payments.id"), index=True)
+    
+    # Tentative payment support
+    is_tentative: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime)
+    
+    # Coupon support
+    coupon_code: Mapped[str | None] = mapped_column(String(100), index=True)
     
     # Relationships (all optional)
     client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), nullable=True, index=True)
@@ -457,6 +470,14 @@ class Payment(Base):
     client: Mapped[Client | None] = relationship()
     service: Mapped[Service | None] = relationship()
     appointment: Mapped[Appointment | None] = relationship()
+    
+    # Self-referential relationships for split payments
+    parent_payment: Mapped["Payment | None"] = relationship(
+        "Payment", remote_side=[id], back_populates="child_parts", foreign_keys=[parent_payment_id]
+    )
+    child_parts: Mapped[list["Payment"]] = relationship(
+        "Payment", back_populates="parent_payment", foreign_keys=[parent_payment_id]
+    )
 
 class QRCode(Base):
     __tablename__ = "qr_codes"
@@ -474,7 +495,7 @@ class QRCode(Base):
     color: Mapped[str] = mapped_column(String(7), default="#000000")
     background_color: Mapped[str] = mapped_column(String(7), default="#FFFFFF")
     add_logo: Mapped[bool] = mapped_column(Boolean, default=False)
-    logo_size: Mapped[int | None] = mapped_column(Integer)
+    logo_size_percent: Mapped[int | None] = mapped_column(Integer)
     logo_position: Mapped[str | None] = mapped_column(String(20))
     
     # Usage tracking

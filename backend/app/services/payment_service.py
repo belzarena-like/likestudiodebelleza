@@ -6,7 +6,7 @@ from typing import Optional
 
 from .. import models
 from .. import schemas
-from ..crud_payment import create_payment, search_payments, update_payment, delete_payment
+from ..crud_payment import create_payment, search_payments, update_payment, delete_payment, confirm_tentative_payment
 
 class PaymentService:
     """Service for payment-related operations"""
@@ -26,13 +26,14 @@ class PaymentService:
         payment_type: Optional[schemas.PaymentType] = None,
         payment_method: Optional[schemas.PaymentMethod] = None,
         recipient: Optional[schemas.PaymentRecipient] = None,
+        status_filter: Optional[str] = None,
         limit: int = 200,
         offset: int = 0,
     ) -> schemas.PaymentSearchResponse:
         """Search payments with filters"""
         items, total, summary = search_payments(
             db, start_date, end_date, client_id, service_id, 
-            payment_type, payment_method, recipient, limit, offset
+            payment_type, payment_method, recipient, status_filter, limit, offset
         )
         
         # Convert to PaymentRead with relationship data
@@ -130,12 +131,15 @@ class PaymentService:
         from .. import models, schemas
         
         # Get data by payment method
+        # For split payments, count child payments instead of parent
         method_stmt = select(
             models.Payment.payment_method,
             func.sum(models.Payment.amount).label("total_amount")
         ).where(
             models.Payment.payment_date.between(start_date, end_date),
-            models.Payment.deleted_at.is_(None)
+            models.Payment.deleted_at.is_(None),
+            # Include: non-split payments OR child payments (exclude split parents)
+            (models.Payment.is_split == False) | (models.Payment.parent_payment_id.isnot(None))
         ).group_by(
             models.Payment.payment_method
         )
@@ -147,16 +151,20 @@ class PaymentService:
             method_data[row.payment_method.value] = float(row.total_amount or 0)
         
         # Get monthly trends
+        # Use PostgreSQL's to_char function instead of SQLite's strftime
+        # For split payments, count child payments instead of parent
         monthly_stmt = select(
-            func.strftime('%Y-%m', models.Payment.payment_date).label("month"),
+            func.to_char(models.Payment.payment_date, 'YYYY-MM').label("month"),
             func.sum(models.Payment.amount).label("total_amount"),
             models.Payment.payment_type
         ).where(
             models.Payment.payment_date.between(start_date, end_date),
-            models.Payment.deleted_at.is_(None)
+            models.Payment.deleted_at.is_(None),
+            # Include: non-split payments OR child payments (exclude split parents)
+            (models.Payment.is_split == False) | (models.Payment.parent_payment_id.isnot(None))
         ).group_by(
-            func.strftime('%Y-%m', models.Payment.payment_date), models.Payment.payment_type
-        ).order_by(func.strftime('%Y-%m', models.Payment.payment_date))
+            func.to_char(models.Payment.payment_date, 'YYYY-MM'), models.Payment.payment_type
+        ).order_by(func.to_char(models.Payment.payment_date, 'YYYY-MM'))
         
         monthly_results = db.execute(monthly_stmt).all()
         
@@ -188,13 +196,16 @@ class PaymentService:
                 monthly_data["expenses"][month_idx] = amount
         
         # Get daily trends (for single month or short periods)
+        # For split payments, count child payments instead of parent
         daily_stmt = select(
             models.Payment.payment_date,
             func.sum(models.Payment.amount).label("total_amount"),
             models.Payment.payment_type
         ).where(
             models.Payment.payment_date.between(start_date, end_date),
-            models.Payment.deleted_at.is_(None)
+            models.Payment.deleted_at.is_(None),
+            # Include: non-split payments OR child payments (exclude split parents)
+            (models.Payment.is_split == False) | (models.Payment.parent_payment_id.isnot(None))
         ).group_by(
             models.Payment.payment_date, models.Payment.payment_type
         ).order_by(models.Payment.payment_date)
@@ -249,3 +260,9 @@ class PaymentService:
     def delete_payment(db: Session, payment_id: int) -> None:
         """Delete a payment record"""
         delete_payment(db, payment_id)
+
+    
+    @staticmethod
+    def confirm_tentative_payment(db: Session, payment_id: int) -> models.Payment:
+        """Confirm a tentative payment"""
+        return confirm_tentative_payment(db, payment_id)

@@ -55,4 +55,8 @@ export class PaymentService {
     const url = `/admin/payments/chart-data${params.toString() ? `?${params.toString()}` : ''}`;
     return await apiClient.get(url);
   }
+  
+  static async confirmTentativePayment(paymentId) {
+    return await apiClient.post(`/admin/payments/${paymentId}/confirm`);
+  }
 }

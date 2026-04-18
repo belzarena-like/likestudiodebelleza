@@ -1,23 +1,31 @@
 ﻿(function () {
   var AUTH_KEY = "likestudio_admin_auth_v3";
   var AUTH_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-  var API_BASE = window.location.origin.includes('localhost') 
-    ? 'http://localhost:8000'
-    : window.location.origin;
+  
+  // Wait for app-config to load
+  function getApiBase() {
+    return (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) 
+      ? window.APP_CONFIG.API_BASE_URL 
+      : 'http://localhost:8000';
+  }
 
   function now() {
     return Date.now();
   }
 
   function writeSession(token, expiresIn) {
-    localStorage.setItem(
-      AUTH_KEY,
-      JSON.stringify({
-        token: token,
-        expires_at: now() + (expiresIn * 1000),
-        created_at: now()
-      })
-    );
+    try {
+      localStorage.setItem(
+        AUTH_KEY,
+        JSON.stringify({
+          token: token,
+          expires_at: now() + (expiresIn * 1000),
+          created_at: now()
+        })
+      );
+    } catch (e) {
+      console.error('Error writing to localStorage:', e);
+    }
   }
 
   function getSession() {
@@ -78,6 +86,12 @@
   function mountAuthGate() {
     if (isAuthenticated()) return;
 
+    // Remove existing overlay if present
+    var existing = document.getElementById("admin-auth-overlay");
+    if (existing) {
+      existing.remove();
+    }
+
     var overlay = createOverlay();
     document.body.appendChild(overlay);
 
@@ -96,7 +110,7 @@
       error.textContent = "Autenticando...";
 
       // Send login request to backend
-      fetch(API_BASE + "/admin/login", {
+      fetch(getApiBase() + "/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -129,7 +143,8 @@
 
   window.likestudioAdminLogout = function () {
     localStorage.removeItem(AUTH_KEY);
-    window.location.reload();
+    // Don't reload - just show the auth gate
+    mountAuthGate();
   };
 
   window.likestudioGetAuthToken = function () {
@@ -138,6 +153,31 @@
 
   window.likestudioIsAuthenticated = function () {
     return isAuthenticated();
+  };
+
+  // Mark auth as ready
+  window.LIKESTUDIO_AUTH_READY = true;
+
+  // Helper to wait for auth to be ready
+  window.waitForAuth = function(timeout = 5000) {
+    return new Promise((resolve) => {
+      if (window.likestudioGetAuthToken && typeof window.likestudioGetAuthToken === 'function') {
+        resolve();
+        return;
+      }
+      
+      const startTime = Date.now();
+      const checkInterval = setInterval(() => {
+        if (window.likestudioGetAuthToken && typeof window.likestudioGetAuthToken === 'function') {
+          clearInterval(checkInterval);
+          resolve();
+        } else if (Date.now() - startTime > timeout) {
+          clearInterval(checkInterval);
+          console.warn('Auth not ready after timeout');
+          resolve();
+        }
+      }, 50);
+    });
   };
 
   // Mount auth gate when DOM is ready

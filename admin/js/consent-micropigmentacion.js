@@ -14,7 +14,7 @@
   // Load existing consent data if in edit mode
   if (consentId && isEditMode && window.APP_CONFIG) {
     fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/consents/${consentId}`, {
-      headers: { 'Authorization': 'Bearer ' + (window.LIKESTUDIO_ADMIN_TOKEN || '') }
+      headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
     })
     .then(r => r.json())
     .then(consent => {
@@ -29,6 +29,14 @@
       if (consent.case_particularities) document.getElementById('case_particularities').value = consent.case_particularities;
       if (consent.signed_at) document.getElementById('signed_at').value = consent.signed_at;
       if (consent.therapist_name) document.getElementById('therapist_name').value = consent.therapist_name;
+      
+      // Restore acceptance_points checkboxes
+      if (consent.acceptance_points && Array.isArray(consent.acceptance_points)) {
+        consent.acceptance_points.forEach(point => {
+          const checkbox = document.querySelector(`input[name="acceptance_points"][value="${point}"]`);
+          if (checkbox) checkbox.checked = true;
+        });
+      }
       
       // Load signature image if exists
       if (consent.signature_image_path && window.loadSignature) {

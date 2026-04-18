@@ -163,9 +163,9 @@
     </div>
   </div>
 
+  <script src="../static/js/app-config.js"></script>
   <script src="../static/js/admin-auth.js"></script>
   <script src="../static/js/admin-api.js"></script>
-  <script src="../static/js/app-config.js"></script>
   <script src="../static/js/admin-widgets.js"></script>
   <script src="../static/js/site.js"></script>
   <script src="../static/js/menu-component.js"></script>
@@ -745,7 +745,9 @@
     }
 
     function loadServices() {
-      return fetch(`${API_BASE}/admin/services?active_only=true&limit=1000&offset=0`)
+      return fetch(`${API_BASE}/admin/services?active_only=true&limit=1000&offset=0`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      })
         .then((response) => response.ok ? response.json() : null)
         .then((payload) => {
           if (!payload) return;
@@ -764,7 +766,9 @@
     }
 
     function loadClients() {
-      return fetch(`${API_BASE}/admin/clients?limit=1000&offset=0`)
+      return fetch(`${API_BASE}/admin/clients?limit=1000&offset=0`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      })
         .then((response) => response.ok ? response.json() : null)
         .then((payload) => {
           if (!payload) return;
@@ -794,7 +798,9 @@
           params.set('service_name', serviceFilter.value);
         }
       }
-      return fetch(`${API_BASE}/admin/appointments?${params.toString()}`)
+      return fetch(`${API_BASE}/admin/appointments?${params.toString()}`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      })
         .then((response) => response.ok ? response.json() : null)
         .then((payload) => {
           if (!payload) {
@@ -817,7 +823,9 @@
     }
 
     function loadWorkingHours() {
-      return fetch(WORKING_HOURS_URL)
+      return fetch(WORKING_HOURS_URL, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      })
         .then((response) => response.ok ? response.json() : null)
         .then((payload) => {
           if (!payload) {
@@ -1082,7 +1090,10 @@
         const url = editingId ? `${API_BASE}/appointments/${editingId}` : `${API_BASE}/appointments`;
         const response = await fetch(url, {
           method: editingId ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+          },
           body: JSON.stringify(payload)
         });
         if (response.status === 409) {
@@ -1111,7 +1122,8 @@
       }
       try {
         const response = await fetch(`${API_BASE}/appointments/${id}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
         });
         if (!response.ok) {
           const data = await response.json();
@@ -1316,7 +1328,10 @@
       try {
         const response = await fetch(`${API_BASE}/clients`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+          },
           body: JSON.stringify(payload)
         });
         if (!response.ok) {
