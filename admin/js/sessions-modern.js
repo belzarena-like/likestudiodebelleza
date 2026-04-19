@@ -338,7 +338,8 @@ class SessionsModernController {
                 data-cid="${item.client_id}" 
                 data-sid="${item.service_id || ''}" 
                 data-aid="${aid}"
-                data-sname="${(item.service_name || '').replace(/"/g, '&quot;')}">💳 Crear pago</button>
+                data-sname="${(item.service_name || '').replace(/"/g, '&quot;')}"
+                data-prof="${(item.professional_name || '').replace(/"/g, '&quot;')}">💳 Crear pago</button>
         <button class="btn btn-primary btn-sm" data-attend="yes">✓ Asistió</button>
       </div>
 
@@ -634,6 +635,10 @@ class SessionsModernController {
         </div>
         <div class="search-client-actions">
           <button class="btn btn-primary btn-sm" data-search-create-bono="${clientInfo.client_id}">+ Crear Bono</button>
+          <button type="button" class="btn btn-success btn-sm" 
+                  data-pay-btn 
+                  data-cid="${clientInfo.client_id}" 
+                  data-cname="${clientInfo.client_name.replace(/"/g, '&quot;')}">💳 Crear Pago</button>
         </div>
       </div>
       <div class="search-sessions-list">
@@ -803,6 +808,23 @@ class SessionsModernController {
 
     // Original agenda card click handling
     const card = e.target.closest('[data-card]');
+    
+    // Create payment button (works for both search and agenda views)
+    const payBtn = e.target.closest('[data-pay-btn]') || e.target.closest('a[data-pay-btn]');
+    if (payBtn) {
+      e.preventDefault();
+      const clientId = Number(payBtn.dataset.cid);
+      const serviceId = payBtn.dataset.sid ? Number(payBtn.dataset.sid) : null;
+      const serviceName = payBtn.dataset.sname || '';
+      const professionalName = payBtn.dataset.prof || '';
+      if (!clientId || isNaN(clientId)) {
+        Toast.error('ID de cliente no válido');
+        return;
+      }
+      await this.openPaymentModal(clientId, serviceId, serviceName, professionalName);
+      return;
+    }
+    
     if (!card) return;
 
     const aid = card.dataset.appointmentId;
@@ -832,18 +854,6 @@ class SessionsModernController {
     if (e.target.closest('[data-consent]')) {
       const prefill = this.consentByAppt[parseInt(aid)] || {};
       this.openConsent(prefill, prefill.treatment, prefill.professional_name);
-      return;
-    }
-
-    // Create payment button
-    const payBtn = e.target.closest('[data-pay-btn]') || e.target.closest('a[data-pay-btn]');
-    if (payBtn) {
-      e.preventDefault();
-      const clientId = Number(payBtn.dataset.cid);
-      const serviceId = Number(payBtn.dataset.sid) || null;
-      const appointmentId = Number(payBtn.dataset.aid);
-      const serviceName = payBtn.dataset.sname || '';
-      await this.openPaymentModal(clientId, serviceId, appointmentId, serviceName);
       return;
     }
 
@@ -1167,42 +1177,56 @@ class SessionsModernController {
     }
   }
 
-  async openPaymentModal(clientId, serviceId, appointmentId, serviceName = '') {
-    const description = serviceName ? `Pago por ${serviceName}` : 'Pago por servicio';
-    console.log('Opening payment modal with:', { clientId, serviceId, appointmentId, serviceName });
+  async openPaymentModal(clientId, serviceId = null, serviceName = '', professionalName = '') {
+    console.log('Opening payment modal with:', { clientId, serviceId, serviceName, professionalName });
     
-    // If we don't have serviceId but have serviceName, try to find it
-    let finalServiceId = serviceId;
-    if (!serviceId && serviceName) {
-      console.log('No service_id provided, trying to find by name:', serviceName);
-      try {
-        const servicesResponse = await serviceService.searchServices();
-        if (servicesResponse && servicesResponse.items) {
-          const matchingService = servicesResponse.items.find(s => 
-            s.name.toLowerCase() === serviceName.toLowerCase()
-          );
-          if (matchingService) {
-            finalServiceId = matchingService.id;
-            console.log('Found matching service:', matchingService);
-          } else {
-            console.warn('No matching service found for name:', serviceName);
-          }
-        }
-      } catch (error) {
-        console.error('Error looking up service:', error);
-      }
+    if (!clientId) {
+      Toast.error('ID de cliente no válido');
+      return;
     }
     
-    await PagoModal.createAndOpen({
-      client_id: clientId,
-      service_id: finalServiceId || undefined,
-      description: description
-    }, {
-      onSuccess: () => {
-        Toast.success('Pago creado correctamente');
-        this.load();
+    try {
+      const prefillData = { client_id: clientId };
+      
+      // Map professional name to recipient value
+      if (professionalName) {
+        const recipientMap = { 'josemi': 'josemi', 'liege': 'liege' };
+        const recipient = recipientMap[professionalName.toLowerCase()];
+        if (recipient) prefillData.recipient = recipient;
       }
-    });
+      
+      // Add description with service name
+      if (serviceName) {
+        prefillData.description = `Pago por ${serviceName}`;
+      }
+      
+      // Resolve service_id: use directly if valid, otherwise look up by name
+      let resolvedServiceId = (serviceId && !isNaN(serviceId) && serviceId > 0) ? serviceId : null;
+      if (!resolvedServiceId && serviceName) {
+        try {
+          const resp = await serviceService.searchServices();
+          const match = (resp.items || []).find(s => s.name.toLowerCase() === serviceName.toLowerCase());
+          if (match) resolvedServiceId = match.id;
+        } catch (err) {
+          console.warn('Could not look up service by name:', err);
+        }
+      }
+      if (resolvedServiceId) prefillData.service_id = resolvedServiceId;
+      
+      await PagoModal.createAndOpen(prefillData, {
+        onSuccess: () => {
+          Toast.success('Pago creado correctamente');
+          if (this.mode === 'search' && this.currentSearchQuery) {
+            this.loadBySearch(this.currentSearchQuery);
+          } else {
+            this.load();
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error opening payment modal:', error);
+      Toast.error('Error al abrir el modal de pago: ' + error.message);
+    }
   }
 }
 

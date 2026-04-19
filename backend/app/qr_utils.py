@@ -10,24 +10,43 @@ from typing import Tuple
 
 def load_logo_image() -> Image.Image:
     """Load the application logo"""
+    # Get the backend/app directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
     # Try to load logo from assets
     logo_paths = [
-        os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'imgs', 'logo.png'),
-        os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'imgs', 'logo.png'),
-        os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'assets', 'imgs', 'logo.png'),
+        # From backend/app/resources (local resources folder)
+        os.path.join(current_dir, 'resources', 'logo.png'),
+        os.path.join(current_dir, 'resources', 'logo.jpg'),
+        # From backend/app, go up to project root, then to assets
+        os.path.join(current_dir, '..', '..', 'assets', 'imgs', 'logo.png'),
+        os.path.join(current_dir, '..', '..', 'assets', 'imgs', 'logo.jpg'),
+        # From backend directory (if running from backend/)
+        os.path.join(current_dir, '..', 'assets', 'imgs', 'logo.png'),
+        os.path.join(current_dir, '..', 'assets', 'imgs', 'logo.jpg'),
+        # From project root (if running from project root)
+        os.path.join(os.getcwd(), 'assets', 'imgs', 'logo.png'),
+        os.path.join(os.getcwd(), 'assets', 'imgs', 'logo.jpg'),
     ]
     
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Script directory: {current_dir}")
+    
     for path in logo_paths:
-        if os.path.exists(path):
+        abs_path = os.path.abspath(path)
+        print(f"Trying logo path: {abs_path}")
+        if os.path.exists(abs_path):
             try:
-                logo = Image.open(path)
+                logo = Image.open(abs_path)
                 # Convert to RGBA if needed
                 if logo.mode != 'RGBA':
                     logo = logo.convert('RGBA')
+                print(f"✓ Successfully loaded logo from: {abs_path}")
                 return logo
             except Exception as e:
-                print(f"Error loading logo from {path}: {e}")
+                print(f"✗ Error loading logo from {abs_path}: {e}")
     
+    print("Warning: Could not load logo from any path, using fallback")
     # Create a simple fallback logo
     logo_size = 100
     logo = Image.new('RGBA', (logo_size, logo_size), (0, 0, 0, 0))
