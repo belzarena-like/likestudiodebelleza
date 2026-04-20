@@ -305,30 +305,33 @@
   }
 
   function addResetControl() {
-    var topbar = document.querySelector(".topbar");
-    if (!topbar) return;
+    var stored = readStored();
+    var hasData = stored && (stored.full_name || stored.phone || stored.id_number);
+    if (!hasData) return;
 
-    var actions = topbar.querySelector(".topbar-actions");
-    if (!actions) {
-      actions = document.createElement("div");
-      actions.className = "topbar-actions";
-      var toggle = topbar.querySelector(".menu-toggle");
-      if (toggle && toggle.parentNode) {
-        toggle.parentNode.insertBefore(actions, toggle);
-      } else {
-        topbar.appendChild(actions);
-      }
-    }
+    var main = document.querySelector("main") || document.querySelector(".form-wrap");
+    if (!main) return;
 
-    var button = document.createElement("button");
-    button.type = "button";
-    button.className = "btn btn-ghost";
-    button.textContent = "Reset cliente";
-    button.addEventListener("click", function () {
+    var banner = document.createElement("div");
+    banner.className = "consent-prefill-banner";
+    banner.innerHTML =
+      '<div class="consent-prefill-content">' +
+      '<span class="consent-prefill-icon">⚠️</span>' +
+      '<div>' +
+      '<strong>Datos precargados del cliente anterior</strong>' +
+      '<p>' + (stored.full_name || stored.phone || 'Cliente') + '</p>' +
+      '</div>' +
+      '</div>' +
+      '<button type="button" class="btn btn-danger btn-sm consent-reset-btn">Cambiar cliente</button>';
+
+    banner.querySelector(".consent-reset-btn").addEventListener("click", function () {
       clearStored();
       clearIdentityFields();
+      banner.remove();
     });
-    actions.appendChild(button);
+
+    // Insert as the FIRST child of main, before everything else
+    main.insertBefore(banner, main.firstChild);
   }
 
   function init() {

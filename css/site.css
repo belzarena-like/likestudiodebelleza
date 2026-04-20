@@ -657,6 +657,44 @@ textarea {
   gap: 12px;
 }
 
+.consent-prefill-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.consent-prefill-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.consent-prefill-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.consent-prefill-content strong {
+  display: block;
+  color: #ef4444;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.consent-prefill-content p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
 .consent-daylist-head {
   display: flex;
   flex-wrap: wrap;
