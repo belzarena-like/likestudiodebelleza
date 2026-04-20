@@ -856,6 +856,56 @@ textarea {
   box-shadow: var(--shadow);
 }
 
+.groupon-alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.groupon-alert-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.groupon-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupon-alert-body strong {
+  color: #fbbf24;
+  display: block;
+}
+
+.groupon-alert-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #25d366;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 7px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  width: fit-content;
+  transition: opacity 0.2s;
+}
+
+.groupon-alert-link:hover {
+  opacity: 0.88;
+}
+
 .booking-steps {
   display: grid;
   gap: 16px;
