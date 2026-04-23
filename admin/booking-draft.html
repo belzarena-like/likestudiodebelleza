@@ -1062,15 +1062,8 @@
 
       const dateObj = parseDate(dateValue);
       const workingHoursOk = await ensureWorkingHoursLoaded();
-      if (!workingHoursOk) {
-        bookingMessage.textContent = 'No se pudo validar el horario de trabajo.';
-        return;
-      }
-      const workingHoursError = validateWorkingHours(dateObj, startTime, endTime);
-      if (workingHoursError) {
-        bookingMessage.textContent = workingHoursError;
-        return;
-      }
+      // Admin interface - skip working hours validation
+      // Admins can book outside working hours, on closed days, etc.
 
       const matchedService = serviceName ? servicesByName[serviceName.toLowerCase()] : null;
       const payload = {
