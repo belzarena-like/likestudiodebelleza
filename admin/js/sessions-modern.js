@@ -749,7 +749,7 @@ class SessionsModernController {
       markApptBtn.textContent = 'Guardando...';
       markApptBtn.disabled = true;
       try {
-        await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null });
+        await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null }, true);
         Toast.success('Sesión marcada como completada');
         // Reload search to refresh appointments
         if (this.currentSearchQuery) {
@@ -1022,7 +1022,7 @@ class SessionsModernController {
       await appointmentService.updateAppointment(appointmentId, { 
         status: 'cancelled',
         notes: 'No asistió - Sesión perdida'
-      });
+      }, true);
 
       // If there's a session, increment completed count (lost session counts as completed)
       if (sessionId) {
@@ -1118,7 +1118,7 @@ class SessionsModernController {
     btn.disabled = true;
 
     try {
-      await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null });
+      await appointmentService.updateAppointment(apptId, { status: 'completed', session_id: sessionId ? parseInt(sessionId) : null }, true);
       Toast.success('Sesión marcada como completada');
       
       if (sessionId) {
@@ -1162,7 +1162,7 @@ class SessionsModernController {
     btn.disabled = true;
 
     try {
-      await appointmentService.updateAppointment(apptId, { session_id: parseInt(targetSid) });
+      await appointmentService.updateAppointment(apptId, { session_id: parseInt(targetSid) }, true);
       Toast.success('Sesión movida al bono');
       
       this.historyCache[targetSid] = '';

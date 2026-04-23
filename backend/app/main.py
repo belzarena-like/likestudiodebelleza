@@ -450,6 +450,21 @@ def create_appointment(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@app.post("/admin/appointments", response_model=schemas.AppointmentRead)
+def admin_create_appointment(
+    payload: schemas.AppointmentCreate,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Admin endpoint to create appointments with bypassed validations (working hours, conflicts, etc.)"""
+    try:
+        return crud.create_appointment(db, payload, bypass_validations=True)
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.put("/appointments/{appointment_id}", response_model=schemas.AppointmentRead)
 def update_appointment(
     appointment_id: int,
@@ -460,6 +475,25 @@ def update_appointment(
         updated = crud.update_appointment(db, appointment_id, payload)
     except crud.AppointmentConflictError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except crud.AppointmentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not updated:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return updated
+
+
+@app.put("/admin/appointments/{appointment_id}", response_model=schemas.AppointmentRead)
+def admin_update_appointment(
+    appointment_id: int,
+    payload: schemas.AppointmentUpdate,
+    db: Session = Depends(get_db),
+    _: models.AdminUser = Depends(get_admin_user),
+):
+    """Admin endpoint to update appointments with bypassed validations (working hours, conflicts, etc.)"""
+    try:
+        updated = crud.update_appointment(db, appointment_id, payload, bypass_validations=True)
     except crud.AppointmentValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except ValueError as exc:

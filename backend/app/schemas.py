@@ -271,6 +271,7 @@ class AppointmentCreate(BaseModel):
     appointment_type: AppointmentType = AppointmentType.APPOINTMENT
     status: str = Field(default="scheduled", max_length=32)
     notes: str | None = None
+    bypass_validations: bool = Field(default=False, exclude=True)  # Admin-only flag
 
 
 class AppointmentUpdate(BaseModel):

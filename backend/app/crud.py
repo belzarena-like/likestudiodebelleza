@@ -1052,6 +1052,7 @@ def has_appointment_conflict(
 def create_appointment(
     db: Session,
     payload: schemas.AppointmentCreate,
+    bypass_validations: bool = False,
 ) -> models.Appointment:
     appointment_type = payload.appointment_type.value
 
@@ -1082,14 +1083,16 @@ def create_appointment(
     else:
         raise AppointmentValidationError("Service is required for appointment")
 
-    if has_appointment_conflict(
-        db,
-        professional_name=payload.professional_name,
-        appointment_date=payload.appointment_date,
-        start_time=payload.start_time,
-        end_time=payload.end_time,
-    ):
-        raise AppointmentConflictError("Conflicto de horario para este profesional")
+    # Only check for conflicts if not bypassing validations (admin mode)
+    if not bypass_validations:
+        if has_appointment_conflict(
+            db,
+            professional_name=payload.professional_name,
+            appointment_date=payload.appointment_date,
+            start_time=payload.start_time,
+            end_time=payload.end_time,
+        ):
+            raise AppointmentConflictError("Conflicto de horario para este profesional")
 
     appointment = models.Appointment(
         client_id=payload.client_id,
@@ -1125,6 +1128,7 @@ def update_appointment(
     db: Session,
     appointment_id: int,
     payload: schemas.AppointmentUpdate,
+    bypass_validations: bool = False,
 ) -> models.Appointment | None:
     appointment = db.get(models.Appointment, appointment_id)
     if not appointment:
@@ -1195,7 +1199,8 @@ def update_appointment(
             else appointment.service_name
         )
 
-    if not appointment.deleted_at and has_appointment_conflict(
+    # Only check for conflicts if not bypassing validations (admin mode)
+    if not bypass_validations and not appointment.deleted_at and has_appointment_conflict(
         db,
         professional_name=appointment.professional_name,
         appointment_date=appointment.appointment_date,

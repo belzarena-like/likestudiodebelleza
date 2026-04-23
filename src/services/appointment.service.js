@@ -13,12 +13,14 @@ export class AppointmentService {
     return await apiClient.get(`/admin/appointments/${appointmentId}`);
   }
 
-  async createAppointment(appointmentData) {
-    return await apiClient.post('/appointments', appointmentData);
+  async createAppointment(appointmentData, isAdmin = false) {
+    const endpoint = isAdmin ? '/admin/appointments' : '/appointments';
+    return await apiClient.post(endpoint, appointmentData);
   }
 
-  async updateAppointment(appointmentId, appointmentData) {
-    return await apiClient.put(`/appointments/${appointmentId}`, appointmentData);
+  async updateAppointment(appointmentId, appointmentData, isAdmin = false) {
+    const endpoint = isAdmin ? `/admin/appointments/${appointmentId}` : `/appointments/${appointmentId}`;
+    return await apiClient.put(endpoint, appointmentData);
   }
 
   async deleteAppointment(appointmentId) {

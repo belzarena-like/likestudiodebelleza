@@ -1087,7 +1087,7 @@
       };
 
       try {
-        const url = editingId ? `${API_BASE}/appointments/${editingId}` : `${API_BASE}/appointments`;
+        const url = editingId ? `${API_BASE}/admin/appointments/${editingId}` : `${API_BASE}/admin/appointments`;
         const response = await fetch(url, {
           method: editingId ? 'PUT' : 'POST',
           headers: { 
