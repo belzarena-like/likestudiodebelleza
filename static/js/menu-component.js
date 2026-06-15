@@ -22,6 +22,7 @@
         { label: 'Instagram', href: 'index.html#instagram' },
         { label: 'Academia', href: 'index.html#academy' },
         { label: 'Contacto', href: 'index.html#contact' },
+        { label: 'Aviso Legal', href: 'aviso-legal.html' },
         { 
           label: 'WhatsApp', 
           href: 'https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita',

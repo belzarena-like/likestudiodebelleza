@@ -39,10 +39,12 @@ class BookingController {
     this.instagramInput = document.getElementById('instagram');
     this.notesInput = document.getElementById('notes');
     this.form = document.getElementById('booking-form');
+    this.capilarAlert = document.getElementById('capilar-alert');
   }
 
   initEventListeners() {
     this.servicesSelect.addEventListener('change', () => {
+      this.checkCapilarService();
       this.renderCalendar();
       this.loadAvailability();
     });
@@ -105,6 +107,29 @@ class BookingController {
   }
 
   // ── Utility Methods ────────────────────────────────────────────────────────
+
+  isCapilarService(serviceName) {
+    if (!serviceName) return false;
+    const name = serviceName.toLowerCase();
+    return name.includes('capilar') || name.includes('efecto rapado') || name.includes('densificacion');
+  }
+
+  checkCapilarService() {
+    const serviceId = this.servicesSelect.value;
+    const service = this.servicesById[serviceId];
+    
+    if (service && this.isCapilarService(service.name)) {
+      this.capilarAlert.style.display = 'block';
+      // Disable the rest of the form
+      this.dateInput.disabled = true;
+      this.professionalSelect.disabled = true;
+      this.clearSlots('Este servicio solo se puede reservar por WhatsApp.');
+    } else {
+      this.capilarAlert.style.display = 'none';
+      this.dateInput.disabled = false;
+      this.professionalSelect.disabled = false;
+    }
+  }
 
   getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
@@ -282,7 +307,23 @@ class BookingController {
       if (!response.ok) throw new Error('No se pudieron cargar los servicios.');
       const payload = await response.json();
       this.servicesById = {};
-      this.servicesSelect.innerHTML = '<option value="">Seleccionar...</option>' + payload.items.map((service) => {
+      
+      // Filter services: exclude Josemi's services and capilar services
+      const filteredServices = payload.items.filter(service => {
+        // Only show services for Liege or without specific professional
+        const professionalName = service.professional_name || '';
+        if (professionalName && professionalName.toLowerCase() !== 'liege') {
+          return false;
+        }
+        // Exclude capilar services from the dropdown (only bookable via WhatsApp)
+        const serviceName = service.name.toLowerCase();
+        if (serviceName.includes('capilar')) {
+          return false;
+        }
+        return true;
+      });
+      
+      this.servicesSelect.innerHTML = '<option value="">Seleccionar...</option>' + filteredServices.map((service) => {
         this.servicesById[String(service.id)] = service;
         return `<option value="${service.id}">${service.name}</option>`;
       }).join('');
@@ -354,6 +395,13 @@ class BookingController {
       this.clearSlots('Selecciona servicio, profesional y fecha para ver horarios.');
       return;
     }
+
+    // Check if it's a capilar service
+    const service = this.servicesById[serviceId];
+    if (service && this.isCapilarService(service.name)) {
+      this.clearSlots('Este servicio solo se puede reservar por WhatsApp.');
+      return;
+    }
     
     const today = this.getLocalDateString();
     if (date < today) {
@@ -361,7 +409,6 @@ class BookingController {
       return;
     }
 
-    const service = this.servicesById[serviceId];
     this.currentDuration = service ? service.duration_minutes : 60;
     this.serviceDuration.textContent = `Duracion estimada: ${this.formatDuration(this.currentDuration)}`;
 
