@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicios - LikeByLi</title>
+    <title>Servicios - Like Studio Academy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/site.css" />
+    <link rel="stylesheet" href="css/menu-component.css" />
     <style>
         :root {
             --primary: #ff365f;
@@ -357,23 +359,11 @@
     </style>
 </head>
 <body>
-<header class="topbar">
-    <a class="brand" href="index.html">
-        <img class="brand-logo" src="assets/imgs/logo.png" alt="Like Studio logo" />
-        <span>Like Studio Academy</span>
-    </a>
-    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
-    <nav class="menu" data-menu>
-        <a href="index.html">Inicio</a>
-        <a href="servicios.html">Servicios</a>
-        <a href="reserva.html">Reserva online</a>
-        <a href="gallery.html">Galeria</a>
-        <a href="index.html#instagram">Instagram</a>
-        <a href="index.html#academy">Academia</a>
-        <a href="index.html#contact">Contacto</a>
-        <a href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
-    </nav>
-</header>
+  <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
 <main class="services-shell">
 <div id="tabsContainer" class="tabs-container"></div>
 <div class="tab-content" id="tabContents"></div>
@@ -729,5 +719,7 @@
 <script>
   document.getElementById('footerYear').textContent = new Date().getFullYear();
 </script>
+
+<script src="static/js/menu-component.js"></script>
 </body>
 </html>

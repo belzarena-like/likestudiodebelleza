@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="css/menu-component.css" />
   <style>
     .gallery-wrap { width: min(1200px, 100% - 2rem); margin: 2rem auto 4rem; }
     .gallery-filter { display: flex; gap: 10px; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
@@ -15,32 +16,36 @@
     .gallery-filter button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
     .gallery-masonry { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
     .gallery-masonry img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); cursor: zoom-in; box-shadow: var(--shadow); }
+    
+    /* Video styling */
+    .video-thumbnail { position: relative; cursor: pointer; width: 100%; height: 280px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; box-shadow: var(--shadow); }
+    .video-thumbnail video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .video-play-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.7); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; pointer-events: none; transition: all 0.3s ease; }
+    .video-thumbnail:hover .video-play-overlay { background: rgba(var(--brand-rgb, 255, 51, 95), 0.8); }
+    .video-badge { position: absolute; top: 12px; right: 12px; background: var(--brand); color: white; padding: 4px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    
     .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.86); display: none; place-items: center; z-index: 99; padding: 2rem; }
     .lightbox.active { display: grid; }
     .lightbox img { max-width: min(1000px, 100%); max-height: 85vh; border-radius: 12px; }
-    .lightbox button { position: absolute; top: 20px; right: 20px; border: 0; border-radius: 999px; width: 42px; height: 42px; background: #fff; font-size: 22px; cursor: pointer; }
+    .lightbox video { max-width: min(1000px, 100%); max-height: 85vh; border-radius: 12px; background: #000; }
+    .lightbox button { position: absolute; top: 20px; right: 20px; border: 0; border-radius: 999px; width: 42px; height: 42px; background: #fff; font-size: 22px; cursor: pointer; z-index: 100; }
+    .lightbox .video-container { position: relative; }
+    
     @media (max-width: 900px) { .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 560px) { .gallery-masonry { grid-template-columns: 1fr; } .gallery-masonry img { height: 230px; } }
+    @media (max-width: 560px) { 
+      .gallery-masonry { grid-template-columns: 1fr; } 
+      .gallery-masonry img { height: 230px; } 
+      .video-thumbnail { height: 230px; }
+      .lightbox video { max-width: 95vw; max-height: 75vh; }
+    }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="index.html">
-      <img class="brand-logo" src="assets/imgs/logo.png" alt="Like Studio logo" />
-      <span>Like Studio Academy</span>
-    </a>
-    <button class="menu-toggle" type="button" aria-label="Abrir menu" data-menu-toggle>Menu</button>
-    <nav class="menu" data-menu>
-      <a href="index.html">Inicio</a>
-      <a href="servicios.html">Servicios</a>
-      <a href="reserva.html">Reserva online</a>
-      <a href="gallery.html">Galeria</a>
-      <a href="index.html#instagram">Instagram</a>
-      <a href="index.html#academy">Academia</a>
-      <a href="index.html#contact">Contacto</a>
-      <a class="btn btn-sm" href="https://api.whatsapp.com/send?phone=34603749744&text=Hola,%20quiero%20reservar%20una%20cita" target="_blank" rel="noreferrer">WhatsApp</a>
-    </nav>
-  </header>
+  <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+
+  <!-- Menu will be automatically rendered here by the component -->
+  <header class="topbar"></header>
 
   <main class="gallery-wrap">
     <p class="eyebrow">Galeria</p>
@@ -51,7 +56,13 @@
 
   <div class="lightbox" id="lightbox">
     <button id="lightboxClose" aria-label="Cerrar">&times;</button>
-    <img id="lightboxImg" alt="Trabajo ampliado" />
+    <div id="lightboxContent" class="video-container">
+      <img id="lightboxImg" alt="Trabajo ampliado" style="display: none;" />
+      <video id="lightboxVideo" controls style="display: none;">
+        <source id="lightboxVideoSource" src="" type="video/mp4">
+        Tu navegador no soporta el elemento de video.
+      </video>
+    </div>
   </div>
 
   <script>
@@ -59,7 +70,8 @@
 
       ...Array.from({ length: 13 }, (_, i) => `assets/imgs/cejasFemininas/cejas_femininas (${i + 1}).jpeg`),
       ...Array.from({ length: 4 }, (_, i) => `assets/imgs/cejasMasculinas/cejas_masculinas (${i + 1}).jpeg`),
-      ...Array.from({ length: 8 }, (_, i) => `assets/imgs/microCapilar/micro_capilar (${i + 1}).jpeg`),
+      ...Array.from({ length: 8 }, (_, i) => `assets/imgs/microCapilar/micropigmentacion-capilar-like (${i + 1}).jpeg`),
+      ...Array.from({ length: 5 }, (_, i) => `assets/imgs/microCapilar/micropigmentacion-capilar-like (${i + 1}).mp4`),
     
     ];
 
@@ -80,6 +92,8 @@
     const grid = document.getElementById('galleryGrid');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxVideo = document.getElementById('lightboxVideo');
+    const lightboxVideoSource = document.getElementById('lightboxVideoSource');
 
     function renderButtons(active) {
       filter.innerHTML = categories
@@ -89,7 +103,24 @@
 
     function renderGrid(active) {
       const filtered = active === 'Todos' ? items : items.filter((i) => i.c === active);
-      grid.innerHTML = filtered.map((i) => `<img src="${i.src}" alt="${i.c}" loading="lazy" />`).join('');
+      grid.innerHTML = filtered.map((item) => {
+        if (item.src.endsWith('.mp4')) {
+          // Video thumbnail with play button overlay
+          return `
+            <div class="video-thumbnail" data-video="${item.src}">
+              <video width="100%" height="280" controls poster="${item.src.replace('.mp4', '.jpeg')}" preload="metadata">
+                <source src="${item.src}" type="video/mp4">
+                Tu navegador no soporta el elemento de video.
+              </video>
+              <div class="video-play-overlay">▶</div>
+              <div class="video-badge">Video</div>
+            </div>
+          `;
+        } else {
+          // Regular image
+          return `<img src="${item.src}" alt="${item.c}" loading="lazy" />`;
+        }
+      }).join('');
     }
 
     renderButtons(initialCat);
@@ -109,18 +140,44 @@
 
     grid.addEventListener('click', (e) => {
       const img = e.target.closest('img');
-      if (!img) return;
-      lightboxImg.src = img.src;
-      lightbox.classList.add('active');
+      const videoThumbnail = e.target.closest('.video-thumbnail');
+      
+      if (img) {
+        // Handle image click
+        lightboxImg.src = img.src;
+        lightboxImg.style.display = 'block';
+        lightboxVideo.style.display = 'none';
+        if (lightboxVideo.pause) lightboxVideo.pause();
+        lightbox.classList.add('active');
+      } else if (videoThumbnail) {
+        // Handle video thumbnail click
+        const videoSrc = videoThumbnail.dataset.video;
+        lightboxVideoSource.src = videoSrc;
+        lightboxVideo.load();
+        lightboxImg.style.display = 'none';
+        lightboxVideo.style.display = 'block';
+        lightbox.classList.add('active');
+      }
     });
 
-    document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('active'));
-    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('active'); });
+    document.getElementById('lightboxClose').addEventListener('click', () => {
+      lightbox.classList.remove('active');
+      if (lightboxVideo.pause) lightboxVideo.pause();
+      lightboxVideoSource.src = '';
+    });
+    lightbox.addEventListener('click', (e) => { 
+      if (e.target === lightbox) {
+        lightbox.classList.remove('active');
+        if (lightboxVideo.pause) lightboxVideo.pause();
+        lightboxVideoSource.src = '';
+      }
+    });
   </script>
   <footer class="footer">
     <p>&copy; <span id="year"></span> LIKE STUDIO ACADEMY, SOCIEDAD LIMITADA | <a href="aviso-legal.html" class="text-link">Aviso Legal</a></p>
   </footer>
 
   <script src="static/js/site.js"></script>
+  <script src="static/js/menu-component.js"></script>
 </body>
 </html>
