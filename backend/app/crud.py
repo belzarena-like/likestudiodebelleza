@@ -514,9 +514,10 @@ def create_service(db: Session, payload: schemas.ServiceCreate) -> models.Servic
     if existing:
         raise ValueError("Service already exists")
     service = models.Service(
-        name=payload.name,
+        name=payload.name.strip(),
         active=payload.active,
         duration_minutes=payload.duration_minutes,
+        show_in_web=payload.show_in_web,
     )
     db.add(service)
     db.commit()
@@ -531,14 +532,18 @@ def update_service(
     if not service:
         return None
     if payload.name is not None:
-        existing = get_service_by_name(db, payload.name)
-        if existing and existing.id != service.id:
-            raise ValueError("Service already exists")
-        service.name = payload.name
+        new_name = payload.name.strip()
+        if new_name.lower() != service.name.lower():
+            existing = get_service_by_name(db, new_name)
+            if existing and existing.id != service.id:
+                raise ValueError("Service already exists")
+        service.name = new_name
     if payload.active is not None:
         service.active = payload.active
     if payload.duration_minutes is not None:
         service.duration_minutes = payload.duration_minutes
+    if payload.show_in_web is not None:
+        service.show_in_web = payload.show_in_web
     db.add(service)
     db.commit()
     db.refresh(service)
@@ -552,12 +557,15 @@ def search_services(
     active_only: bool,
     limit: int,
     offset: int,
+    show_in_web: bool | None = None,
 ) -> tuple[list[schemas.ServiceRead], int]:
     base = select(models.Service)
     if query:
         base = base.where(models.Service.name.ilike(f"%{query}%"))
     if active_only:
         base = base.where(models.Service.active.is_(True))
+    if show_in_web is not None:
+        base = base.where(models.Service.show_in_web.is_(show_in_web))
 
     count_query = select(func.count()).select_from(base.subquery())
     total = db.scalar(count_query) or 0
@@ -574,6 +582,7 @@ def search_services(
             name=service.name,
             active=service.active,
             duration_minutes=service.duration_minutes,
+            show_in_web=service.show_in_web,
             created_at=service.created_at,
         )
         for service in rows

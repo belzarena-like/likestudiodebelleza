@@ -71,6 +71,11 @@ def on_startup() -> None:
                     "ALTER TYPE consenttype ADD VALUE IF NOT EXISTS 'MICROPIGMENTATION_CAPILAR'"
                 )
             )
+            conn.execute(
+                text(
+                    "ALTER TABLE services ADD COLUMN IF NOT EXISTS show_in_web BOOLEAN NOT NULL DEFAULT TRUE"
+                )
+            )
     with SessionLocal() as db:
         crud.ensure_working_hours_defaults(db)
 
@@ -619,7 +624,12 @@ def public_services(
     db: Session = Depends(get_db),
 ):
     items, total = crud.search_services(
-        db, query=None, active_only=True, limit=limit, offset=offset
+        db,
+        query=None,
+        active_only=True,
+        limit=limit,
+        offset=offset,
+        show_in_web=True,
     )
     return schemas.ServiceSearchResponse(
         items=items, total=total, limit=limit, offset=offset

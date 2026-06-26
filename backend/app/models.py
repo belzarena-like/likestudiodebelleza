@@ -88,6 +88,9 @@ class Service(Base):
     )
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     duration_minutes: Mapped[int] = mapped_column(Integer, default=60, nullable=False)
+    show_in_web: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False, server_default="true"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )

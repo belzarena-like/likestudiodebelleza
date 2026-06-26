@@ -105,7 +105,7 @@ class ServicesController {
 
   renderRows(items) {
     if (!items.length) {
-      this.tbody.innerHTML = `<tr><td class="admin-table-empty" colspan="4">Sin resultados.</td></tr>`;
+      this.tbody.innerHTML = `<tr><td class="admin-table-empty" colspan="5">Sin resultados.</td></tr>`;
       return;
     }
 
@@ -113,10 +113,12 @@ class ServicesController {
       <td>${item.name}</td>
       <td>${item.duration_minutes} min</td>
       <td><span class="badge ${item.active ? 'badge-success' : 'badge-secondary'}">${item.active ? 'Activo' : 'Inactivo'}</span></td>
+      <td><span class="badge ${item.show_in_web ? 'badge-success' : 'badge-secondary'}">${item.show_in_web ? 'Sí' : 'No'}</span></td>
       <td><div class="row-actions">
         <button class="btn btn-secondary btn-sm" data-edit
           data-id="${item.id}" data-name="${item.name}"
-          data-duration="${item.duration_minutes}" data-active="${item.active}">Editar</button>
+          data-duration="${item.duration_minutes}" data-active="${item.active}"
+          data-show-web="${item.show_in_web}">Editar</button>
       </div></td>
     </tr>`).join('');
   }
@@ -140,6 +142,7 @@ class ServicesController {
       'f-name': '',
       'f-duration': '60',
       'f-active': 'true',
+      'f-show-web': 'true',
     });
     Form.clearErrors('service-form');
   }
@@ -153,6 +156,7 @@ class ServicesController {
       'f-name': data.name,
       'f-duration': data.duration,
       'f-active': data.active === 'true' ? 'true' : 'false',
+      'f-show-web': data.showWeb === 'false' ? 'false' : 'true',
     });
     
     Form.clearErrors('service-form');
@@ -182,6 +186,7 @@ class ServicesController {
       name,
       active: formData['f-active'] === 'true',
       duration_minutes: duration,
+      show_in_web: formData['f-show-web'] === 'true',
     };
 
     try {

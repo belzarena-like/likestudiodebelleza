@@ -50,12 +50,14 @@ class ServiceCreate(BaseModel):
     name: str = Field(min_length=2, max_length=220)
     active: bool = True
     duration_minutes: int = Field(default=60, ge=15, le=480)
+    show_in_web: bool = True
 
 
 class ServiceUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=220)
     active: bool | None = None
     duration_minutes: int | None = Field(default=None, ge=15, le=480)
+    show_in_web: bool | None = None
 
 
 class ServiceRead(BaseModel):
@@ -63,6 +65,7 @@ class ServiceRead(BaseModel):
     name: str
     active: bool
     duration_minutes: int
+    show_in_web: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}

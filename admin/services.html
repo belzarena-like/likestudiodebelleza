@@ -51,6 +51,7 @@
             <th>Servicio</th>
             <th>Duración</th>
             <th>Estado</th>
+            <th>Visible web</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -86,6 +87,13 @@
           <select id="f-active">
             <option value="true">Activo</option>
             <option value="false">Inactivo</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="f-show-web">Visible en web pública</label>
+          <select id="f-show-web">
+            <option value="true">Sí · reservable online</option>
+            <option value="false">No · solo interno</option>
           </select>
         </div>
         <div class="form-actions form-grid-full">
