@@ -77,6 +77,8 @@ class Client(Base):
     profile: Mapped["ClientProfile | None"] = relationship(
         back_populates="client", uselist=False
     )
+    whatsapp_conversations: Mapped[list["WhatsAppConversation"]] = relationship(back_populates="client")
+
 
 
 class Service(Base):
@@ -542,3 +544,60 @@ class QRCodeScan(Base):
     
     qr_code: Mapped[QRCode] = relationship(back_populates="scans")
     client: Mapped[Client | None] = relationship()
+
+
+class WhatsAppConversation(Base):
+    __tablename__ = "whatsapp_conversations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(String(50), default="default", nullable=False, index=True)
+    jid: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    phone: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id", ondelete="SET NULL"), nullable=True, index=True)
+    client_name: Mapped[str | None] = mapped_column(String(180), nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    unread_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    last_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_message_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    client: Mapped[Client | None] = relationship(back_populates="whatsapp_conversations")
+    messages: Mapped[list["WhatsAppMessage"]] = relationship(
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        order_by="WhatsAppMessage.created_at.asc()"
+    )
+
+
+class WhatsAppMessage(Base):
+    __tablename__ = "whatsapp_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("whatsapp_conversations.id", ondelete="CASCADE"), nullable=False, index=True)
+    message_id: Mapped[str | None] = mapped_column(String(150), index=True, nullable=True)
+    direction: Mapped[str] = mapped_column(String(20), default="inbound", nullable=False) # inbound, outbound
+    sender_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    body: Mapped[str | None] = mapped_column(Text, nullable=True)
+    media_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    media_type: Mapped[str | None] = mapped_column(String(50), nullable=True) # image, document, audio, video
+    status: Mapped[str] = mapped_column(String(30), default="received", nullable=False) # received, sent, delivered, read, failed
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    conversation: Mapped[WhatsAppConversation] = relationship(back_populates="messages")
+
+
+class WhatsAppAutomationRule(Base):
+    __tablename__ = "whatsapp_automation_rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(150), nullable=False)
+    trigger_type: Mapped[str] = mapped_column(String(50), default="contains", nullable=False) # contains, exact, starts_with, any
+    keywords: Mapped[str | None] = mapped_column(Text, nullable=True) # comma separated terms or phrase
+    action_type: Mapped[str] = mapped_column(String(50), default="reply_text", nullable=False) # reply_text, send_session_reminder
+    reply_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+

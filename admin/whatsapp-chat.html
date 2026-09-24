@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Chat | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+  <style>
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.25rem;
+      height: calc(100vh - 140px);
+      min-height: 550px;
+      transition: grid-template-columns 0.3s ease;
+    }
+    .chat-layout.has-right-panel {
+      grid-template-columns: 300px 1fr 340px;
+    }
+    @media (max-width: 1100px) {
+      .chat-layout.has-right-panel {
+        grid-template-columns: 280px 1fr 300px;
+      }
+    }
+    @media (max-width: 880px) {
+      .chat-layout, .chat-layout.has-right-panel {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+
+    /* Sidebar List */
+    .conversations-sidebar {
+      background: var(--bg-card, #111827);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border, #1e2a3a);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .sidebar-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .btn-new-chat {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid #10b981;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-new-chat:hover {
+      background: #10b981;
+      color: #fff;
+    }
+    .sidebar-search {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 6px;
+      background: var(--bg-main, #0b0f17);
+      color: #fff;
+    }
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .conv-item {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .conv-item:hover {
+      background: var(--bg-card-hover, #1a2436);
+    }
+    .conv-item.active {
+      background: rgba(124, 106, 247, 0.15);
+      border-left: 4px solid var(--accent, #7c6af7);
+    }
+    .conv-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c6af7, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .conv-avatar-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid var(--accent, #7c6af7);
+    }
+    .conv-sub-phone {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #8a96b0);
+      margin-bottom: 0.15rem;
+    }
+    .conv-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .conv-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    .conv-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-primary, #e7edf8);
+    }
+    .conv-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #8a96b0);
+    }
+    .conv-last-msg {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #8a96b0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .conv-badge {
+      background: #10b981;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Main Chat Window */
+    .chat-main {
+      background: var(--bg-card, #111827);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary, #8a96b0);
+      text-align: center;
+      padding: 2rem;
+    }
+    .chat-empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .chat-header {
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--border, #1e2a3a);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(17, 24, 39, 0.9);
+    }
+    .chat-user-details {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .chat-user-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .chat-user-phone {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #8a96b0);
+    }
+
+    /* Messages container */
+    .chat-messages {
+      flex: 1;
+      padding: 1.2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      background: radial-gradient(circle at center, rgba(30, 42, 58, 0.4) 0%, rgba(11, 15, 23, 0.9) 100%);
+    }
+    .msg-bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 75%;
+    }
+    .msg-bubble-wrap.inbound {
+      align-self: flex-start;
+    }
+    .msg-bubble-wrap.outbound {
+      align-self: flex-end;
+    }
+    .msg-bubble {
+      padding: 0.8rem 1rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      word-break: break-word;
+      position: relative;
+    }
+    .msg-bubble-wrap.inbound .msg-bubble {
+      background: #1f293d;
+      color: #e2e8f0;
+      border-bottom-left-radius: 2px;
+    }
+    .msg-bubble-wrap.outbound .msg-bubble {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+    .msg-media-img {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      display: block;
+    }
+    .msg-time {
+      font-size: 0.7rem;
+      margin-top: 0.25rem;
+      opacity: 0.75;
+      align-self: flex-end;
+    }
+
+    /* Input Footer */
+    .chat-footer {
+      padding: 0.9rem 1.2rem;
+      border-top: 1px solid var(--border, #1e2a3a);
+      background: var(--bg-card, #111827);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 24px;
+      background: var(--bg-main, #0b0f17);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--accent, #7c6af7);
+    }
+    .btn-send {
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* Client picker list inside modal */
+    .client-picker-list {
+      max-height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .client-picker-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--bg-main, #0b0f17);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .client-picker-item:hover {
+      background: var(--bg-card-hover, #1a2436);
+      border-color: var(--accent, #7c6af7);
+    }
+    .client-picker-name {
+      font-weight: 700;
+      color: #fff;
+      display: block;
+    }
+    .client-picker-phone {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #8a96b0);
+    }
+
+    /* Right Client Detail Panel */
+    .client-detail-sidebar {
+      background: var(--bg-card, #111827);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 1.2rem;
+      transition: all 0.3s ease;
+    }
+    .client-detail-sidebar.collapsed {
+      display: none;
+    }
+    .client-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border, #1e2a3a);
+    }
+    .client-detail-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-close-panel {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary, #8a96b0);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .btn-close-panel:hover {
+      color: #fff;
+    }
+    .client-profile-card {
+      text-align: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .client-avatar-large {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c6af7, #4f46e5);
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem auto;
+      box-shadow: 0 4px 12px rgba(124, 106, 247, 0.3);
+    }
+    .client-profile-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 0.25rem 0;
+    }
+    .client-profile-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #8a96b0);
+      margin-bottom: 0.35rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat-box {
+      background: var(--bg-main, #0b0f17);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent, #7c6af7);
+    }
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #8a96b0);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.15rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu rendered automatically -->
+  <header class="topbar"></header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">💬 WhatsApp Chat</h1>
+    <p class="page-subtitle">Gestiona conversaciones de WhatsApp en tiempo real con tus clientes.</p>
+
+    <div id="chat-layout-container" class="chat-layout">
+      <!-- Sidebar -->
+      <div class="conversations-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-header-top">
+            <h2>Conversaciones</h2>
+            <button id="btn-open-new-chat-modal" class="btn-new-chat" type="button">+ Nueva</button>
+          </div>
+          <input type="text" id="conv-search" class="sidebar-search" placeholder="🔍 Buscar cliente o teléfono..." />
+        </div>
+        <div id="conversations-list" class="conversations-list">
+          <p style="padding: 1rem; text-align: center; color: var(--text-secondary);">Cargando conversaciones...</p>
+        </div>
+      </div>
+
+      <!-- Main Chat -->
+      <div id="chat-window" class="chat-main">
+        <div class="chat-empty-state">
+          <div class="chat-empty-icon">💬</div>
+          <h3>Selecciona una conversación</h3>
+          <p>Haz clic en un contacto de la lista lateral o abre una nueva conversación.</p>
+        </div>
+      </div>
+
+      <!-- Collapsible Right Panel for Client Details -->
+      <div id="client-detail-panel" class="client-detail-sidebar collapsed">
+        <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+          Selecciona un chat para ver la información del cliente.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal overlay for starting a new chat with a client -->
+  <div class="modal-overlay" id="new-chat-modal" aria-hidden="true">
+    <div class="modal-card modal-brand" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">💬 Iniciar Conversación de WhatsApp</h2>
+        <button id="modal-new-chat-close" class="btn btn-secondary btn-sm" type="button">✕ Cerrar</button>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Buscar Cliente Registrado</label>
+        <input type="text" id="modal-client-search" class="filter-input" style="width: 100%; border-radius: 8px;" placeholder="Buscar cliente por nombre o teléfono..." />
+        <div id="client-picker-container" class="client-picker-list">
+          <p style="padding: 0.5rem; text-align: center; color: var(--text-secondary);">Cargando lista de clientes...</p>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border, #1e2a3a); margin: 1.25rem 0;" />
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">O ingresar Número Directo (Se añade +34 si falta código)</label>
+        <form id="manual-phone-form" style="display: flex; gap: 0.5rem;">
+          <input type="text" id="manual-phone-input" class="filter-input" style="flex:1; border-radius: 8px;" placeholder="Ej: 603749744 o +34603749744" required />
+          <button id="btn-submit-manual-phone" class="btn btn-primary" type="submit">Iniciar Chat</button>
+        </form>
+        <p id="manual-phone-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; display: none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal overlay for Creating Client directly inside WhatsApp -->
+  <div class="modal-overlay" id="create-client-modal" aria-hidden="true">
+    <div class="modal-card modal-brand" role="dialog" aria-modal="true" aria-labelledby="modal-create-client-title" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-create-client-title">👤 Registrar Nuevo Cliente</h2>
+        <button id="modal-create-client-close" class="btn btn-secondary btn-sm" type="button">✕ Cerrar</button>
+      </div>
+      <form id="create-client-form" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 0.3rem;" for="f-create-name">Nombre Completo *</label>
+          <input class="filter-input" style="width: 100%; border-radius: 8px;" id="f-create-name" name="full_name" required placeholder="Ej. María García" />
+        </div>
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 0.3rem;" for="f-create-phone">Teléfono WhatsApp *</label>
+          <input class="filter-input" style="width: 100%; border-radius: 8px;" id="f-create-phone" name="phone" required placeholder="Ej. +34603749744" />
+        </div>
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 0.3rem;" for="f-create-id-number">DNI / NIE *</label>
+          <input class="filter-input" style="width: 100%; border-radius: 8px;" id="f-create-id-number" name="id_number" required placeholder="Ej. 12345678Z" value="PENDIENTE" />
+        </div>
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 0.3rem;" for="f-create-email">Email (Opcional)</label>
+          <input class="filter-input" style="width: 100%; border-radius: 8px;" id="f-create-email" name="email" type="email" placeholder="cliente@email.com" />
+        </div>
+        <p id="create-client-error" style="color: #ef4444; font-size: 0.85rem; display: none; margin: 0;"></p>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.5rem;">
+          <button id="btn-cancel-create-client" class="btn btn-secondary" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">💾 Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script>
+    (function() {
+      const convListEl = document.getElementById('conversations-list');
+      const convSearchEl = document.getElementById('conv-search');
+      const chatWindowEl = document.getElementById('chat-window');
+      const chatLayoutContainer = document.getElementById('chat-layout-container');
+      const clientDetailPanel = document.getElementById('client-detail-panel');
+
+      const btnOpenNewChat = document.getElementById('btn-open-new-chat-modal');
+      const newChatModal = document.getElementById('new-chat-modal');
+      const modalCloseBtn = document.getElementById('modal-new-chat-close');
+      const modalClientSearch = document.getElementById('modal-client-search');
+      const manualPhoneInput = document.getElementById('manual-phone-input');
+      const manualPhoneForm = document.getElementById('manual-phone-form');
+      const createClientModal = document.getElementById('create-client-modal');
+      const createClientCloseBtn = document.getElementById('modal-create-client-close');
+      const btnCancelCreateClient = document.getElementById('btn-cancel-create-client');
+      const createClientForm = document.getElementById('create-client-form');
+      const createClientError = document.getElementById('create-client-error');
+
+      const inputCreateName = document.getElementById('f-create-name');
+      const inputCreatePhone = document.getElementById('f-create-phone');
+      const inputCreateIdNumber = document.getElementById('f-create-id-number');
+      const inputCreateEmail = document.getElementById('f-create-email');
+
+      const manualPhoneError = document.getElementById('manual-phone-error');
+      const clientPickerContainer = document.getElementById('client-picker-container');
+
+      let currentConvId = null;
+      let pollingInterval = null;
+      let allClientsWithPhone = [];
+      let knownConvIds = new Set();
+
+      function openCreateClientModal(defaultPhone = '', defaultName = '') {
+        createClientError.style.display = 'none';
+        inputCreatePhone.value = formatPhoneWithCountryCode(defaultPhone);
+
+        const cleanDefaultName = defaultName && !defaultName.startsWith('+') && !defaultName.endsWith('@s.whatsapp.net') && !defaultName.endsWith('@lid') ? defaultName : '';
+        inputCreateName.value = cleanDefaultName;
+        inputCreateIdNumber.value = 'PENDIENTE';
+        inputCreateEmail.value = '';
+
+        createClientModal.classList.add('is-open');
+        createClientModal.setAttribute('aria-hidden', 'false');
+        setTimeout(() => (cleanDefaultName ? inputCreateIdNumber.focus() : inputCreateName.focus()), 100);
+      }
+
+      function closeCreateClientModal() {
+        createClientModal.classList.remove('is-open');
+        createClientModal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (createClientCloseBtn) createClientCloseBtn.addEventListener('click', closeCreateClientModal);
+      if (btnCancelCreateClient) btnCancelCreateClient.addEventListener('click', closeCreateClientModal);
+
+      if (createClientForm) {
+        createClientForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fullName = inputCreateName.value.trim();
+          const phone = inputCreatePhone.value.trim();
+          const idNumber = inputCreateIdNumber.value.trim();
+          const email = inputCreateEmail.value.trim() || null;
+
+          if (!fullName || !phone || !idNumber) {
+            createClientError.textContent = '⚠️ Por favor completa los campos obligatorios.';
+            createClientError.style.display = 'block';
+            return;
+          }
+
+          createClientError.style.display = 'none';
+
+          try {
+            const res = await fetch(`${window.APP_CONFIG.API_BASE_URL}/clients`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+              },
+              body: JSON.stringify({
+                full_name: fullName,
+                id_number: idNumber,
+                phone: phone,
+                email: email
+              })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+              const errMsg = data.detail || 'Error al guardar cliente';
+              createClientError.textContent = '⚠️ ' + errMsg;
+              createClientError.style.display = 'block';
+              return;
+            }
+
+            closeCreateClientModal();
+
+            if (currentConvId) {
+              await loadClientSummaryPanel(currentConvId, true);
+            }
+            await loadConversations(convSearchEl.value);
+
+          } catch (err) {
+            createClientError.textContent = '⚠️ Error al conectar con el servidor';
+            createClientError.style.display = 'block';
+          }
+        });
+      }
+
+      function formatPhoneWithCountryCode(phone) {
+        if (!phone) return '';
+        let raw = phone.trim();
+        if (raw.startsWith('+')) {
+          const digits = raw.replace(/\D/g, '');
+          return '+' + digits;
+        }
+        let digits = raw.replace(/\D/g, '');
+        if (!digits) return '';
+        if (digits.length === 9) {
+          digits = '34' + digits;
+        } else if (digits.length > 9 && !digits.startsWith('34') && digits.length < 11) {
+          digits = '34' + digits;
+        } else if (!digits.startsWith('34') && digits.length < 9) {
+          digits = '34' + digits;
+        }
+        return '+' + digits;
+      }
+
+      async function loadConversations(query = '') {
+        try {
+          const url = new URL(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/conversations');
+          if (query) url.searchParams.append('query', query);
+
+          const r = await fetch(url, {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+
+          if (!data.items || data.items.length === 0) {
+            convListEl.innerHTML = '<p style="padding: 1rem; text-align: center; color: var(--text-secondary);">No hay conversaciones encontradas.</p>';
+            return;
+          }
+
+          const isFirstLoad = knownConvIds.size === 0;
+
+          convListEl.innerHTML = data.items.map(c => {
+            const isNew = !isFirstLoad && !knownConvIds.has(c.id);
+            knownConvIds.add(c.id);
+
+            const name = c.client_name || c.phone || 'Contacto';
+            const phone = c.phone || '';
+            const initial = name.charAt(0).toUpperCase();
+            const timeStr = c.last_message_at ? new Date(c.last_message_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+            const isActive = c.id === currentConvId ? 'active' : '';
+
+            const avatarHtml = c.avatar_url
+              ? `<img src="${c.avatar_url}" class="conv-avatar-img" alt="${name}" />`
+              : `<div class="conv-avatar">${initial}</div>`;
+
+            const showSubPhone = phone && phone !== name;
+
+            return `
+              <div class="conv-item ${isActive}" data-id="${c.id}" data-phone="${phone}" data-name="${name}" data-avatar="${c.avatar_url || ''}">
+                ${avatarHtml}
+                <div class="conv-info">
+                  <div class="conv-top">
+                    <span class="conv-name">${name}</span>
+                    <span class="conv-time">${timeStr}</span>
+                  </div>
+                  ${showSubPhone ? `<div class="conv-sub-phone">📱 ${phone}</div>` : ''}
+                  <div class="conv-last-msg">${c.last_message || 'Sin mensajes'}</div>
+                </div>
+                ${c.unread_count > 0 ? `<div class="conv-badge">${c.unread_count}</div>` : (isNew ? '<div class="conv-badge" style="background:#6366f1;">✨ Nueva</div>' : '')}
+              </div>
+            `;
+          }).join('');
+
+          // Bind click listeners
+          document.querySelectorAll('.conv-item').forEach(item => {
+            item.addEventListener('click', () => {
+              const id = parseInt(item.getAttribute('data-id'));
+              const phone = item.getAttribute('data-phone');
+              const name = item.getAttribute('data-name');
+              const avatar = item.getAttribute('data-avatar');
+              openConversation(id, name, phone, avatar);
+            });
+          });
+
+        } catch (err) {
+          console.error('Error loading conversations:', err);
+        }
+      }
+
+      async function openConversation(convId, name, phone, avatarUrl = '') {
+        currentConvId = convId;
+        
+        // Highlight in sidebar
+        document.querySelectorAll('.conv-item').forEach(el => {
+          if (parseInt(el.getAttribute('data-id')) === convId) {
+            el.classList.add('active');
+            const badge = el.querySelector('.conv-badge');
+            if (badge) badge.remove();
+          } else {
+            el.classList.remove('active');
+          }
+        });
+
+        const avatarHeaderHtml = avatarUrl
+          ? `<img src="${avatarUrl}" class="conv-avatar-img" style="width:44px;height:44px;" alt="${name}" />`
+          : `<div class="conv-avatar" style="width:44px;height:44px;font-size:1.1rem;">${name.charAt(0).toUpperCase()}</div>`;
+
+        // Render chat layout header
+        chatWindowEl.innerHTML = `
+          <div class="chat-header">
+            <div class="chat-user-details">
+              ${avatarHeaderHtml}
+              <div>
+                <h3 class="chat-user-name">${name}</h3>
+                <span class="chat-user-phone">📱 ${phone}</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button id="btn-toggle-client-panel" class="btn btn-secondary btn-sm" type="button" title="Ver Ficha del Cliente">
+                👤 Ficha Cliente
+              </button>
+              <button id="btn-refresh-msgs" class="btn btn-secondary btn-sm" type="button">🔄 Actualizar</button>
+            </div>
+          </div>
+          <div id="messages-container" class="chat-messages">
+            <p style="text-align: center; color: var(--text-secondary);">Cargando mensajes...</p>
+          </div>
+          <form id="chat-form" class="chat-footer">
+            <input id="chat-input-text" class="chat-input" placeholder="Escribe un mensaje de WhatsApp..." required autocomplete="off" />
+            <button class="btn btn-primary btn-send" type="submit">✈️</button>
+          </form>
+        `;
+
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('chat-input-text');
+        const refreshBtn = document.getElementById('btn-refresh-msgs');
+        const toggleClientBtn = document.getElementById('btn-toggle-client-panel');
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const text = input.value.trim();
+          if (!text) return;
+          input.value = '';
+
+          const msgContainer = document.getElementById('messages-container');
+          const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          const tempMsgHtml = `
+            <div class="msg-bubble-wrap outbound temp-msg">
+              <div class="msg-bubble">
+                ${text}
+                <div class="msg-time">${timeStr} 🕒</div>
+              </div>
+            </div>
+          `;
+          if (msgContainer) {
+            msgContainer.insertAdjacentHTML('beforeend', tempMsgHtml);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+          }
+
+          try {
+            await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/${convId}/send`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+              },
+              body: JSON.stringify({ body: text })
+            });
+            await loadMessages(convId);
+            await loadConversations();
+          } catch (err) {
+            alert('Error enviando mensaje por WhatsApp.');
+          }
+        });
+
+        refreshBtn.addEventListener('click', () => loadMessages(convId));
+
+        toggleClientBtn.addEventListener('click', () => {
+          const isCollapsed = clientDetailPanel.classList.contains('collapsed');
+          if (isCollapsed) {
+            clientDetailPanel.classList.remove('collapsed');
+            chatLayoutContainer.classList.add('has-right-panel');
+            loadClientSummaryPanel(convId);
+          } else {
+            clientDetailPanel.classList.add('collapsed');
+            chatLayoutContainer.classList.remove('has-right-panel');
+          }
+        });
+
+        await loadMessages(convId);
+        // Load panel details automatically if panel is open or default to opening if client exists
+        await loadClientSummaryPanel(convId, true);
+        startPolling();
+
+        setTimeout(() => input.focus(), 100);
+      }
+
+      async function loadClientSummaryPanel(convId, autoOpenIfClient = false) {
+        try {
+          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/${convId}/client-summary`, {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+
+          if (autoOpenIfClient && data.has_client) {
+            clientDetailPanel.classList.remove('collapsed');
+            chatLayoutContainer.classList.add('has-right-panel');
+          }
+
+          if (!data.has_client) {
+            clientDetailPanel.innerHTML = `
+              <div class="client-detail-header">
+                <h3>👤 Contacto</h3>
+                <button class="btn-close-panel" id="btn-close-panel" type="button">✕</button>
+              </div>
+              <div style="text-align: center; padding: 1rem 0;">
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                  El número <strong>${data.phone || ''}</strong> no está guardado como cliente registrado.
+                </p>
+                <button id="btn-quick-create-client" class="btn btn-primary btn-sm" type="button" style="margin-top: 0.75rem;">
+                  + Registrar como Cliente
+                </button>
+              </div>
+            `;
+
+            const quickCreateBtn = document.getElementById('btn-quick-create-client');
+            if (quickCreateBtn) {
+              quickCreateBtn.addEventListener('click', () => {
+                const activeConv = document.querySelector(`.conv-item[data-id="${convId}"]`);
+                const name = activeConv ? activeConv.getAttribute('data-name') : '';
+                openCreateClientModal(data.phone, name);
+              });
+            }
+          } else {
+            const c = data.client;
+            const st = data.stats;
+            const initial = c.full_name ? c.full_name.charAt(0).toUpperCase() : '?';
+
+            clientDetailPanel.innerHTML = `
+              <div class="client-detail-header">
+                <h3>👤 Ficha del Cliente</h3>
+                <button class="btn-close-panel" id="btn-close-panel" type="button">✕</button>
+              </div>
+
+              <div class="client-profile-card">
+                <div class="client-avatar-large">${initial}</div>
+                <h4 class="client-profile-name">${c.full_name}</h4>
+                <div class="client-profile-sub">📱 ${c.phone || 'Sin teléfono'}</div>
+                ${c.email ? `<div class="client-profile-sub">✉️ ${c.email}</div>` : ''}
+                ${c.id_number ? `<div class="client-profile-sub">🪪 DNI: ${c.id_number}</div>` : ''}
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <div class="stat-val">${st.appointments_count}</div>
+                  <div class="stat-lbl">Citas</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val">${st.sessions_count}</div>
+                  <div class="stat-lbl">Sesiones</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val">${st.consents_count}</div>
+                  <div class="stat-lbl">Consent.</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val">${st.payments_count}</div>
+                  <div class="stat-lbl">Pagos</div>
+                </div>
+              </div>
+
+              ${st.next_appointment ? `
+                <div class="detail-info-group" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.65rem; margin-bottom: 1rem;">
+                  <span class="detail-info-lbl" style="color: #10b981; font-weight: 700;">📅 Próxima Cita</span>
+                  <span class="detail-info-val" style="color: #fff;">${new Date(st.next_appointment.date).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}</span>
+                </div>
+              ` : ''}
+
+              <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="clients.html?query=${encodeURIComponent(c.phone || c.full_name)}" class="btn btn-secondary btn-sm" target="_blank" style="text-align: center; text-decoration: none;">
+                  👁️ Abrir Ficha Completa
+                </a>
+              </div>
+            `;
+          }
+
+          const closeBtn = document.getElementById('btn-close-panel');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+              clientDetailPanel.classList.add('collapsed');
+              chatLayoutContainer.classList.remove('has-right-panel');
+            });
+          }
+
+        } catch (err) {
+          console.error('Error loading client summary panel:', err);
+        }
+      }
+
+      async function loadMessages(convId) {
+        const msgContainer = document.getElementById('messages-container');
+        if (!msgContainer) return;
+
+        try {
+          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/${convId}/messages`, {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const messages = await r.json();
+
+          if (!messages || messages.length === 0) {
+            msgContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No hay mensajes en esta conversación.</p>';
+            return;
+          }
+
+          msgContainer.innerHTML = messages.map(m => {
+            const isOut = m.direction === 'outbound';
+            const timeStr = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            return `
+              <div class="msg-bubble-wrap ${isOut ? 'outbound' : 'inbound'}">
+                <div class="msg-bubble">
+                  ${m.body || ''}
+                  ${m.media_url ? `<img src="${m.media_url}" class="msg-media-img" alt="Media" />` : ''}
+                  <div class="msg-time">${timeStr} ${isOut ? '✓' : ''}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          msgContainer.scrollTop = msgContainer.scrollHeight;
+        } catch (err) {
+          console.error('Error loading messages:', err);
+        }
+      }
+
+      async function initOrGetConversation(phone, clientName = null) {
+        const formattedPhone = formatPhoneWithCountryCode(phone);
+        if (!formattedPhone) {
+          alert('Por favor introduce un número de teléfono válido.');
+          return;
+        }
+
+        manualPhoneError.style.display = 'none';
+
+        try {
+          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/init`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+            },
+            body: JSON.stringify({ phone: formattedPhone, client_name: clientName })
+          });
+
+          const data = await r.json();
+
+          if (!r.ok) {
+            const errMsg = data.detail || 'Error al iniciar conversación en WhatsApp.';
+            manualPhoneError.textContent = '⚠️ ' + errMsg;
+            manualPhoneError.style.display = 'block';
+            alert('⚠️ ' + errMsg);
+            return;
+          }
+
+          closeNewChatModal();
+          await loadConversations();
+          openConversation(data.id, data.client_name || data.phone, data.phone);
+
+        } catch (err) {
+          alert('Error al conectar con la base de datos o servicio WhatsApp.');
+        }
+      }
+
+      // Load clients for the picker modal
+      async function loadClientsForPicker() {
+        try {
+          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/clients?limit=250`, {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+          allClientsWithPhone = (data.items || []).filter(c => c.phone && c.phone.trim().length > 0);
+          renderClientPicker(allClientsWithPhone);
+        } catch (err) {
+          clientPickerContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Error cargando clientes.</p>';
+        }
+      }
+
+      function renderClientPicker(clients) {
+        if (!clients || clients.length === 0) {
+          clientPickerContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">No hay clientes con teléfono registrados.</p>';
+          return;
+        }
+
+        clientPickerContainer.innerHTML = clients.map(c => `
+          <div class="client-picker-item" data-phone="${c.phone}" data-name="${c.full_name}">
+            <div>
+              <span class="client-picker-name">${c.full_name}</span>
+              <span class="client-picker-phone">📱 ${formatPhoneWithCountryCode(c.phone)}</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button" style="color: #10b981; border-color: #10b981;">💬 Chatear</button>
+          </div>
+        `).join('');
+
+        clientPickerContainer.querySelectorAll('.client-picker-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const phone = item.getAttribute('data-phone');
+            const name = item.getAttribute('data-name');
+            initOrGetConversation(phone, name);
+          });
+        });
+      }
+
+      function openNewChatModal() {
+        manualPhoneError.style.display = 'none';
+        newChatModal.classList.add('is-open');
+        newChatModal.setAttribute('aria-hidden', 'false');
+        loadClientsForPicker();
+      }
+
+      function closeNewChatModal() {
+        newChatModal.classList.remove('is-open');
+        newChatModal.setAttribute('aria-hidden', 'true');
+      }
+
+      modalClientSearch.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const filtered = allClientsWithPhone.filter(c => 
+          (c.full_name || '').toLowerCase().includes(q) || 
+          (c.phone || '').toLowerCase().includes(q)
+        );
+        renderClientPicker(filtered);
+      });
+
+      manualPhoneForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const phone = manualPhoneInput.value.trim();
+        if (phone) initOrGetConversation(phone);
+      });
+
+      btnOpenNewChat.addEventListener('click', openNewChatModal);
+      modalCloseBtn.addEventListener('click', closeNewChatModal);
+
+      function startPolling() {
+        stopPolling();
+        pollingInterval = setInterval(() => {
+          if (currentConvId) {
+            loadMessages(currentConvId);
+            loadConversations(convSearchEl.value);
+          }
+        }, 3500);
+      }
+
+      function stopPolling() {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+        }
+      }
+
+      convSearchEl.addEventListener('input', (e) => {
+        loadConversations(e.target.value.trim());
+      });
+
+      // Handle query parameters if coming from Clients screen (e.g. ?phone=...&name=...)
+      async function checkUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const phone = urlParams.get('phone');
+        const name = urlParams.get('name');
+
+        await loadConversations();
+
+        if (phone) {
+          initOrGetConversation(phone, name);
+        }
+      }
+
+      checkUrlParams();
+    })();
+  </script>
+</body>
+</html>

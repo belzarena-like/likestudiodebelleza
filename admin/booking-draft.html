@@ -326,6 +326,29 @@
       bookingService.appendChild(option);
     }
 
+    function ensureProfessionalOption(name) {
+      if (!name) return;
+      const trimmed = name.trim();
+      const existing = Array.from(bookingProfessional.options).some((option) => option.value === trimmed || option.textContent === trimmed);
+      if (existing) return;
+      const option = document.createElement('option');
+      option.value = trimmed;
+      option.textContent = trimmed;
+      bookingProfessional.appendChild(option);
+    }
+
+    function ensureClientOption(id, name, phone) {
+      if (!id) return;
+      const strId = String(id);
+      const existing = Array.from(bookingClient.options).some((option) => option.value === strId);
+      if (existing) return;
+      const option = document.createElement('option');
+      option.value = strId;
+      const clientLabel = phone ? `${name || 'Cliente'} - ${phone}` : (name || `Cliente #${id}`);
+      option.textContent = clientLabel;
+      bookingClient.appendChild(option);
+    }
+
     function getSelectedService() {
       const raw = bookingService.value || '';
       if (!raw || raw === SERVICE_BLOCK_VALUE) return null;
@@ -891,20 +914,53 @@
     }
 
     function fillFormFromItem(item) {
-      bookingClient.value = item.client_id ? String(item.client_id) : '';
-      bookingPhone.value = item.client_phone || '';
-      if (item.appointment_type === 'block') {
+      if (bookingClientSearch) {
+        bookingClientSearch.value = '';
+        renderClientOptions('');
+      }
+      if (item.client_id) {
+        if (!clientsById[String(item.client_id)]) {
+          clientsById[String(item.client_id)] = {
+            id: item.client_id,
+            full_name: item.client_name || `Cliente #${item.client_id}`,
+            phone: item.client_phone || ''
+          };
+        }
+        ensureClientOption(item.client_id, item.client_name, item.client_phone);
+        bookingClient.value = String(item.client_id);
+      } else {
+        bookingClient.value = '';
+      }
+      bookingPhone.value = item.client_phone || (item.client_id && clientsById[String(item.client_id)] ? clientsById[String(item.client_id)].phone : '') || '';
+      
+      const type = item.appointment_type || (item.service_name === 'Bloqueo' ? 'block' : 'appointment');
+      bookingType.value = type;
+
+      if (type === 'block') {
+        ensureServiceOption(SERVICE_BLOCK_VALUE);
         bookingService.value = SERVICE_BLOCK_VALUE;
       } else {
         const serviceName = item.service_name || '';
         ensureServiceOption(serviceName);
         bookingService.value = serviceName;
       }
-      bookingProfessional.value = item.professional_name || '';
-      bookingDate.value = item.appointment_date || '';
+
+      if (item.professional_name) {
+        ensureProfessionalOption(item.professional_name);
+        bookingProfessional.value = item.professional_name;
+      } else {
+        bookingProfessional.value = '';
+      }
+
+      if (item.appointment_date) {
+        const d = parseDate(item.appointment_date);
+        bookingDate.value = d ? toIsoDate(d) : String(item.appointment_date).slice(0, 10);
+      } else {
+        bookingDate.value = '';
+      }
+
       bookingStart.value = String(item.start_time || '').slice(0, 5);
       bookingEnd.value = String(item.end_time || '').slice(0, 5);
-      bookingType.value = item.appointment_type || 'appointment';
       bookingNotes.value = item.notes || '';
     }
 
@@ -1171,6 +1227,14 @@
         }
         return;
       }
+      const block = event.target.closest('.appointment-block');
+      if (block) {
+        const id = parseInt(block.dataset.id, 10);
+        if (!Number.isNaN(id)) {
+          startEdit(id);
+        }
+        return;
+      }
       const header = event.target.closest('[data-day-header]');
       if (header) {
         const dayValue = header.dataset.dayHeader;
@@ -1195,9 +1259,6 @@
         const rawMinutes = offsetY / PIXELS_PER_MINUTE;
         const snapped = Math.round(rawMinutes / 15) * 15;
         openCreateAt(dayDate, snapped);
-        return;
-      }
-      if (event.target.closest('.appointment-block')) {
         return;
       }
     });

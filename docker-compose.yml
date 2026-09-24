@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  likestudio-app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: likestudio-backend-whatsapp
+    ports:
+      - "8111:8111"
+      - "3001:3001"
+    environment:
+      - PORT=8111
+      - WORKERS=1
+      - DATABASE_URL=sqlite:///./likestudio.db
+      - WHATSAPP_SERVICE_URL=http://localhost:3001
+      - CRM_BACKEND_URL=http://localhost:8111
+    volumes:
+      - ./backend/likestudio.db:/backend/likestudio.db
+      - ./whatsapp-service/auth_sessions:/backend/whatsapp-service/auth_sessions
+    restart: unless-stopped

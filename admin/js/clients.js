@@ -27,13 +27,26 @@ class ClientsController {
     this.form = document.getElementById('search-form');
     this.summary = document.getElementById('summary');
     this.clientsList = document.getElementById('clients-list');
-    this.modal = new Modal('client-modal');
+    this.modalEl = document.getElementById('client-modal');
     this.modalTitle = document.getElementById('modal-title');
     this.clientForm = document.getElementById('client-form');
+    this.modal = new Modal('client-modal');
 
+    this.checkUrlParams();
     this.initEventListeners();
     this.initBonusCreator();
-    this.load();
+    this.load(true);
+  }
+
+  checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('query') || params.get('phone') || params.get('name') || params.get('id') || '';
+    if (q) {
+      const queryInput = document.getElementById('query');
+      if (queryInput) {
+        queryInput.value = q;
+      }
+    }
   }
 
   async initBonusCreator() {
@@ -96,12 +109,6 @@ class ClientsController {
 
       const clientId = parseInt(card.dataset.clientId);
 
-      // Toggle card
-      if (e.target.closest('.client-card-header') && !e.target.closest('.client-card-actions')) {
-        this.toggleCard(clientId);
-        return;
-      }
-
       // Edit button
       const editBtn = e.target.closest('[data-edit-id]');
       if (editBtn) {
@@ -124,8 +131,17 @@ class ClientsController {
       const paymentBtn = e.target.closest('[data-create-payment]');
       if (paymentBtn) {
         e.stopPropagation();
-        const clientId = parseInt(paymentBtn.dataset.clientId);
-        this.openPaymentModal(clientId);
+        const cid = parseInt(paymentBtn.dataset.clientId);
+        this.openPaymentModal(cid);
+        return;
+      }
+
+      // Toggle card (clicking arrow button or header)
+      const toggleBtn = e.target.closest('.client-card-toggle');
+      const headerClick = e.target.closest('.client-card-header') && !e.target.closest('a') && !e.target.closest('button:not(.client-card-toggle)');
+
+      if (toggleBtn || headerClick) {
+        this.toggleCard(clientId);
         return;
       }
     });
@@ -141,25 +157,30 @@ class ClientsController {
     }
   }
 
-  async load() {
+  async load(autoExpandIfSingle = false) {
     try {
       this.summary.textContent = 'Cargando...';
       
       const formData = new FormData(this.form);
       const query = formData.get('query') || null;
 
-
       const data = await clientService.searchClients({
-      query,
-      withConsents: false,
-      limit: this.LIMIT,
-      offset: this.offset
-    });
+        query,
+        withConsents: false,
+        limit: this.LIMIT,
+        offset: this.offset
+      });
       
       this.lastTotal = data.total;
       this.renderCards(data.items);
       this.updateSummary(data);
       this.updatePagination(data);
+
+      if (autoExpandIfSingle && query && query.trim() && data.items && data.items.length > 0) {
+        setTimeout(() => {
+          this.toggleCard(data.items[0].id);
+        }, 150);
+      }
     } catch (error) {
       this.summary.textContent = 'Error al cargar clientes';
       this.clientsList.innerHTML = '<p class="history-empty">No se pudieron cargar los clientes</p>';
@@ -203,10 +224,15 @@ class ClientsController {
               <button class="btn btn-success btn-sm" data-create-payment data-client-id="${item.id}" title="Crear pago">
                 💳 Pago
               </button>
+              ${item.phone ? `
+              <a href="whatsapp-chat.html?phone=${encodeURIComponent(item.phone)}&name=${encodeURIComponent(item.full_name)}" class="btn btn-secondary btn-sm" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;" title="Chat WhatsApp">
+                💬 WhatsApp
+              </a>` : ''}
               <button class="client-card-toggle" title="Ver historial">
                 ▼
               </button>
             </div>
+
           </div>
           <div class="client-card-body">
             <div class="client-card-content" id="client-history-${item.id}">
@@ -258,17 +284,30 @@ class ClientsController {
 
     try {
       // Fetch all client data in parallel
-      const [consents, sessions, appointments, payments] = await Promise.all([
+      const [consents, sessions, appointments, payments, whatsappData] = await Promise.all([
         this.fetchConsents(clientId),
         this.fetchSessions(clientId),
         this.fetchAppointments(clientId),
-        this.fetchPayments(clientId)
+        this.fetchPayments(clientId),
+        this.fetchWhatsAppMessages(clientId)
       ]);
 
-      content.innerHTML = this.renderHistory(client, consents, sessions, appointments, payments);
+      content.innerHTML = this.renderHistory(client, consents, sessions, appointments, payments, whatsappData);
     } catch (error) {
       content.innerHTML = '<p class="history-empty">Error al cargar el historial</p>';
       Toast.error('No se pudo cargar el historial del cliente');
+    }
+  }
+
+  async fetchWhatsAppMessages(clientId) {
+    try {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/by-client/${clientId}`, {
+        headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+      });
+      if (!response.ok) return { conversation: null, messages: [] };
+      return await response.json();
+    } catch (error) {
+      return { conversation: null, messages: [] };
     }
   }
 
@@ -323,7 +362,7 @@ class ClientsController {
     }
   }
 
-  renderHistory(client, consents, sessions, appointments, payments) {
+  renderHistory(client, consents, sessions, appointments, payments, whatsappData = null) {
     const formatDate = (dateStr) => {
       if (!dateStr) return '—';
       const date = new Date(dateStr);
@@ -343,9 +382,52 @@ class ClientsController {
     };
 
     const nameParam = encodeURIComponent(client.full_name || '');
+    const phoneParam = encodeURIComponent(client.phone || '');
     const sessionQuery = encodeURIComponent(client.phone || client.full_name || '');
 
+    const waMessages = (whatsappData && whatsappData.messages) || [];
+
     return `
+      <div class="history-section" style="border-left: 3px solid #10b981; padding-left: 0.75rem;">
+        <div class="history-section-header">
+          <div class="history-section-title" style="color: #10b981;">
+            💬 Últimos Mensajes de WhatsApp
+            <span class="history-section-count" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">${waMessages.length}</span>
+          </div>
+          <div class="history-section-actions">
+            ${client.phone ? `
+              <a href="whatsapp-chat.html?phone=${phoneParam}&name=${nameParam}" class="btn btn-secondary btn-sm" style="color: #10b981; border-color: #10b981; text-decoration: none;">
+                💬 Chat Completo →
+              </a>
+            ` : ''}
+          </div>
+        </div>
+        ${waMessages.length === 0 ? `
+          <p class="history-empty">
+            No hay mensajes registrados con este cliente. 
+            ${client.phone ? `<a href="whatsapp-chat.html?phone=${phoneParam}&name=${nameParam}" style="color: #10b981; margin-left: 0.5rem; text-decoration: underline;">Iniciar WhatsApp</a>` : ''}
+          </p>
+        ` : 
+          waMessages.map(m => {
+            const isOut = m.direction === 'outbound';
+            const dateStr = formatDate(m.created_at);
+            const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+            return `
+              <div class="history-item" style="background: var(--bg-main, #0b0f17); border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
+                <div class="history-item-header" style="margin-bottom: 0.2rem;">
+                  <div style="font-weight: 700; font-size: 0.85rem; color: ${isOut ? '#818cf8' : '#10b981'}; display: flex; align-items: center; gap: 0.3rem;">
+                    ${isOut ? '📤 Enviado' : '📥 Recibido'}
+                  </div>
+                  <div class="history-item-date" style="font-size: 0.75rem;">${dateStr} ${timeStr}</div>
+                </div>
+                <div style="font-size: 0.85rem; color: #e2e8f0; word-break: break-word;">
+                  ${m.body || '<i>[Archivo adjunto / multimedia]</i>'}
+                </div>
+              </div>
+            `;
+          }).join('')
+        }
+      </div>
       <div class="history-section">
         <div class="history-section-header">
           <div class="history-section-title">

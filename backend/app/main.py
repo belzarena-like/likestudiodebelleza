@@ -30,6 +30,7 @@ if __package__:
     from .services.auth_service import authenticate_user, create_access_token, verify_token
     from .controllers.training_controller import public_router as academy_router
     from .controllers.training_controller import router as training_router
+    from .controllers.whatsapp_controller import router as whatsapp_router, public_webhook_router as whatsapp_webhook_router
     from .database import Base, SessionLocal, engine
 else:
     sys.path.append(os.path.dirname(__file__))
@@ -42,6 +43,10 @@ else:
     from controllers.training_controller import public_router as academy_router
     from controllers.training_controller import (
         router as training_router,  # type: ignore
+    )
+    from controllers.whatsapp_controller import (
+        router as whatsapp_router,
+        public_webhook_router as whatsapp_webhook_router,
     )
     from database import Base, SessionLocal, engine  # type: ignore
 
@@ -58,6 +63,9 @@ app.add_middleware(
 # Include training routers
 app.include_router(training_router)
 app.include_router(academy_router)
+app.include_router(whatsapp_router)
+app.include_router(whatsapp_webhook_router)
+
 
 
 @app.on_event("startup")

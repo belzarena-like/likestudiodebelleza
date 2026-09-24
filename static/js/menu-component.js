@@ -45,7 +45,8 @@
             { label: 'Clientes', href: 'clients.html' },
             { label: 'Sesiones', href: 'sessions.html' },
             { label: 'Agenda', href: 'booking-draft.html' },
-            { label: 'Pagos', href: 'payments.html' }
+            { label: 'Pagos', href: 'payments.html' },
+            { label: '💬 WhatsApp Chat', href: 'whatsapp-chat.html' }
           ]
         },
         {
@@ -53,18 +54,20 @@
           items: [
             { label: 'Servicios', href: 'services.html' },
             { label: 'Horario', href: 'working-hours.html' },
-            { label: 'Email', href: 'settings.html' }
+            { label: 'Ajustes & WhatsApp', href: 'settings.html' }
           ]
         },
         {
           label: 'Herramientas',
           items: [
+            { label: '🤖 Automatizaciones WA', href: 'whatsapp-automations.html' },
             { label: 'Generador QR', href: 'qr-generator.html' },
             { label: 'Videos', href: 'videos.html' },
             { label: 'Formación', href: 'training.html' }
           ]
         }
       ],
+
       footer: [
         { label: 'Web pública', href: '../index.html' },
         { 

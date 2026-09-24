@@ -105,6 +105,45 @@
         <div id="test-result"></div>
       </form>
     </div>
+
+    <!-- WhatsApp Settings Section -->
+    <div class="settings-section">
+      <h2>📱 Conexión WhatsApp (Baileys Service)</h2>
+      <p class="page-subtitle">Escanea el código QR con tu WhatsApp móvil para conectar el sistema de mensajes y automatizaciones.</p>
+      
+      <div id="wa-connection-card" class="help-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; background: var(--bg-card-hover, #161f30); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+        
+        <!-- Status Indicator -->
+        <div style="margin-bottom: 1.5rem;">
+          <span id="wa-status-pill" class="status-pill" style="font-size: 1.1rem; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: 700; background: #334155; color: #cbd5e1;">
+            ⏳ Comprobando estado...
+          </span>
+        </div>
+
+        <!-- QR Code Container -->
+        <div id="wa-qr-container" style="display: none; flex-direction: column; align-items: center; background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 1.5rem;">
+          <img id="wa-qr-img" src="" alt="Código QR WhatsApp" style="width: 260px; height: 260px; display: block;" />
+          <p style="color: #1e293b; font-weight: 600; margin-top: 1rem; margin-bottom: 0; font-size: 0.95rem;">
+            📱 Abre WhatsApp en tu teléfono → Dispositivos vinculados → Vincular dispositivo
+          </p>
+        </div>
+
+        <!-- Connected Info Container -->
+        <div id="wa-connected-container" style="display: none; text-align: center; margin-bottom: 1.5rem;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">✅</div>
+          <h3 style="margin: 0; color: #34d399; font-size: 1.3rem;">¡WhatsApp Conectado Exitosamente!</h3>
+          <p id="wa-user-info" style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 1rem;"></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;">
+          <button id="wa-connect-btn" class="btn btn-primary" type="button">⚡ Generar / Obtener QR</button>
+          <button id="wa-check-btn" class="btn btn-secondary" type="button">🔄 Actualizar Estado</button>
+          <button id="wa-disconnect-btn" class="btn btn-secondary" type="button" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: #ef4444;">🚪 Desconectar WhatsApp</button>
+        </div>
+
+      </div>
+    </div>
   </main>
 
   <script src="../static/js/app-config.js"></script>
@@ -204,6 +243,130 @@
         testBtn.disabled = false;
         testBtn.textContent = 'Probar conexión';
       });
+
+      // ── WhatsApp Settings Logic ──────────────────────────────────────────────
+      const waStatusPill = document.getElementById('wa-status-pill');
+      const waQrContainer = document.getElementById('wa-qr-container');
+      const waQrImg = document.getElementById('wa-qr-img');
+      const waConnectedContainer = document.getElementById('wa-connected-container');
+      const waUserInfo = document.getElementById('wa-user-info');
+
+      const waConnectBtn = document.getElementById('wa-connect-btn');
+      const waCheckBtn = document.getElementById('wa-check-btn');
+      const waDisconnectBtn = document.getElementById('wa-disconnect-btn');
+
+      let qrPollingInterval = null;
+
+      async function checkWhatsAppStatus() {
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/status', {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+
+          if (data.status === 'connected') {
+            stopQrPolling();
+            waStatusPill.textContent = '🟢 Conectado';
+            waStatusPill.style.background = 'rgba(52, 211, 153, 0.2)';
+            waStatusPill.style.color = '#34d399';
+            waQrContainer.style.display = 'none';
+            waConnectedContainer.style.display = 'block';
+
+            let userText = 'Dispositivo vinculado activo.';
+            if (data.me) {
+              const phone = (data.me.id || '').split('@')[0].split(':')[0];
+              userText = `Usuario: ${data.me.name || 'Sin nombre'} (+${phone})`;
+            }
+            waUserInfo.textContent = userText;
+          } else if (data.qr || data.qrUrl) {
+            waStatusPill.textContent = '🟡 Esperando escaneo de QR';
+            waStatusPill.style.background = 'rgba(251, 191, 36, 0.2)';
+            waStatusPill.style.color = '#fbbf24';
+            waConnectedContainer.style.display = 'none';
+            waQrContainer.style.display = 'flex';
+            if (data.qrUrl) {
+              waQrImg.src = data.qrUrl;
+            }
+          } else {
+            waStatusPill.textContent = '🔴 Desconectado / Sin sesión';
+            waStatusPill.style.background = 'rgba(248, 113, 113, 0.2)';
+            waStatusPill.style.color = '#f87171';
+            waConnectedContainer.style.display = 'none';
+            waQrContainer.style.display = 'none';
+          }
+        } catch (e) {
+          waStatusPill.textContent = '⚠️ Microservicio WhatsApp no responde';
+          waStatusPill.style.background = 'rgba(248, 113, 113, 0.2)';
+          waStatusPill.style.color = '#f87171';
+          waConnectedContainer.style.display = 'none';
+          waQrContainer.style.display = 'none';
+        }
+      }
+
+      async function fetchQrCode() {
+        waStatusPill.textContent = '⏳ Generando QR...';
+        waStatusPill.style.background = '#334155';
+        waStatusPill.style.color = '#cbd5e1';
+
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/qr', {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+
+          if (data.status === 'connected') {
+            checkWhatsAppStatus();
+          } else if (data.qrUrl) {
+            waQrContainer.style.display = 'flex';
+            waConnectedContainer.style.display = 'none';
+            waQrImg.src = data.qrUrl;
+            waStatusPill.textContent = '🟡 Escanea el QR con WhatsApp';
+            waStatusPill.style.background = 'rgba(251, 191, 36, 0.2)';
+            waStatusPill.style.color = '#fbbf24';
+            
+            startQrPolling();
+          } else {
+            setTimeout(fetchQrCode, 2000);
+          }
+        } catch (e) {
+          alert('Error conectando con el servicio de WhatsApp.');
+        }
+      }
+
+      async function disconnectWhatsApp() {
+        if (!confirm('¿Estás seguro de que deseas desconectar el WhatsApp actual?')) return;
+
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/session', {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          stopQrPolling();
+          await checkWhatsAppStatus();
+          alert('Sesión de WhatsApp desconectada.');
+        } catch (e) {
+          alert('Error al desconectar.');
+        }
+      }
+
+      function startQrPolling() {
+        stopQrPolling();
+        qrPollingInterval = setInterval(checkWhatsAppStatus, 3000);
+      }
+
+      function stopQrPolling() {
+        if (qrPollingInterval) {
+          clearInterval(qrPollingInterval);
+          qrPollingInterval = null;
+        }
+      }
+
+      waConnectBtn.addEventListener('click', fetchQrCode);
+      waCheckBtn.addEventListener('click', checkWhatsAppStatus);
+      waDisconnectBtn.addEventListener('click', disconnectWhatsApp);
+
+      // Initial check on load
+      checkWhatsAppStatus();
     })();
   </script>
 </body>

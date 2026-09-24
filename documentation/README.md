@@ -241,3 +241,7 @@ For issues or questions, contact the development team.
 
 docker buildx build --platform linux/arm64 -f backend/Dockerfile -t likestudio-backend:latest --load .
 docker save likestudio-backend:latest -o likestudio-backend.tar
+
+
+docker buildx build --platform linux/amd64 -f backend/Dockerfile -t likestudio-backend:latest --load .
+docker save likestudio-backend:latest -o likestudio-backend.tar

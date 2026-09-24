@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automatizaciones WhatsApp | Like Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="../css/admin-common.css" />
+  <link rel="stylesheet" href="../css/menu-component.css" />
+  <style>
+    .automations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .rule-card {
+      background: var(--bg-card, #111827);
+      border: 1px solid var(--border, #1e2a3a);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .rule-card:hover {
+      border-color: var(--accent, #7c6af7);
+      transform: translateY(-2px);
+    }
+    .rule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .rule-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+    }
+    .rule-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+    }
+    .rule-status.active {
+      background: rgba(52, 211, 153, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .rule-status.inactive {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
+    }
+    .rule-body {
+      font-size: 0.9rem;
+      color: var(--text-secondary, #8a96b0);
+      margin-bottom: 1rem;
+    }
+    .rule-tag {
+      display: inline-block;
+      background: rgba(124, 106, 247, 0.15);
+      color: var(--accent, #7c6af7);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .rule-actions {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border, #1e2a3a);
+      padding-top: 0.75rem;
+    }
+
+    /* Reminders Banner */
+    .reminders-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.05));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .reminders-info h2 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.25rem;
+      color: #fff;
+    }
+    .reminders-info p {
+      margin: 0;
+      color: var(--text-secondary, #8a96b0);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar"></header>
+
+  <main class="admin-page-main">
+    <p class="page-eyebrow">Panel Admin</p>
+    <h1 class="page-title">🤖 Automatizaciones de WhatsApp</h1>
+    <p class="page-subtitle">Configura respuestas automáticas por palabras clave y envío de recordatorios de citas por WhatsApp.</p>
+
+    <!-- Reminders Section Banner -->
+    <div class="reminders-card">
+      <div class="reminders-info">
+        <h2>📅 Recordatorio Automático de Sesiones / Citas</h2>
+        <p>Envía mensajes de recordatorio por WhatsApp a los clientes con citas agendadas.</p>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <select id="select-reminders-days" class="filter-input" style="border-radius: 8px; font-weight: 700; background: var(--bg-card, #111827); color: #fff;">
+          <option value="1" selected>📅 Citas de Mañana</option>
+          <option value="0">📅 Citas de Hoy</option>
+        </select>
+        <button id="btn-trigger-reminders" class="btn btn-primary" type="button">🚀 Enviar Recordatorios</button>
+      </div>
+    </div>
+    <div id="reminders-result" style="display: none; margin-bottom: 2rem;"></div>
+
+    <div class="admin-toolbar" style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="font-size: 1.3rem; margin: 0;">Reglas de Auto-respuesta</h2>
+      <button id="btn-new-rule" class="btn btn-primary" type="button">+ Nueva Regla de Respuesta</button>
+    </div>
+
+    <div id="rules-container" class="automations-grid">
+      <p style="color: var(--text-secondary); grid-column: 1/-1;">Cargando reglas de automatización...</p>
+    </div>
+  </main>
+
+  <!-- Modal overlay for creating/editing rules -->
+  <div class="modal-overlay" id="rule-modal" aria-hidden="true">
+    <div class="modal-card modal-brand" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Nueva Regla de Automatización</h2>
+        <button id="modal-close" class="btn btn-secondary btn-sm" type="button">✕ Cerrar</button>
+      </div>
+      <form id="rule-form" class="form-grid">
+        <input type="hidden" id="rule-id" />
+
+        <div class="form-field form-grid-full">
+          <label for="rule-name">Nombre de la Regla</label>
+          <input id="rule-name" name="rule-name" required placeholder="Ej: Información de Precios y Turnos" />
+        </div>
+
+        <div class="form-field">
+          <label for="rule-trigger">Tipo de Disparador</label>
+          <select id="rule-trigger" name="rule-trigger" class="filter-input">
+            <option value="contains">Contiene palabras clave</option>
+            <option value="exact">Coincidencia exacta</option>
+            <option value="starts_with">Empieza por</option>
+            <option value="any">Cualquier mensaje entrante</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="rule-action">Acción a Ejecutar</label>
+          <select id="rule-action" name="rule-action" class="filter-input">
+            <option value="reply_text">Auto-responder Mensaje de Texto</option>
+            <option value="send_session_reminder">Enviar resumen de Citas del Cliente</option>
+          </select>
+        </div>
+
+        <div class="form-field form-grid-full" id="keywords-group">
+          <label for="rule-keywords">Palabras clave (separadas por coma)</label>
+          <input id="rule-keywords" name="rule-keywords" placeholder="ej: precio, costo, turnos, hora, info" />
+        </div>
+
+        <div class="form-field form-grid-full" id="reply-group">
+          <label for="rule-reply">Mensaje de Respuesta Automática</label>
+          <textarea id="rule-reply" name="rule-reply" rows="4" class="filter-input" style="width: 100%; border-radius: 8px;" placeholder="Hola {client_name}, gracias por escribirnos! Nuestros precios y servicios son..."></textarea>
+          <p class="help-text" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            💡 Puedes usar etiquetas dinámicas: <code>{client_name}</code> (nombre del cliente) y <code>{phone}</code> (teléfono).
+          </p>
+        </div>
+
+        <div class="form-field form-grid-full" style="display: flex; align-items: center; gap: 0.5rem;">
+          <input type="checkbox" id="rule-active" checked style="width: auto;" />
+          <label for="rule-active" style="margin: 0; font-weight: 600;">Regla Activa</label>
+        </div>
+
+        <div class="form-actions form-grid-full">
+          <button id="rule-submit-btn" class="btn btn-primary" type="submit">Guardar Regla</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../static/js/app-config.js"></script>
+  <script src="../static/js/admin-auth.js"></script>
+  <script src="../static/js/admin-api.js"></script>
+  <script src="../static/js/site.js"></script>
+  <script src="../static/js/menu-component.js"></script>
+  <script>
+    (function() {
+      const container = document.getElementById('rules-container');
+      const btnNew = document.getElementById('btn-new-rule');
+      const modal = document.getElementById('rule-modal');
+      const modalClose = document.getElementById('modal-close');
+      const form = document.getElementById('rule-form');
+
+      const triggerSelect = document.getElementById('rule-trigger');
+      const actionSelect = document.getElementById('rule-action');
+      const replyGroup = document.getElementById('reply-group');
+
+      const btnReminders = document.getElementById('btn-trigger-reminders');
+      const remindersResult = document.getElementById('reminders-result');
+
+      let currentRules = [];
+
+      async function loadRules() {
+        try {
+          const r = await fetch(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/automations', {
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          currentRules = await r.json();
+
+          if (!currentRules || currentRules.length === 0) {
+            container.innerHTML = `
+              <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: var(--bg-card); border-radius: 12px;">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">No hay reglas de automatización creadas.</p>
+                <button class="btn btn-primary" onclick="document.getElementById('btn-new-rule').click()">+ Crear Primera Regla</button>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = currentRules.map(rule => `
+            <div class="rule-card">
+              <div>
+                <div class="rule-header">
+                  <h3 class="rule-title">${rule.name}</h3>
+                  <span class="rule-status ${rule.is_active ? 'active' : 'inactive'}">
+                    ${rule.is_active ? '● Activa' : '○ Inactiva'}
+                  </span>
+                </div>
+                <div class="rule-tag">Disparador: ${rule.trigger_type}</div>
+                <div class="rule-body">
+                  ${rule.keywords ? `<p style="margin: 0 0 0.5rem 0;"><strong>Palabras:</strong> <code>${rule.keywords}</code></p>` : ''}
+                  <p style="margin: 0; color: #e2e8f0;">
+                    ${rule.action_type === 'send_session_reminder' ? '📅 Envía recordatorio de citas del cliente' : (rule.reply_message || 'Sin mensaje de respuesta')}
+                  </p>
+                </div>
+              </div>
+              <div class="rule-actions">
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="editRule(${rule.id})">✏️ Editar</button>
+                <button class="btn btn-secondary btn-sm" style="background: rgba(239,68,68,0.15); color: #f87171;" onclick="deleteRule(${rule.id})">🗑️ Eliminar</button>
+              </div>
+            </div>
+          `).join('');
+
+        } catch (err) {
+          console.error('Error loading rules:', err);
+        }
+      }
+
+      function openModal(rule = null) {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+
+        if (rule) {
+          document.getElementById('modal-title').textContent = 'Editar Regla';
+          document.getElementById('rule-id').value = rule.id;
+          document.getElementById('rule-name').value = rule.name;
+          document.getElementById('rule-trigger').value = rule.trigger_type;
+          document.getElementById('rule-action').value = rule.action_type;
+          document.getElementById('rule-keywords').value = rule.keywords || '';
+          document.getElementById('rule-reply').value = rule.reply_message || '';
+          document.getElementById('rule-active').checked = rule.is_active;
+        } else {
+          document.getElementById('modal-title').textContent = 'Nueva Regla de Automatización';
+          form.reset();
+          document.getElementById('rule-id').value = '';
+          document.getElementById('rule-active').checked = true;
+        }
+      }
+
+      function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      window.editRule = (id) => {
+        const rule = currentRules.find(r => r.id === id);
+        if (rule) openModal(rule);
+      };
+
+      window.deleteRule = async (id) => {
+        if (!confirm('¿Estás seguro de que deseas eliminar esta regla?')) return;
+        try {
+          await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/automations/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          loadRules();
+        } catch (err) {
+          alert('Error al eliminar regla.');
+        }
+      };
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('rule-id').value;
+
+        const payload = {
+          name: document.getElementById('rule-name').value,
+          trigger_type: document.getElementById('rule-trigger').value,
+          action_type: document.getElementById('rule-action').value,
+          keywords: document.getElementById('rule-keywords').value,
+          reply_message: document.getElementById('rule-reply').value,
+          is_active: document.getElementById('rule-active').checked
+        };
+
+        try {
+          const method = id ? 'PUT' : 'POST';
+          const url = id 
+            ? `${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/automations/${id}`
+            : `${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/automations`;
+
+          const r = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken()
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!r.ok) throw new Error('Error al guardar');
+
+          closeModal();
+          loadRules();
+        } catch (err) {
+          alert('Error al guardar la regla.');
+        }
+      });
+
+      const selectDays = document.getElementById('select-reminders-days');
+
+      btnReminders.addEventListener('click', async () => {
+        const daysAhead = selectDays ? parseInt(selectDays.value) : 1;
+        const targetLabel = daysAhead === 0 ? 'hoy' : 'mañana';
+        if (!confirm(`¿Deseas procesar y enviar los recordatorios de WhatsApp para todas las citas de ${targetLabel}?`)) return;
+
+        btnReminders.disabled = true;
+        btnReminders.textContent = '⏳ Enviando recordatorios...';
+        remindersResult.style.display = 'block';
+        remindersResult.innerHTML = '<p class="help-box" style="padding: 1rem;">⏳ Procesando agenda y comunicando con WhatsApp...</p>';
+
+        try {
+          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/reminders/send-upcoming?days_ahead=${daysAhead}`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          });
+          const data = await r.json();
+
+          const hasErrors = data.failed_count > 0;
+          const statusBg = hasErrors ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+          const statusBorder = hasErrors ? '#ef4444' : '#10b981';
+          const titleColor = hasErrors ? '#f87171' : '#10b981';
+
+          remindersResult.innerHTML = `
+            <div style="padding: 1.25rem; border-radius: 10px; background: ${statusBg}; border: 1px solid ${statusBorder};">
+              <h4 style="margin: 0 0 0.5rem 0; color: ${titleColor}; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                ${hasErrors ? '⚠️ Resumen del Envío de Recordatorios (con alertas)' : '✅ Proceso de Recordatorios Completado con Éxito'}
+              </h4>
+              <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #e2e8f0;">
+                📅 Fecha de Citas: <strong>${data.target_date || ''}</strong> | 
+                Citas encontradas: <strong>${data.total_appointments}</strong> | 
+                Enviados: <strong style="color: #10b981;">${data.sent_count}</strong> | 
+                Fallidos: <strong style="color: #ef4444;">${data.failed_count}</strong> | 
+                Sin Teléfono: <strong>${data.skipped_count || 0}</strong>
+              </p>
+
+              ${data.details && data.details.length > 0 ? `
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  ${data.details.map(d => {
+                    const isSent = d.status === 'sent';
+                    const isSkipped = d.status === 'skipped';
+                    const badgeBg = isSent ? '#10b981' : (isSkipped ? '#f59e0b' : '#ef4444');
+                    const statusText = isSent ? '✅ Enviado' : (isSkipped ? '⚠️ Sin Teléfono' : '❌ Error');
+                    
+                    return `
+                      <div style="background: var(--bg-main, #0b0f17); border: 1px solid var(--border, #1e2a3a); border-radius: 8px; padding: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                          <div>
+                            <strong style="color: #fff; font-size: 0.95rem;">👤 ${d.client_name || 'Cliente'}</strong>
+                            <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">📱 ${d.phone || 'Sin número'}</span>
+                          </div>
+                          <span style="background: ${badgeBg}; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px;">
+                            ${statusText}
+                          </span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
+                          ✨ Servicio: <strong>${d.service_name}</strong> | Hora: <strong>${d.appointment_time} hs</strong>
+                        </div>
+                        ${d.error ? `
+                          <div style="color: #ef4444; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; background: rgba(239, 68, 68, 0.15); padding: 0.4rem 0.6rem; border-radius: 4px;">
+                            ❌ Causante: ${d.error}
+                          </div>
+                        ` : ''}
+                        ${d.message_sent ? `
+                          <details style="margin-top: 0.4rem;">
+                            <summary style="font-size: 0.8rem; color: var(--accent, #7c6af7); cursor: pointer; font-weight: 600;">💬 Ver mensaje de WhatsApp enviado</summary>
+                            <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.82rem; background: rgba(0,0,0,0.3); padding: 0.6rem; border-radius: 6px; margin-top: 0.4rem; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.05);">${d.message_sent}</pre>
+                          </details>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : '<p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">No se encontraron citas agendadas para la fecha seleccionada.</p>'}
+            </div>
+          `;
+        } catch (err) {
+          remindersResult.innerHTML = '<div class="test-result error" style="padding: 1rem; color: #ef4444;">❌ Error ejecutando el envío de recordatorios. Comprueba la conexión.</div>';
+        }
+
+        btnReminders.disabled = false;
+        btnReminders.textContent = '🚀 Enviar Recordatorios';
+      });
+
+      btnNew.addEventListener('click', () => openModal());
+      modalClose.addEventListener('click', closeModal);
+
+      loadRules();
+    })();
+  </script>
+</body>
+</html>

@@ -423,6 +423,21 @@ def update_consent(
     return consent
 
 
+def _is_postgres(db: Session) -> bool:
+    try:
+        bind = db.get_bind()
+        return getattr(bind.dialect, "name", "") == "postgresql"
+    except Exception:
+        return False
+
+
+def _build_phone_condition(db: Session, phone_column, digits: str):
+    if _is_postgres(db):
+        phone_norm = func.regexp_replace(phone_column, r"\D", "", "g")
+        return phone_norm.ilike(f"%{digits}%")
+    return phone_column.ilike(f"%{digits}%")
+
+
 def search_clients(
     db: Session,
     *,
@@ -437,10 +452,17 @@ def search_clients(
         if raw:
             like = f"%{raw}%"
             digits = re.sub(r"\D", "", raw)
-            conditions = [models.Client.full_name.ilike(like)]
+            conditions = [
+                models.Client.full_name.ilike(like),
+                models.Client.id_number.ilike(like)
+            ]
+            if raw.isdigit():
+                conditions.append(models.Client.id == int(raw))
             if digits:
-                phone_norm = func.regexp_replace(models.Client.phone, r"\D", "", "g")
-                conditions.append(phone_norm.ilike(f"%{digits}%"))
+                conditions.append(_build_phone_condition(db, models.Client.phone, digits))
+                if len(digits) >= 9:
+                    last9 = digits[-9:]
+                    conditions.append(_build_phone_condition(db, models.Client.phone, last9))
             else:
                 conditions.append(models.Client.phone.ilike(like))
             search_filter = or_(*conditions)
@@ -533,10 +555,18 @@ def update_service(
         return None
     if payload.name is not None:
         new_name = payload.name.strip()
-        if new_name.lower() != service.name.lower():
-            existing = get_service_by_name(db, new_name)
-            if existing and existing.id != service.id:
-                raise ValueError("Service already exists")
+        current_name = (service.name or "").strip()
+        if new_name.lower() != current_name.lower():
+            conflict = db.scalar(
+                select(models.Service).where(
+                    func.lower(func.trim(models.Service.name)) == new_name.lower(),
+                    models.Service.id != service.id,
+                )
+            )
+            if conflict:
+                raise ValueError(
+                    f"Service already exists (conflict id={conflict.id}, name='{conflict.name}')"
+                )
         service.name = new_name
     if payload.active is not None:
         service.active = payload.active
@@ -1403,8 +1433,7 @@ def search_sessions(
             digits = _normalize_phone(raw)
             conditions = [models.Client.full_name.ilike(like)]
             if digits:
-                phone_norm = func.regexp_replace(models.Client.phone, r"\D", "", "g")
-                conditions.append(phone_norm.ilike(f"%{digits}%"))
+                conditions.append(_build_phone_condition(db, models.Client.phone, digits))
             else:
                 conditions.append(models.Client.phone.ilike(like))
             base = base.where(or_(*conditions))
@@ -1415,8 +1444,7 @@ def search_sessions(
     if phone:
         digits = _normalize_phone(phone)
         if digits:
-            phone_norm = func.regexp_replace(models.Client.phone, r"\D", "", "g")
-            base = base.where(phone_norm.ilike(f"%{digits}%"))
+            base = base.where(_build_phone_condition(db, models.Client.phone, digits))
         else:
             base = base.where(models.Client.phone.ilike(f"%{phone}%"))
     if status:
@@ -1481,8 +1509,7 @@ def search_consents(
             digits = _normalize_phone(raw)
             conditions = [models.Client.full_name.ilike(like)]
             if digits:
-                phone_norm = func.regexp_replace(models.Client.phone, r"\D", "", "g")
-                conditions.append(phone_norm.ilike(f"%{digits}%"))
+                conditions.append(_build_phone_condition(db, models.Client.phone, digits))
             else:
                 conditions.append(models.Client.phone.ilike(like))
             base = base.where(or_(*conditions))

@@ -772,3 +772,91 @@ class AdminTokenVerify(BaseModel):
     valid: bool
     username: str | None = None
     expires_at: datetime | None = None
+
+
+# WhatsApp Schemas
+
+class WhatsAppMessageRead(BaseModel):
+    id: int
+    conversation_id: int
+    message_id: str | None = None
+    direction: str
+    sender_phone: str | None = None
+    body: str | None = None
+    media_url: str | None = None
+    media_type: str | None = None
+    status: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class WhatsAppConversationRead(BaseModel):
+    id: int
+    tenant_id: str
+    jid: str
+    phone: str
+    client_id: int | None = None
+    client_name: str | None = None
+    avatar_url: str | None = None
+    unread_count: int
+    last_message: str | None = None
+    last_message_at: datetime
+    created_at: datetime
+    updated_at: datetime
+    messages: list[WhatsAppMessageRead] = []
+
+    model_config = {"from_attributes": True}
+
+
+class WhatsAppSendMessageRequest(BaseModel):
+    phone: str | None = None
+    jid: str | None = None
+    body: str
+    media_url: str | None = None
+
+
+class WhatsAppAutomationRuleCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=150)
+    trigger_type: str = Field(default="contains")  # contains, exact, starts_with, any
+    keywords: str | None = None
+    action_type: str = Field(default="reply_text")  # reply_text, send_session_reminder
+    reply_message: str | None = None
+    is_active: bool = True
+
+
+class WhatsAppAutomationRuleUpdate(BaseModel):
+    name: str | None = None
+    trigger_type: str | None = None
+    keywords: str | None = None
+    action_type: str | None = None
+    reply_message: str | None = None
+    is_active: bool | None = None
+
+
+class WhatsAppAutomationRuleRead(WhatsAppAutomationRuleCreate):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class WhatsAppWebhookPayload(BaseModel):
+    tenant_id: str = "default"
+    message_id: str | None = None
+    remote_jid: str
+    sender_pn: str | None = None
+    resolved_phone: str | None = None
+    phone: str | None = None
+    name: str | None = None
+    push_name: str | None = None
+    message_type: str | None = None
+    outbound: bool = False
+    text: str | None = None
+    media: list[dict] | None = None
+    profile_photo_url: str | None = None
+    timestamp: int | None = None
+
+
+

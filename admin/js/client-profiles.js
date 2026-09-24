@@ -129,7 +129,12 @@ class ClientProfilesController {
         <div class="form-actions">
           <button class="btn btn-primary btn-sm" data-save>Guardar</button>
           <button class="btn btn-secondary btn-sm" data-create-bonus="${item.client_id}">Crear Bono</button>
+          ${item.phone ? `
+          <a href="whatsapp-chat.html?phone=${encodeURIComponent(item.phone)}&name=${encodeURIComponent(item.full_name)}" class="btn btn-secondary btn-sm" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;" title="Chat WhatsApp">
+            💬 WhatsApp
+          </a>` : ''}
         </div>
+
         <p class="profile-message" data-message></p>
       </article>`).join('');
   }
