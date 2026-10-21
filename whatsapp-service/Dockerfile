@@ -10,7 +10,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production \
-    PORT=3001
+    PORT=3002
 
 RUN apk add --no-cache dumb-init \
     && addgroup -g 1001 -S app \
@@ -26,7 +26,7 @@ VOLUME ["/app/auth_sessions"]
 
 USER app
 
-EXPOSE 3001
+EXPOSE 3002
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "index.js"]

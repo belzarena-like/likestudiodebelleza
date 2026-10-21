@@ -3,9 +3,9 @@
 (function () {
   var defaultBase = "https://apis.listoapp.es/like_api";
   
-  // For local development, detect if we're on localhost/127.0.0.1 and use backend on port 8000
+  // For local development, detect if we're on localhost/127.0.0.1 and use backend on port 8111
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    defaultBase = "http://" + window.location.hostname + ":8000";
+    defaultBase = "http://" + window.location.hostname + ":8111";
   }
   
   // Check for overrides

@@ -674,9 +674,15 @@
         try {
           const url = new URL(window.APP_CONFIG.API_BASE_URL + '/admin/whatsapp/conversations');
           if (query) url.searchParams.append('query', query);
+          url.searchParams.append('_t', Date.now());
 
           const r = await fetch(url, {
-            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+            cache: 'no-store',
+            headers: {
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken(),
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache'
+            }
           });
           const data = await r.json();
 
@@ -950,8 +956,16 @@
         if (!msgContainer) return;
 
         try {
-          const r = await fetch(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/${convId}/messages`, {
-            headers: { 'Authorization': 'Bearer ' + window.likestudioGetAuthToken() }
+          const url = new URL(`${window.APP_CONFIG.API_BASE_URL}/admin/whatsapp/conversations/${convId}/messages`);
+          url.searchParams.append('_t', Date.now());
+
+          const r = await fetch(url, {
+            cache: 'no-store',
+            headers: {
+              'Authorization': 'Bearer ' + window.likestudioGetAuthToken(),
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache'
+            }
           });
           const messages = await r.json();
 
@@ -1093,8 +1107,8 @@
         pollingInterval = setInterval(() => {
           if (currentConvId) {
             loadMessages(currentConvId);
-            loadConversations(convSearchEl.value);
           }
+          loadConversations(convSearchEl.value);
         }, 3500);
       }
 
@@ -1116,6 +1130,7 @@
         const name = urlParams.get('name');
 
         await loadConversations();
+        startPolling();
 
         if (phone) {
           initOrGetConversation(phone, name);

@@ -27,7 +27,7 @@ COPY ./whatsapp-service /backend/whatsapp-service/
 RUN chmod +x /backend/start.sh
 
 # Runtime config
-EXPOSE 8111 3001
+EXPOSE 8111 3002
 ENV PORT=8111
 ENV WORKERS=1
 

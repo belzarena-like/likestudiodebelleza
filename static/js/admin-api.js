@@ -9,7 +9,7 @@
   function getApiBase() {
     return (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) 
       ? window.APP_CONFIG.API_BASE_URL 
-      : 'http://localhost:8000';
+      : 'http://localhost:8111';
   }
 
   /**

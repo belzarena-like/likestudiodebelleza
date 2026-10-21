@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   var AUTH_KEY = "likestudio_admin_auth_v3";
   var AUTH_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
   
@@ -6,7 +6,7 @@
   function getApiBase() {
     return (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) 
       ? window.APP_CONFIG.API_BASE_URL 
-      : 'http://localhost:8000';
+      : 'http://localhost:8111';
   }
 
   function now() {

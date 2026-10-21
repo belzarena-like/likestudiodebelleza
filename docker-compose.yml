@@ -8,12 +8,12 @@ services:
     container_name: likestudio-backend-whatsapp
     ports:
       - "8111:8111"
-      - "3001:3001"
+      - "3002:3002"
     environment:
       - PORT=8111
       - WORKERS=1
       - DATABASE_URL=sqlite:///./likestudio.db
-      - WHATSAPP_SERVICE_URL=http://localhost:3001
+      - WHATSAPP_SERVICE_URL=http://localhost:3002
       - CRM_BACKEND_URL=http://localhost:8111
     volumes:
       - ./backend/likestudio.db:/backend/likestudio.db

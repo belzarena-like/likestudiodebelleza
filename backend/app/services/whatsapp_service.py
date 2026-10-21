@@ -17,7 +17,7 @@ else:
     import crud_whatsapp  # type: ignore
 
 logger = logging.getLogger("whatsapp_service")
-WHATSAPP_SERVICE_URL = os.getenv("WHATSAPP_SERVICE_URL", "http://localhost:3001")
+WHATSAPP_SERVICE_URL = os.getenv("WHATSAPP_SERVICE_URL", "http://localhost:3002")
 
 
 class WhatsAppService:

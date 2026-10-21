@@ -33,7 +33,7 @@ try {
     );
 }
 
-const PORT = Number(process.env.PORT || 3001);
+const PORT = Number(process.env.PORT || 3002);
 
 const AUTH_DIR =
     process.env.AUTH_DIR || path.join(__dirname, 'auth_sessions');
@@ -41,7 +41,7 @@ const AUTH_DIR =
 const CRM_BASE_URL =
     process.env.CRM_BACKEND_URL ||
     process.env.BACKEND_URL ||
-    'http://localhost:8000';
+    'http://localhost:8111';
 
 const CRM_INGEST_TOKEN =
     process.env.WHATSAPP_BAILEYS_INGEST_TOKEN || '$crmLiliya';
@@ -271,6 +271,7 @@ async function forwardIncomingMessageToCrm(messageData) {
     };
 
     try {
+        console.log(`[${messageData.tenant_id}] Forwarding message ${messageData.message_id} to CRM URL: ${CRM_BASE_URL}/api/v1/whatsapp-qr/internal/messages`);
         const response = await fetch(
             `${CRM_BASE_URL}/api/v1/whatsapp-qr/internal/messages`,
             {
@@ -980,6 +981,7 @@ function registerConnectionEvents(
     });
     sock.ev.on('messages.upsert', async (event) => {
         const messages = event?.messages || [];
+        console.log(`[${tenantId}] WhatsApp messages.upsert event received: type=${event?.type}, count=${messages.length}`);
 
         for (const msg of messages) {
             if (
@@ -987,6 +989,7 @@ function registerConnectionEvents(
                 !msg?.key?.remoteJid ||
                 !msg.message
             ) {
+                console.log(`[${tenantId}] Skipping msg without id/remoteJid/message content: key=${JSON.stringify(msg?.key)}`);
                 continue;
             }
 

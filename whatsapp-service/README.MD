@@ -11,3 +11,7 @@ on server:
 docker load -i /tmp/crm-whatsapp-baileys.tar
 
 docker rm -f crm-whatsapp-baileys.tar 2>/dev/null || true
+C:\Users\JNBE\develop\personal\likestudiodebelleza\likestudio-backend.tar
+
+
+scp -i /c/users/JNBE/develop/personal/listo/oracle_listo_metrics.key   ~/develop/personal/likestudiodebelleza/likestudio-backend.tar    opc@170.9.248.237:/tmp/;
