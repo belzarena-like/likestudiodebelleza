@@ -517,7 +517,7 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-consents-${client.id}" hidden>
         ${consents.length === 0 ? '<p class="history-empty">No hay consentimientos registrados</p>' : 
-          consents.slice(0, 5).map(c => `
+          consents.map(c => `
             <div class="history-item">
               <div class="history-item-header">
                 <div>
@@ -531,7 +531,7 @@ class ClientsController {
                 <a href="consent-view.html?id=${c.id}" class="btn btn-secondary btn-sm" target="_blank">Ver Detalle</a>
               </div>
             </div>
-          `).join('') + (consents.length > 5 ? `<p class="history-empty">Y ${consents.length - 5} más...</p>` : '')
+          `).join('')
         }
         </div>
       </div>
@@ -621,7 +621,7 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-appointments-${client.id}" hidden>
         ${appointments.length === 0 ? '<p class="history-empty">No hay citas registradas</p>' : 
-          appointments.slice(0, 5).map(a => `
+          appointments.map(a => `
             <div class="history-item">
               <div class="history-item-header">
                 <div>
@@ -636,7 +636,7 @@ class ClientsController {
                 <span class="history-item-badge ${getStatusClass(a.status)}">${getStatusLabel(a.status)}</span>
               </div>
             </div>
-          `).join('') + (appointments.length > 5 ? `<p class="history-empty">Y ${appointments.length - 5} más...</p>` : '')
+          `).join('')
         }
         </div>
       </div>
@@ -658,7 +658,7 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-payments-${client.id}" hidden>
         ${payments.length === 0 ? '<p class="history-empty">No hay pagos registrados</p>' : 
-          payments.slice(0, 5).map(p => `
+          payments.map(p => `
             <div class="history-item">
               <div class="history-item-header">
                 <div>
@@ -673,7 +673,7 @@ class ClientsController {
                 <span class="history-item-badge badge-${p.payment_type}">${p.payment_type === 'income' ? 'Ingreso' : 'Gasto'}</span>
               </div>
             </div>
-          `).join('') + (payments.length > 5 ? `<p class="history-empty">Y ${payments.length - 5} más...</p>` : '')
+          `).join('')
         }
         </div>
       </div>
