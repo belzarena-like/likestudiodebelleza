@@ -622,19 +622,17 @@ class ClientsController {
         <div class="history-section-content" id="history-appointments-${client.id}" hidden>
         ${appointments.length === 0 ? '<p class="history-empty">No hay citas registradas</p>' : 
           appointments.map(a => `
-            <div class="history-item">
-              <div class="history-item-header">
-                <div>
-                  <div class="history-item-title">${a.service_name}</div>
-                  <div class="history-item-detail">Profesional: ${a.professional_name}</div>
-                  <div class="history-item-detail">Hora: ${formatTime(a.start_time)} - ${formatTime(a.end_time)}</div>
-                  ${a.notes ? `<div class="history-item-detail">Notas: ${a.notes}</div>` : ''}
-                </div>
+            <div class="history-item history-item-appointment">
+              <div class="appointment-card-header">
+                <div class="history-item-title">${a.service_name}</div>
                 <div class="history-item-date">${formatDate(a.appointment_date)}</div>
-              </div>
-              <div class="history-item-footer">
                 <span class="history-item-badge ${getStatusClass(a.status)}">${getStatusLabel(a.status)}</span>
               </div>
+              <div class="appointment-card-details">
+                <span><span class="appointment-card-label">Profesional:</span> ${a.professional_name || '—'}</span>
+                <span><span class="appointment-card-label">Hora:</span> ${formatTime(a.start_time)} - ${formatTime(a.end_time)}</span>
+              </div>
+              ${a.notes ? `<div class="appointment-card-note"><span class="appointment-card-label">Notas:</span> ${a.notes}</div>` : ''}
             </div>
           `).join('')
         }

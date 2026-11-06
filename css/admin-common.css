@@ -1122,6 +1122,50 @@ body.modal-open { overflow: hidden; }
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.history-item-appointment {
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.appointment-card-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.appointment-card-header .history-item-title {
+  min-width: 0;
+}
+
+.appointment-card-header .history-item-date {
+  font-size: 0.8rem;
+}
+
+.appointment-card-header .history-item-badge {
+  padding: 0.2rem 0.6rem;
+}
+
+.appointment-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.35rem;
+  color: var(--text-secondary, #d1d5db);
+  font-size: 0.82rem;
+}
+
+.appointment-card-label {
+  color: var(--text-muted, #8a96b0);
+}
+
+.appointment-card-note {
+  margin-top: 0.25rem;
+  color: var(--text-secondary, #d1d5db);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
 .history-item-detail {
   color: var(--text-secondary, #d1d5db);
   font-size: 0.875rem;
@@ -1228,6 +1272,18 @@ body.modal-open { overflow: hidden; }
     align-items: center;
     justify-content: space-between;
     width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .appointment-card-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.6rem;
+  }
+
+  .appointment-card-header .history-item-badge {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 }
 
