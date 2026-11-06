@@ -7,9 +7,20 @@
   --card: #161b24;
   --line: #283143;
   --ring: rgba(255, 54, 95, 0.35);
-  --radius: 18px;
-  --radius-sm: 12px;
+  --radius: 14px;
+  --radius-sm: 10px;
   --shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
+  --ui-space-1: 0.25rem;
+  --ui-space-2: 0.5rem;
+  --ui-space-3: 0.75rem;
+  --ui-space-4: 1rem;
+  --ui-radius-surface: 12px;
+  --ui-radius-control: 10px;
+  --ui-control-height: 44px;
+  --ui-control-height-sm: 38px;
+  --ui-focus-color: var(--brand);
+  --ui-focus-glow: var(--ring);
+  --ui-motion-fast: 160ms ease;
 }
 
 * {
@@ -49,6 +60,16 @@ h3 {
 
 a {
   color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--ui-focus-glow);
 }
 
 .bg-orb {
@@ -244,11 +265,24 @@ a {
   color: #fff;
   border: 1px solid transparent;
   box-shadow: 0 10px 24px rgba(190, 53, 53, 0.27);
+  min-height: var(--ui-control-height);
+  cursor: pointer;
+  transition: filter var(--ui-motion-fast), transform var(--ui-motion-fast), box-shadow var(--ui-motion-fast);
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-sm {
   padding: 8px 14px;
   font-size: 0.85rem;
+  min-height: var(--ui-control-height-sm);
 }
 
 .btn-ghost {
@@ -310,7 +344,7 @@ a {
 .stat-card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--ui-radius-surface);
   padding: 20px;
   box-shadow: var(--shadow);
 }
@@ -567,11 +601,16 @@ textarea,
 select {
   width: 100%;
   padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #2f3a4f;
+  border-radius: var(--ui-radius-control);
+  border: 1px solid var(--line);
   font: inherit;
   background: #171d28;
   color: var(--text);
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  min-height: var(--ui-control-height);
 }
 
 input::placeholder,
@@ -1115,5 +1154,16 @@ textarea {
   .calendar-day-header {
     font-size: 0.7rem;
     padding: 6px 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
