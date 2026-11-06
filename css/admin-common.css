@@ -996,26 +996,43 @@ body.modal-open { overflow: hidden; }
   display: none;
 }
 
-.session-filter-bar {
+.history-filter-bar {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--ui-space-3, 0.75rem);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   padding: 0.75rem;
   border: 1px solid var(--border, #1e2a3a);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);
 }
 
-.session-filter-bar label {
+.history-filter-search,
+.history-filter-bar label {
+  display: block;
+  min-width: 0;
   margin: 0;
   color: var(--text-secondary, #8a96b0);
   font-size: 0.8rem;
 }
 
-.session-filter-bar select {
+.history-filter-bar input,
+.history-filter-bar select {
   display: block;
   margin-top: 0.3rem;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-height, 40px);
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border, #1e2a3a);
+  border-radius: var(--ui-radius-control, 8px);
+  background: var(--bg-input, #2f3a4f);
+  color: var(--text-primary, #e7edf8);
+  font: inherit;
+}
+
+.session-filter-bar {
+  grid-template-columns: minmax(180px, 1.5fr) repeat(2, minmax(150px, 1fr));
 }
 
 .session-period + .session-period {
@@ -1076,8 +1093,8 @@ body.modal-open { overflow: hidden; }
   background: var(--bg-secondary, #111827);
   border: 1px solid var(--border-color, #374151);
   border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 0.5rem;
   transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -1111,8 +1128,7 @@ body.modal-open { overflow: hidden; }
 
 .history-item-session-meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.5rem;
   flex: 0 0 auto;
 }
@@ -1146,7 +1162,7 @@ body.modal-open { overflow: hidden; }
   padding: 0.2rem 0.6rem;
 }
 
-.appointment-card-details {
+.history-item-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.25rem;
@@ -1155,6 +1171,7 @@ body.modal-open { overflow: hidden; }
   font-size: 0.82rem;
 }
 
+.history-item-meta-label,
 .appointment-card-label {
   color: var(--text-muted, #8a96b0);
 }
@@ -1178,6 +1195,57 @@ body.modal-open { overflow: hidden; }
   margin-top: 0.75rem;
   flex-wrap: wrap;
 }
+
+.history-item-footer-compact {
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+.history-item-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-top: 0.3rem;
+  color: var(--accent, #7c6af7);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.history-item-action:hover {
+  text-decoration: underline;
+}
+
+.history-item-payment-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.history-item-payment-total {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+
+.history-item-payment-total .history-item-amount {
+  font-size: 0.95rem;
+}
+
+.history-item-message .history-item-header {
+  margin-bottom: 0.25rem;
+}
+
+.history-item-message-body {
+  color: var(--text-secondary, #d1d5db);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.message-outbound { color: #818cf8; }
+.message-inbound { color: #10b981; }
 
 .history-item-badge {
   display: inline-block;
@@ -1261,6 +1329,17 @@ body.modal-open { overflow: hidden; }
   .session-filter-bar {
     grid-template-columns: 1fr;
   }
+
+  .history-item-payment-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .history-item-session .history-item-header {
+    flex-direction: row;
+    align-items: center;
+  }
   
   .history-item-header {
     flex-direction: column;
@@ -1268,10 +1347,8 @@ body.modal-open { overflow: hidden; }
   }
 
   .history-item-session-meta {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
 

@@ -14,15 +14,16 @@ Improve consistency and usability across the public site and admin without repla
 
 ## Client history
 
-- Keep all returned sessions visible, newest first, grouped by month and year.
-- Add independent treatment and status filters with an empty filtered state.
+- Use a compact, consistent card pattern across messages, consents, sessions, appointments, and payments.
+- Keep all returned records visible; show sessions newest first, grouped by month and year.
+- Add an independent text filter to every history section, with treatment and status filters retained for sessions.
 - Keep sessions expanded by default and other history sections independently collapsible.
-- Keep filters usable at narrow viewport widths.
+- Keep filters usable at narrow viewport widths and show an empty state when no records match.
 
 ## Acceptance criteria
 
 - Shared styles apply through the existing `site.css` and `admin-common.css` imports.
 - Public and admin accent colors remain distinct.
 - Keyboard focus remains visible and reduced-motion preferences are respected.
-- Session filters work independently and month groups hide when no matching sessions remain.
+- Filters work independently per section and month groups hide when no matching sessions remain.
 - JavaScript syntax, CSS diagnostics, and whitespace checks pass.

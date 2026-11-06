@@ -154,27 +154,13 @@ class ClientsController {
       }
     });
 
-    this.clientsList.addEventListener('change', (e) => {
-      const filter = e.target.closest('[data-session-filter]');
+    const filterHistory = (e) => {
+      const filter = e.target.closest('[data-history-search], [data-session-filter]');
       if (!filter) return;
-
-      const content = filter.closest('.history-section-content');
-      const treatmentFilter = content.querySelector('[data-session-filter="treatment"]').value;
-      const statusFilter = content.querySelector('[data-session-filter="status"]').value;
-      let visibleCount = 0;
-
-      content.querySelectorAll('[data-session-entry]').forEach((entry) => {
-        const matchesTreatment = !treatmentFilter || entry.dataset.treatmentIndex === treatmentFilter;
-        const matchesStatus = !statusFilter || entry.dataset.statusIndex === statusFilter;
-        entry.hidden = !matchesTreatment || !matchesStatus;
-        if (!entry.hidden) visibleCount += 1;
-      });
-
-      content.querySelectorAll('[data-session-period]').forEach((period) => {
-        period.hidden = !period.querySelector('[data-session-entry]:not([hidden])');
-      });
-      content.querySelector('[data-session-filter-empty]').hidden = visibleCount > 0;
-    });
+      this.filterHistoryContent(filter.closest('.history-section-content'));
+    };
+    this.clientsList.addEventListener('input', filterHistory);
+    this.clientsList.addEventListener('change', filterHistory);
 
     // Autocomplete (if available)
     const queryInput = document.getElementById('query');
@@ -185,6 +171,28 @@ class ClientsController {
         this.load();
       });
     }
+  }
+
+  filterHistoryContent(content) {
+    const searchTerm = content.querySelector('[data-history-search]')?.value.trim().toLocaleLowerCase('es') || '';
+    const treatmentFilter = content.querySelector('[data-session-filter="treatment"]')?.value || '';
+    const statusFilter = content.querySelector('[data-session-filter="status"]')?.value || '';
+    let visibleCount = 0;
+
+    content.querySelectorAll('[data-history-entry]').forEach((entry) => {
+      const matchesSearch = !searchTerm || entry.textContent.toLocaleLowerCase('es').includes(searchTerm);
+      const matchesTreatment = !treatmentFilter || entry.dataset.treatmentIndex === treatmentFilter;
+      const matchesStatus = !statusFilter || entry.dataset.statusIndex === statusFilter;
+      entry.hidden = !matchesSearch || !matchesTreatment || !matchesStatus;
+      if (!entry.hidden) visibleCount += 1;
+    });
+
+    content.querySelectorAll('[data-session-period]').forEach((period) => {
+      period.hidden = !period.querySelector('[data-history-entry]:not([hidden])');
+    });
+
+    const emptyState = content.querySelector('[data-history-filter-empty]');
+    if (emptyState) emptyState.hidden = visibleCount > 0;
   }
 
   async load(autoExpandIfSingle = false) {
@@ -453,6 +461,13 @@ class ClientsController {
     const sessionStatusOptions = sessionStatuses.map((status, index) =>
       `<option value="${index}">${escapeHtml(status ? getStatusLabel(status) : 'Sin estado')}</option>`
     ).join('');
+    const renderHistorySearch = (section, label) => `
+      <label class="history-filter-search" for="history-search-${section}-${client.id}">
+        Filtrar ${label}
+        <input id="history-search-${section}-${client.id}" type="search" data-history-search placeholder="Escribe para filtrar" autocomplete="off">
+      </label>
+    `;
+    const filterEmptyMessage = '<p class="history-empty history-filter-empty" data-history-filter-empty role="status" hidden>No hay resultados para este filtro</p>';
 
     return `
       <div class="history-section" style="border-left: 3px solid #10b981; padding-left: 0.75rem;">
@@ -479,24 +494,30 @@ class ClientsController {
             ${client.phone ? `<a href="whatsapp-chat.html?phone=${phoneParam}&name=${nameParam}" style="color: #10b981; margin-left: 0.5rem; text-decoration: underline;">Iniciar WhatsApp</a>` : ''}
           </p>
         ` : 
-          waMessages.map(m => {
+          `
+          <div class="history-filter-bar">
+            ${renderHistorySearch('whatsapp', 'mensajes')}
+          </div>
+          ${filterEmptyMessage}
+          ${waMessages.map(m => {
             const isOut = m.direction === 'outbound';
             const dateStr = formatDate(m.created_at);
             const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
             return `
-              <div class="history-item" style="background: var(--bg-main, #0b0f17); border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
-                <div class="history-item-header" style="margin-bottom: 0.2rem;">
-                  <div style="font-weight: 700; font-size: 0.85rem; color: ${isOut ? '#818cf8' : '#10b981'}; display: flex; align-items: center; gap: 0.3rem;">
+              <div class="history-item history-item-message" data-history-entry>
+                <div class="history-item-header">
+                  <div class="history-item-title ${isOut ? 'message-outbound' : 'message-inbound'}">
                     ${isOut ? '📤 Enviado' : '📥 Recibido'}
                   </div>
-                  <div class="history-item-date" style="font-size: 0.75rem;">${dateStr} ${timeStr}</div>
+                  <div class="history-item-date">${dateStr} ${timeStr}</div>
                 </div>
-                <div style="font-size: 0.85rem; color: #e2e8f0; word-break: break-word;">
+                <div class="history-item-message-body">
                   ${m.body || '<i>[Archivo adjunto / multimedia]</i>'}
                 </div>
               </div>
             `;
-          }).join('')
+          }).join('')}
+          `
         }
         </div>
       </div>
@@ -517,21 +538,27 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-consents-${client.id}" hidden>
         ${consents.length === 0 ? '<p class="history-empty">No hay consentimientos registrados</p>' : 
-          consents.map(c => `
-            <div class="history-item">
+          `
+          <div class="history-filter-bar">
+            ${renderHistorySearch('consents', 'consentimientos')}
+          </div>
+          ${filterEmptyMessage}
+          ${consents.map(c => `
+            <div class="history-item history-item-compact" data-history-entry>
               <div class="history-item-header">
                 <div>
                   <div class="history-item-title">${consentTypeMap[c.consent_type] || c.consent_type}</div>
-                  <div class="history-item-detail">${c.treatment_areas}</div>
-                  <div class="history-item-detail">Profesional: ${c.therapist_name}</div>
                 </div>
                 <div class="history-item-date">${formatDate(c.signed_at)}</div>
               </div>
-              <div class="history-item-footer">
-                <a href="consent-view.html?id=${c.id}" class="btn btn-secondary btn-sm" target="_blank">Ver Detalle</a>
+              <div class="history-item-meta">
+                <span><span class="history-item-meta-label">Áreas:</span> ${c.treatment_areas || '—'}</span>
+                <span><span class="history-item-meta-label">Profesional:</span> ${c.therapist_name || '—'}</span>
               </div>
+              <a href="consent-view.html?id=${c.id}" class="history-item-action" target="_blank">Ver detalle</a>
             </div>
-          `).join('')
+          `).join('')}
+          `
         }
         </div>
       </div>
@@ -556,7 +583,8 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-sessions-${client.id}">
         ${sessions.length === 0 ? '<p class="history-empty">No hay sesiones registradas</p>' : `
-          <div class="session-filter-bar">
+          <div class="history-filter-bar session-filter-bar">
+            ${renderHistorySearch('sessions', 'sesiones')}
             <label for="session-treatment-${client.id}">
               Tratamiento
               <select id="session-treatment-${client.id}" data-session-filter="treatment">
@@ -572,7 +600,7 @@ class ClientsController {
               </select>
             </label>
           </div>
-          <p class="history-empty" data-session-filter-empty role="status" hidden>No hay sesiones que coincidan con estos filtros</p>
+          ${filterEmptyMessage}
           ${[...sessionGroups.values()].map((group) => `
             <section class="session-period" data-session-period aria-label="${escapeHtml(group.label)}">
               <h3 class="session-period-title">
@@ -583,17 +611,17 @@ class ClientsController {
                 const treatmentIndex = sessionTreatments.indexOf(getTreatmentLabel(session));
                 const statusIndex = sessionStatuses.indexOf(getStatusFilterValue(session));
                 return `
-                  <div class="history-item" data-session-entry data-treatment-index="${treatmentIndex}" data-status-index="${statusIndex}">
+                  <div class="history-item history-item-session" data-history-entry data-treatment-index="${treatmentIndex}" data-status-index="${statusIndex}">
                     <div class="history-item-header">
-                      <div>
-                        <div class="history-item-title">${session.treatment_name || 'Tratamiento sin especificar'}</div>
-                        <div class="history-item-detail">Sesiones: ${session.completed_sessions} / ${session.planned_sessions}</div>
-                        ${session.notes ? `<div class="history-item-detail">Notas: ${session.notes}</div>` : ''}
-                      </div>
+                      <div class="history-item-title">${session.treatment_name || 'Tratamiento sin especificar'}</div>
                       <div class="history-item-session-meta">
                         <div class="history-item-date">${formatDate(session.created_at)}</div>
                         <span class="history-item-badge ${getStatusClass(session.status)}">${getStatusLabel(session.status)}</span>
                       </div>
+                    </div>
+                    <div class="history-item-meta">
+                      <span>Sesiones: ${session.completed_sessions} / ${session.planned_sessions}</span>
+                      ${session.notes ? `<span><span class="history-item-meta-label">Notas:</span> ${session.notes}</span>` : ''}
                     </div>
                   </div>
                 `;
@@ -621,20 +649,26 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-appointments-${client.id}" hidden>
         ${appointments.length === 0 ? '<p class="history-empty">No hay citas registradas</p>' : 
-          appointments.map(a => `
-            <div class="history-item history-item-appointment">
+          `
+          <div class="history-filter-bar">
+            ${renderHistorySearch('appointments', 'citas')}
+          </div>
+          ${filterEmptyMessage}
+          ${appointments.map(a => `
+            <div class="history-item history-item-appointment" data-history-entry>
               <div class="appointment-card-header">
                 <div class="history-item-title">${a.service_name}</div>
                 <div class="history-item-date">${formatDate(a.appointment_date)}</div>
                 <span class="history-item-badge ${getStatusClass(a.status)}">${getStatusLabel(a.status)}</span>
               </div>
-              <div class="appointment-card-details">
+              <div class="history-item-meta">
                 <span><span class="appointment-card-label">Profesional:</span> ${a.professional_name || '—'}</span>
                 <span><span class="appointment-card-label">Hora:</span> ${formatTime(a.start_time)} - ${formatTime(a.end_time)}</span>
               </div>
               ${a.notes ? `<div class="appointment-card-note"><span class="appointment-card-label">Notas:</span> ${a.notes}</div>` : ''}
             </div>
-          `).join('')
+          `).join('')}
+          `
         }
         </div>
       </div>
@@ -656,22 +690,30 @@ class ClientsController {
         </div>
         <div class="history-section-content" id="history-payments-${client.id}" hidden>
         ${payments.length === 0 ? '<p class="history-empty">No hay pagos registrados</p>' : 
-          payments.map(p => `
-            <div class="history-item">
+          `
+          <div class="history-filter-bar">
+            ${renderHistorySearch('payments', 'pagos')}
+          </div>
+          ${filterEmptyMessage}
+          ${payments.map(p => `
+            <div class="history-item history-item-compact" data-history-entry>
               <div class="history-item-header">
-                <div>
-                  <div class="history-item-title">${p.description || 'Pago'}</div>
-                  <div class="history-item-detail">Método: ${p.payment_method}</div>
-                  ${p.service_name ? `<div class="history-item-detail">Servicio: ${p.service_name}</div>` : ''}
-                </div>
+                <div class="history-item-title">${p.description || 'Pago'}</div>
                 <div class="history-item-date">${formatDate(p.payment_date)}</div>
               </div>
-              <div class="history-item-footer">
+              <div class="history-item-payment-meta">
+                <div class="history-item-meta">
+                  <span><span class="history-item-meta-label">Método:</span> ${p.payment_method || '—'}</span>
+                  ${p.service_name ? `<span><span class="history-item-meta-label">Servicio:</span> ${p.service_name}</span>` : ''}
+                </div>
+                <div class="history-item-payment-total">
                 <span class="history-item-amount">${parseFloat(p.amount).toFixed(2)} €</span>
                 <span class="history-item-badge badge-${p.payment_type}">${p.payment_type === 'income' ? 'Ingreso' : 'Gasto'}</span>
+                </div>
               </div>
             </div>
-          `).join('')
+          `).join('')}
+          `
         }
         </div>
       </div>
